@@ -65,6 +65,27 @@ const NEXT_ITEMS = [
 ] as const;
 const CONTACT_EMAIL = "hello@kebiki.studio";
 
+/** How an engagement starts, in the studio's own words (from the main site). */
+const ENGAGEMENT = {
+  eyebrow: "How an engagement starts",
+  heading: "Fourteen days. Four fixed outputs.",
+  body: "Enough clarity to decide what happens next - and nothing you cannot walk away from.",
+  steps: [
+    { days: "Day 01 - 02", title: "The problem, restated", text: "A precise definition of what the business is trying to achieve, written in language everyone involved can agree on." },
+    { days: "Day 03 - 05", title: "The constraint map", text: "We map what we know, what we are assuming and what still needs an answer - with every assumption written down." },
+    { days: "Day 06 - 09", title: "A working first version", text: "One important part of the product, built end to end and deployed. Real enough to expose the technical, product and operational problems before you commit to building everything." },
+    { days: "Day 10 - 14", title: "The decision", text: "A written recommendation showing the trade-offs, risks and next steps - with a plan another capable team could execute without us." },
+  ],
+  outcome: "You leave with a decision. Not another deck.",
+  ownership: "Every output is yours, whether we continue together or not. No lock-in. No dependency. No obligation.",
+} as const;
+
+const SECTORS = ["Payments", "Crypto & Web3", "Markets", "Sport", "Property", "AI", "Manufacturing"] as const;
+const CONTACT_COPY = {
+  title: "Something complicated?",
+  body: "Tell us what you're building, where it stands and what you need next. We read every enquiry ourselves and respond within two working days.",
+} as const;
+
 type HeroEls = {
   clip: SVGRectElement;
   mask: SVGPathElement;
@@ -171,6 +192,60 @@ function InlineLogo() {
   );
 }
 
+const CITIES = [
+  { name: "London", zone: "Europe/London" },
+  { name: "Dubai", zone: "Asia/Dubai" },
+  { name: "Tokyo", zone: "Asia/Tokyo" },
+] as const;
+
+/** The studio's cities with their local time, updating each minute. Times render after mount, so server and client agree. */
+function CityClocks() {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    setNow(new Date());
+    const id = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+  return (
+    <ul className="k-cities" aria-label="Where we work from">
+      {CITIES.map((c) => (
+        <li key={c.name} className="k-city">
+          <span className="k-city-name">{c.name}</span>
+          <span className="k-city-time" suppressHydrationWarning>
+            {now
+              ? new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: c.zone }).format(now)
+              : "\u00a0"}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The email as a link plus a one-click copy, for people without a mail app set up. */
+function ContactEmail() {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_EMAIL);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* Clipboard blocked: the mailto link above still works. */
+    }
+  };
+  return (
+    <div className="k-contact-email">
+      <a href={`mailto:${CONTACT_EMAIL}`} className="k-contact-mail">
+        {CONTACT_EMAIL}
+      </a>
+      <button type="button" className="k-copy" onClick={copy} aria-live="polite">
+        {copied ? "Copied" : "Copy address"}
+      </button>
+    </div>
+  );
+}
+
 export function MotionHome() {
   const rootRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLElement>(null);
@@ -179,6 +254,7 @@ export function MotionHome() {
   const hintRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const contactRef = useRef<HTMLElement>(null);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
@@ -237,7 +313,13 @@ export function MotionHome() {
     let shown = target;
     let raf = 0;
     let trackBottom = Infinity;
+    let overContact = false;
+    const readContact = () => {
+      const c = contactRef.current?.getBoundingClientRect();
+      overContact = !!c && c.top < 40 && c.bottom > 40;
+    };
     const readScroll = () => {
+      readContact();
       if (reduce || forced !== null) return;
       const r = track.getBoundingClientRect();
       trackBottom = r.bottom;
@@ -302,7 +384,7 @@ export function MotionHome() {
       }
 
       // The header logo is ink on the orange screen, and cream again once the page goes dark.
-      root.classList.toggle("k-orange", !reduce && p > T.orangeHeader && trackBottom > 72);
+      root.classList.toggle("k-orange", (!reduce && p > T.orangeHeader && trackBottom > 72) || overContact);
 
       /* The sentence arrives word by word on the orange. */
       const span = T.words[1] - T.words[0];
@@ -412,12 +494,38 @@ export function MotionHome() {
             </li>
           ))}
         </ol>
-        <div className="k-next-contact k-next-row">
-          <div className="k-label">Contact</div>
-          <a href={`mailto:${CONTACT_EMAIL}`} className="k-next-mail">
-            {CONTACT_EMAIL}
-          </a>
+      </section>
+
+      <section id="engagement" className="k-engage">
+        <div className="k-label">{ENGAGEMENT.eyebrow}</div>
+        <h2 className="k-engage-heading k-next-row">{ENGAGEMENT.heading}</h2>
+        <p className="k-engage-body k-next-row">{ENGAGEMENT.body}</p>
+        <ol className="k-engage-list">
+          {ENGAGEMENT.steps.map((st) => (
+            <li key={st.days} className="k-engage-row k-next-row">
+              <span className="k-engage-days">{st.days}</span>
+              <h3 className="k-engage-title">{st.title}</h3>
+              <p className="k-engage-text">{st.text}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="k-engage-outcome k-next-row">{ENGAGEMENT.outcome}</p>
+        <p className="k-engage-own k-next-row">{ENGAGEMENT.ownership}</p>
+      </section>
+
+      <section id="contact" ref={contactRef} className="k-contact">
+        <div className="k-label k-contact-label">Contact</div>
+        <h2 className="k-contact-title k-next-row">{CONTACT_COPY.title}</h2>
+        <p className="k-contact-body k-next-row">{CONTACT_COPY.body}</p>
+        <div className="k-next-row">
+          <ContactEmail />
         </div>
+        <p className="k-contact-sectors k-next-row">{SECTORS.join("  ·  ")}</p>
+
+        <footer className="k-footer k-next-row">
+          <CityClocks />
+          <p className="k-footer-note">&copy; {new Date().getFullYear()} Kebiki</p>
+        </footer>
       </section>
     </main>
   );
