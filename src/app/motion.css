@@ -1,0 +1,169 @@
+/* Home screen. Everything is scoped under .kmotion so it cannot touch anything else. */
+.kmotion {
+  --k-ink: #0e0e10;
+  --k-paper: #f8f5f0;
+  --k-mute: #8d8a84;
+  /* The orange of the supplied logo. */
+  --k-persimmon: #fd540d;
+  --k-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--k-ink);
+  color: var(--k-paper);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.kmotion *,
+.kmotion *::before,
+.kmotion *::after {
+  box-sizing: border-box;
+}
+
+.kmotion .k-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 28px;
+}
+.kmotion .k-header-logo {
+  display: block;
+  height: 34px;
+  width: auto;
+}
+.kmotion .k-h-cream,
+.kmotion .k-h-orange,
+.kmotion .k-svg-orange {
+  transition: fill 0.3s;
+}
+.kmotion .k-h-cream {
+  fill: var(--k-paper);
+}
+.kmotion .k-h-orange {
+  fill: var(--k-persimmon);
+}
+/* Once the screen is orange, the small header logo switches to ink so it stays visible. */
+.kmotion.k-orange .k-h-cream,
+.kmotion.k-orange .k-h-orange {
+  fill: var(--k-ink);
+}
+
+.kmotion .k-button {
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--k-paper);
+  background: transparent;
+  border: 1px solid #3a3a40;
+  padding: 8px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.kmotion .k-button:hover,
+.kmotion .k-button:focus-visible {
+  border-color: var(--k-persimmon);
+  color: var(--k-persimmon);
+}
+
+.kmotion .k-label {
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--k-mute);
+  text-transform: uppercase;
+}
+
+/* Scroll-scrubbed hero. The track is tall; the stage sticks while it plays. */
+.kmotion .k-track {
+  height: 520vh;
+  position: relative;
+}
+.kmotion .k-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding: 0 6vw;
+  overflow: hidden;
+}
+.kmotion .k-hero {
+  width: clamp(320px, 66vw, 1120px);
+}
+.kmotion .k-hero svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.kmotion .k-svg-cream,
+.kmotion .k-svg-tagline {
+  fill: var(--k-paper);
+}
+.kmotion .k-svg-orange {
+  fill: var(--k-persimmon);
+}
+/* The dot starts at nothing and pops in from its own centre. */
+.kmotion .k-svg-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+}
+.kmotion .k-hint {
+  position: absolute;
+  left: 6vw;
+  bottom: 36px;
+  transition: opacity 0.3s;
+}
+
+/* The dot becomes the screen, then the screen becomes the sentence. */
+.kmotion .k-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--k-persimmon);
+  display: none;
+  pointer-events: none;
+}
+.kmotion .k-final {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  padding: 0 8vw;
+  pointer-events: none;
+}
+.kmotion .k-final p,
+.kmotion .k-static p {
+  margin: 0;
+  max-width: 24em;
+  font-size: clamp(28px, 4.6vw, 68px);
+  line-height: 1.18;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--k-ink);
+}
+.kmotion .k-w {
+  display: inline-block;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Reduced motion: no takeover; the sentence is plain text under the logo. */
+.kmotion .k-static {
+  background: var(--k-persimmon);
+  padding: 14vh 8vw;
+}
+
+/* Visually hidden text for screen readers. */
+.kmotion .k-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
