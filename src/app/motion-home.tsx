@@ -124,7 +124,27 @@ const WORK = [
     stack: [{ name: "Strategy" }, { name: "UX/UI" }, { name: "Next.js", icon: "nextjs" }, { name: "Interactive media" }] as StackItem[],
     href: "https://lintonvillas.vercel.app",
   },
+  {
+    n: "05",
+    category: "Sports media platform",
+    name: "Combat Reviews",
+    text: "Events, fight cards, rankings, athlete profiles and predictions for combat sports, from announcement through to result.",
+    stack: [{ name: "Next.js", icon: "nextjs" }, { name: "TypeScript", icon: "typescript" }, { name: "Postgres", icon: "postgres" }, { name: "Prisma", icon: "prisma" }] as StackItem[],
+    href: "",
+  },
+  {
+    n: "06",
+    category: "Enterprise AI",
+    name: "Noise",
+    text: "One place for a team's email, chats, meetings and documents. Everything the team works in is brought together and indexed, so context is found in seconds instead of hunted across disconnected systems.",
+    stack: [{ name: "React", icon: "react" }, { name: "Fastify", icon: "fastify" }, { name: "Postgres", icon: "postgres" }, { name: "Vector search" }] as StackItem[],
+    href: "https://noiselanding.vercel.app/",
+  },
 ] as const;
+
+/** Sits under the work list: says whose work it is, and whose names they are. */
+const WORK_NOTE =
+  "Work shown was carried out by members of the Kebiki team, in some cases before the studio was formed. Product names and brands belong to their respective owners.";
 
 /** Each capability paired, in order, with the engagement output it produces. */
 const PROCESS = CAPABILITIES.map((c, i) => ({
@@ -872,13 +892,16 @@ export function MotionHome() {
                     </li>
                   ))}
                 </ul>
-                <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
-                  View the product<span aria-hidden="true"> &rarr;</span>
-                </a>
+                {w.href ? (
+                  <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
+                    View the product<span aria-hidden="true"> &rarr;</span>
+                  </a>
+                ) : null}
               </div>
             </li>
           ))}
         </ol>
+        <p className="k-work-note k-next-row">{WORK_NOTE}</p>
       </section>
 
       <section id="team" className="k-team">
