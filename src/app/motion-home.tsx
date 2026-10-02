@@ -55,6 +55,8 @@ const T = {
 const REDUCED_P = 0.6; // reduced motion: logo fully drawn, no takeover
 /** Share of the scroll track the animation plays over; the rest holds the finished sentence. */
 const HOLD = 0.9;
+/** On load the logo builds by itself up to the finished mark; scrolling then plays the rest. */
+const INTRO = { end: T.dotPop[1], delay: 300, ms: 2500 };
 
 /** Box-drawing characters and plus signs that move through the tagline before it resolves. */
 const SCRAMBLE_GLYPHS = "+─│┼┬┴├┤╴╵╶╷".split("");
@@ -666,6 +668,12 @@ export function MotionHome() {
     /* Scroll-scrubbed with lerp smoothing. */
     let target = forced ?? (reduce ? REDUCED_P : 0);
     let shown = target;
+    // Scroll fraction of the track, and the point that scroll position zero stands for: it rises
+    // with the opening autoplay, then rests on the finished logo.
+    let scrollS = 0;
+    let base = 0;
+    let introDone = reduce || forced !== null;
+    const introStart = performance.now();
     let raf = 0;
     let trackBottom = Infinity;
     let overContact = false;
@@ -678,7 +686,7 @@ export function MotionHome() {
       if (reduce || forced !== null) return;
       const r = track.getBoundingClientRect();
       trackBottom = r.bottom;
-      target = clamp01(-r.top / (r.height - window.innerHeight) / HOLD);
+      scrollS = clamp01(-r.top / (r.height - window.innerHeight) / HOLD);
     };
     const onResize = () => {
       measure();
@@ -687,6 +695,11 @@ export function MotionHome() {
     window.addEventListener("scroll", readScroll, { passive: true });
     window.addEventListener("resize", onResize);
     readScroll();
+    // Arriving part-way down the page (a reload, a #link) skips the intro.
+    if (!introDone && scrollS > 0) {
+      base = INTRO.end;
+      introDone = true;
+    }
 
     /* The next screen's rows rise in as they scroll into view. */
     const rows = [...root.querySelectorAll<HTMLElement>(".k-next-row")];
@@ -705,7 +718,20 @@ export function MotionHome() {
     const wordEls = wordRefs.current.filter((w): w is HTMLSpanElement => !!w);
 
     const loop = () => {
-      shown += (target - shown) * (reduce || forced !== null ? 1 : 0.1);
+      const autoplaying = !introDone;
+      if (autoplaying) {
+        const t = clamp01((performance.now() - introStart - INTRO.delay) / INTRO.ms);
+        base = INTRO.end * (1 - Math.pow(1 - t, 2.2));
+        if (t >= 1) introDone = true;
+        else if (scrollS > 0.0005) {
+          // The visitor scrolled first: the smoothing below carries the logo on to finished
+          // and straight into the scroll, from wherever the build had reached.
+          base = INTRO.end;
+          introDone = true;
+        }
+      }
+      if (!reduce && forced === null) target = base + scrollS * (1 - base);
+      shown += (target - shown) * (reduce || forced !== null || autoplaying ? 1 : 0.1);
       if (Math.abs(target - shown) < 0.0005) shown = target;
       const p = shown;
 
@@ -726,7 +752,7 @@ export function MotionHome() {
           settleTagline(cells);
         }
       }
-      hint.style.opacity = p > 0.04 ? "0" : "1";
+      hint.style.opacity = introDone && scrollS < 0.02 ? "1" : "0";
 
       /* The dot becomes the screen: a circle clip grows from the dot's own size and position. */
       const e = reduce ? 0 : quadInOut(seg(p, T.expand[0], T.expand[1]));
