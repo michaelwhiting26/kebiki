@@ -4,6 +4,7 @@ import { EB_Garamond, Montserrat } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
 
 import { CREAM_PATH, DOT_PATH, ORANGE_PATH } from "./logo-paths";
+import { COUNTRY_SHAPES } from "./country-paths";
 import "./motion.css";
 
 /** The sentence's serif. */
@@ -56,8 +57,8 @@ const HOLD = 0.9;
 const SCRAMBLE_GLYPHS = "+─│┼┬┴├┤╴╵╶╷".split("");
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-/** The next screen, in the studio's own words (from the main site's capabilities). */
-const NEXT_ITEMS = [
+/** The four capabilities, in the studio's own words (from the main site). */
+const CAPABILITIES = [
   { n: "01", verb: "Define", text: "Work out what the business is trying to achieve, who it is for, what limits it and how success gets measured." },
   { n: "02", verb: "Design", text: "Shape the interface, the way information is organised and the system underneath it together - not as separate jobs passed between teams." },
   { n: "03", verb: "Build", text: "Ship in working pieces, each one tested and monitored from the day it goes live." },
@@ -71,14 +72,63 @@ const ENGAGEMENT = {
   heading: "Fourteen days. Four fixed outputs.",
   body: "Enough clarity to decide what happens next - and nothing you cannot walk away from.",
   steps: [
-    { days: "Day 01 - 02", title: "The problem, restated", text: "A precise definition of what the business is trying to achieve, written in language everyone involved can agree on." },
-    { days: "Day 03 - 05", title: "The constraint map", text: "We map what we know, what we are assuming and what still needs an answer - with every assumption written down." },
-    { days: "Day 06 - 09", title: "A working first version", text: "One important part of the product, built end to end and deployed. Real enough to expose the technical, product and operational problems before you commit to building everything." },
-    { days: "Day 10 - 14", title: "The decision", text: "A written recommendation showing the trade-offs, risks and next steps - with a plan another capable team could execute without us." },
+    { days: "Day 01 - 02", span: 2, title: "The problem, restated", text: "A precise definition of what the business is trying to achieve, written in language everyone involved can agree on." },
+    { days: "Day 03 - 05", span: 3, title: "The constraint map", text: "We map what we know, what we are assuming and what still needs an answer - with every assumption written down." },
+    { days: "Day 06 - 09", span: 4, title: "A working first version", text: "One important part of the product, built end to end and deployed. Real enough to expose the technical, product and operational problems before you commit to building everything." },
+    { days: "Day 10 - 14", span: 5, title: "The decision", text: "A written recommendation showing the trade-offs, risks and next steps - with a plan another capable team could execute without us." },
   ],
   outcome: "You leave with a decision. Not another deck.",
   ownership: "Every output is yours, whether we continue together or not. No lock-in. No dependency. No obligation.",
 } as const;
+
+/**
+ * Selected work, in the studio's own words (from the Quadrum site). Deliberately no headline figures,
+ * no named partners or integrations, and no logos: only what can be shown running.
+ */
+const WORK = [
+  {
+    n: "01",
+    category: "Multi-chain payments",
+    name: "Pepay",
+    text: "Accept any supported asset and settle from one system - invoicing, payment links, QR checkout, subscriptions and reconciliation on the same ledger.",
+    stack: "React · TypeScript · Solana · BNB Chain",
+    href: "https://pepay-merchant-dashboard.vercel.app/home",
+  },
+  {
+    n: "02",
+    category: "Trading infrastructure",
+    name: "DRK",
+    text: "Tokenisation solved issuance. It did not solve liquidity: it makes an asset digital without making it easy to trade. DRK is the layer between tokenised assets and the institutions that trade them.",
+    stack: "TypeScript · React · EVM · Trading infrastructure",
+    href: "https://drk-deck.vercel.app/",
+  },
+  {
+    n: "03",
+    category: "Programmable payments",
+    name: "BNBPay",
+    text: "Payments that move on-chain without the payer covering blockchain fees - invoices, subscriptions, gift cards and API payments for merchants, platforms and AI agents across BNB Chain and opBNB.",
+    stack: "Solidity · TypeScript · Next.js · BNB Chain",
+    href: "https://bnbpayvercel1.vercel.app",
+  },
+  {
+    n: "04",
+    category: "Property marketing",
+    name: "Linton Villas",
+    text: "We built the experience the developer sells through: masterplan, villa types, floor plans, financial projections, an eight-minute film and the full prospectus, as one guided journey.",
+    stack: "Strategy · UX/UI · Next.js · Interactive media",
+    href: "https://lintonvillas.vercel.app",
+  },
+] as const;
+
+/** Each capability paired, in order, with the engagement output it produces. */
+const PROCESS = CAPABILITIES.map((c, i) => ({
+  n: c.n,
+  verb: c.verb,
+  text: c.text,
+  days: ENGAGEMENT.steps[i].days,
+  output: ENGAGEMENT.steps[i].title,
+  outputText: ENGAGEMENT.steps[i].text,
+}));
 
 const SECTORS = ["Payments", "Crypto & Web3", "Markets", "Sport", "Property", "AI", "Manufacturing"] as const;
 const CONTACT_COPY = {
@@ -193,12 +243,12 @@ function InlineLogo() {
 }
 
 const CITIES = [
-  { name: "London", zone: "Europe/London" },
-  { name: "Dubai", zone: "Asia/Dubai" },
-  { name: "Tokyo", zone: "Asia/Tokyo" },
+  { name: "London", zone: "Europe/London", country: "uk" },
+  { name: "Dubai", zone: "Asia/Dubai", country: "uae" },
+  { name: "Tokyo", zone: "Asia/Tokyo", country: "japan" },
 ] as const;
 
-/** The studio's cities with their local time, updating each minute. Times render after mount, so server and client agree. */
+/** The studio's cities, each with its country's outline and the local time (updating each minute). Times render after mount, so server and client agree. */
 function CityClocks() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
@@ -208,16 +258,24 @@ function CityClocks() {
   }, []);
   return (
     <ul className="k-cities" aria-label="Where we work from">
-      {CITIES.map((c) => (
-        <li key={c.name} className="k-city">
-          <span className="k-city-name">{c.name}</span>
-          <span className="k-city-time" suppressHydrationWarning>
-            {now
-              ? new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: c.zone }).format(now)
-              : "\u00a0"}
-          </span>
-        </li>
-      ))}
+      {CITIES.map((c) => {
+        const shape = COUNTRY_SHAPES[c.country];
+        return (
+          <li key={c.name} className="k-city">
+            <div className="k-city-shape">
+              <svg viewBox={`0 0 ${shape.w} ${shape.h}`} role="img" aria-label={`Outline of ${shape.name}`}>
+                <path d={shape.d} />
+              </svg>
+            </div>
+            <span className="k-city-name">{c.name}</span>
+            <span className="k-city-time" suppressHydrationWarning>
+              {now
+                ? new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: c.zone }).format(now)
+                : "\u00a0"}
+            </span>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -485,32 +543,55 @@ export function MotionHome() {
 
       <section id="next" className="k-next">
         <div className="k-label">What we do</div>
-        <ol className="k-next-list">
-          {NEXT_ITEMS.map((it) => (
-            <li key={it.n} className="k-next-row">
-              <span className="k-next-n">{it.n}</span>
-              <h2 className="k-next-verb">{it.verb}</h2>
-              <p className="k-next-text">{it.text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section id="engagement" className="k-engage">
-        <div className="k-label">{ENGAGEMENT.eyebrow}</div>
         <h2 className="k-engage-heading k-next-row">{ENGAGEMENT.heading}</h2>
         <p className="k-engage-body k-next-row">{ENGAGEMENT.body}</p>
-        <ol className="k-engage-list">
-          {ENGAGEMENT.steps.map((st) => (
-            <li key={st.days} className="k-engage-row k-next-row">
-              <span className="k-engage-days">{st.days}</span>
-              <h3 className="k-engage-title">{st.title}</h3>
-              <p className="k-engage-text">{st.text}</p>
+        <div className="k-timeline k-next-row" aria-hidden="true">
+          {ENGAGEMENT.steps.map((st, i) => (
+            <div key={st.days} className="k-tl-seg" style={{ flexGrow: st.span }}>
+              <span className="k-tl-n">{String(i + 1).padStart(2, "0")}</span>
+            </div>
+          ))}
+        </div>
+        <ol className="k-next-list">
+          {PROCESS.map((it) => (
+            <li key={it.n} className="k-next-row">
+              <span className="k-next-n">{it.n}</span>
+              <h3 className="k-next-verb">{it.verb}</h3>
+              <div className="k-next-detail">
+                <p className="k-next-text">{it.text}</p>
+                <div className="k-row-out">
+                  <span className="k-engage-days">{it.days}</span>
+                  <span className="k-row-out-title">{it.output}</span>
+                  <span className="k-row-out-text">{it.outputText}</span>
+                </div>
+              </div>
             </li>
           ))}
         </ol>
         <p className="k-engage-outcome k-next-row">{ENGAGEMENT.outcome}</p>
         <p className="k-engage-own k-next-row">{ENGAGEMENT.ownership}</p>
+      </section>
+
+      <section id="work" className="k-work">
+        <div className="k-label">Selected work</div>
+        <ol className="k-work-list">
+          {WORK.map((w) => (
+            <li key={w.name} className="k-work-item k-next-row">
+              <div className="k-work-meta">
+                <span className="k-work-n">{w.n}</span>
+                <span className="k-work-cat">{w.category}</span>
+              </div>
+              <div className="k-work-main">
+                <h2 className="k-work-name">{w.name}</h2>
+                <p className="k-work-text">{w.text}</p>
+                <p className="k-work-stack">{w.stack}</p>
+                <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
+                  View the product<span aria-hidden="true"> &rarr;</span>
+                </a>
+              </div>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section id="contact" ref={contactRef} className="k-contact">

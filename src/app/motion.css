@@ -182,11 +182,11 @@
 /* ---------- The next screen: what we do, then contact ---------- */
 .kmotion .k-next {
   background: var(--k-ink);
-  padding: 22vh 8vw 18vh;
+  padding: 20vh 8vw 16vh;
 }
 .kmotion .k-next-list {
   list-style: none;
-  margin: 8vh 0 0;
+  margin: 6vh 0 0;
   padding: 0;
 }
 .kmotion .k-next-row {
@@ -200,7 +200,7 @@
 }
 .kmotion .k-next-list .k-next-row {
   display: grid;
-  grid-template-columns: 3.2rem minmax(0, 1.1fr) minmax(0, 1.6fr);
+  grid-template-columns: 3.2rem minmax(0, 1.1fr) minmax(0, 1.9fr);
   column-gap: 2rem;
   align-items: baseline;
   padding: 3.4rem 0;
@@ -208,6 +208,33 @@
 }
 .kmotion .k-next-list .k-next-row:last-child {
   border-bottom: 1px solid #26262b;
+}
+.kmotion .k-next-text {
+  margin: 0;
+  max-width: 34em;
+  font-size: clamp(19px, 1.9vw, 27px);
+  line-height: 1.5;
+  color: #cfcac1;
+}
+.kmotion .k-row-out {
+  margin-top: 1.8rem;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--k-persimmon);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.kmotion .k-row-out-title {
+  font-size: clamp(20px, 1.9vw, 28px);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--k-paper);
+}
+.kmotion .k-row-out-text {
+  max-width: 34em;
+  font-size: clamp(16px, 1.25vw, 19px);
+  line-height: 1.5;
+  color: #a8a39a;
 }
 .kmotion .k-next-n {
   font-family: var(--k-mono);
@@ -221,13 +248,6 @@
   line-height: 0.95;
   letter-spacing: -0.02em;
   color: var(--k-paper);
-}
-.kmotion .k-next-text {
-  margin: 0;
-  max-width: 34em;
-  font-size: clamp(19px, 1.9vw, 27px);
-  line-height: 1.5;
-  color: #cfcac1;
 }
 @media (max-width: 760px) {
   .kmotion .k-next-list .k-next-row {
@@ -250,10 +270,6 @@
 }
 
 /* ---------- How an engagement starts ---------- */
-.kmotion .k-engage {
-  background: #141417;
-  padding: 20vh 8vw 18vh;
-}
 .kmotion .k-engage-heading {
   margin: 4vh 0 0;
   max-width: 14em;
@@ -270,41 +286,11 @@
   line-height: 1.45;
   color: #cfcac1;
 }
-.kmotion .k-engage-list {
-  list-style: none;
-  margin: 9vh 0 0;
-  padding: 0;
-}
-.kmotion .k-engage-row {
-  display: grid;
-  grid-template-columns: 9rem minmax(0, 1fr) minmax(0, 1.5fr);
-  column-gap: 2rem;
-  align-items: baseline;
-  padding: 2.6rem 0;
-  border-top: 1px solid #2a2a30;
-}
-.kmotion .k-engage-row:last-child {
-  border-bottom: 1px solid #2a2a30;
-}
 .kmotion .k-engage-days {
   font-family: var(--k-mono);
   font-size: 13px;
   letter-spacing: 0.04em;
   color: var(--k-persimmon);
-}
-.kmotion .k-engage-title {
-  margin: 0;
-  font-size: clamp(26px, 3vw, 44px);
-  font-weight: 500;
-  line-height: 1.1;
-  color: var(--k-paper);
-}
-.kmotion .k-engage-text {
-  margin: 0;
-  max-width: 36em;
-  font-size: clamp(18px, 1.6vw, 23px);
-  line-height: 1.5;
-  color: #cfcac1;
 }
 .kmotion .k-engage-outcome {
   margin: 14vh 0 0;
@@ -394,40 +380,48 @@
   line-height: 1.9;
   color: rgba(14, 14, 16, 0.75);
 }
-@media (max-width: 760px) {
-  .kmotion .k-engage-row {
-    grid-template-columns: 1fr;
-    row-gap: 0.8rem;
-    padding: 2.2rem 0;
+@media (max-width: 900px) {
   }
-}
 
 /* ---------- Footer: where we work from ---------- */
+.kmotion .k-contact {
+  padding-bottom: 12vh;
+}
 .kmotion .k-footer {
-  margin-top: 12vh;
-  padding-top: 2rem;
+  margin-top: 20vh;
+  padding-top: 4.5rem;
   border-top: 1.5px solid rgba(14, 14, 16, 0.85);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.6rem 3rem;
 }
 .kmotion .k-cities {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem 3.2rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3rem clamp(1.5rem, 5vw, 6rem);
 }
 .kmotion .k-city {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+/* Every outline sits on the same baseline, in black, whatever its shape. */
+.kmotion .k-city-shape {
+  height: clamp(96px, 17vw, 260px);
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 1.4rem;
+}
+.kmotion .k-city-shape svg {
+  height: 100%;
+  width: auto;
+  display: block;
+  max-width: 100%;
+  fill: var(--k-ink);
 }
 .kmotion .k-city-name {
-  font-size: clamp(30px, 4.2vw, 62px);
+  font-size: clamp(22px, 4.2vw, 62px);
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -440,9 +434,120 @@
   font-variant-numeric: tabular-nums;
 }
 .kmotion .k-footer-note {
-  margin: 0;
+  margin: 7rem 0 0;
   font-family: var(--k-mono);
   font-size: 12px;
   letter-spacing: 0.06em;
   color: rgba(14, 14, 16, 0.75);
+}
+
+/* ---------- Selected work ---------- */
+.kmotion .k-work {
+  background: #141417;
+  padding: 20vh 8vw 16vh;
+}
+.kmotion .k-work-list {
+  list-style: none;
+  margin: 8vh 0 0;
+  padding: 0;
+}
+.kmotion .k-work-item {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  column-gap: 2rem;
+  padding: 4.4rem 0;
+  border-top: 1px solid #2a2a30;
+}
+.kmotion .k-work-item:last-child {
+  border-bottom: 1px solid #2a2a30;
+}
+.kmotion .k-work-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.kmotion .k-work-n {
+  color: var(--k-persimmon);
+}
+.kmotion .k-work-cat {
+  color: var(--k-mute);
+}
+.kmotion .k-work-name {
+  margin: 0;
+  font-size: clamp(48px, 8vw, 128px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--k-paper);
+}
+.kmotion .k-work-text {
+  margin: 1.4rem 0 0;
+  max-width: 36em;
+  font-size: clamp(18px, 1.6vw, 23px);
+  line-height: 1.5;
+  color: #cfcac1;
+}
+.kmotion .k-work-stack {
+  margin: 1.8rem 0 0;
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.9;
+  color: #a8a39a;
+}
+.kmotion .k-work-link {
+  display: inline-block;
+  margin-top: 2rem;
+  font-family: var(--k-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--k-paper);
+  text-decoration: none;
+  border-bottom: 2px solid var(--k-persimmon);
+  padding-bottom: 0.2rem;
+}
+.kmotion .k-work-link:hover,
+.kmotion .k-work-link:focus-visible {
+  color: var(--k-persimmon);
+}
+@media (max-width: 760px) {
+  .kmotion .k-work-item {
+    grid-template-columns: 1fr;
+    row-gap: 1.4rem;
+    padding: 3rem 0;
+  }
+  .kmotion .k-work-meta {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+/* The fourteen days as a bar: one tick a day, split into the four phases. */
+.kmotion .k-timeline {
+  display: flex;
+  gap: 6px;
+  margin-top: 9vh;
+}
+.kmotion .k-tl-seg {
+  flex-basis: 0;
+  height: 56px;
+  padding: 0.55rem 0.7rem;
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, rgba(14, 14, 16, 0.55) 0 1px, transparent 1px calc(100% / var(--k-days, 1)));
+  background-color: var(--k-persimmon);
+  display: flex;
+  align-items: flex-end;
+}
+.kmotion .k-tl-n {
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--k-ink);
 }
