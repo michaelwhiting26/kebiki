@@ -162,7 +162,7 @@ const TEAM = [
     name: "Michael",
     image: "/team/michael.jpg",
     cover: 77,
-    role: "Commercial and engineering",
+    role: "Engineering, contracts and commercial",
     bio: "Michael scopes, prices and runs the work, and writes code alongside the team. A background in international arbitration, contracts and commercial work means every plan is built to survive scrutiny.",
     talk: "scope, pricing, contracts and delivery risk",
   },
