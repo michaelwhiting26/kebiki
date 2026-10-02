@@ -1136,3 +1136,28 @@
     animation: none;
   }
 }
+
+/* ---------- 14-day steps: the row in the middle of the screen lights up ---------- */
+.kmotion .k-next-list .k-next-n,
+.kmotion .k-next-list .k-next-verb,
+.kmotion .k-tl-seg {
+  transition: color 0.45s ease, opacity 0.45s ease;
+}
+.kmotion .k-next-list .k-next-n {
+  color: var(--gray-10);
+}
+.kmotion .k-next-list li[data-active] .k-next-n,
+.kmotion .k-next-list li[data-active] .k-next-verb {
+  color: var(--k-persimmon);
+}
+/* While a step is lit, the other blocks on the timeline step back. */
+.kmotion .k-next[data-stepping] .k-tl-seg:not([data-active]) {
+  opacity: 0.3;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kmotion .k-next-list .k-next-n,
+  .kmotion .k-next-list .k-next-verb,
+  .kmotion .k-tl-seg {
+    transition: none;
+  }
+}

@@ -605,6 +605,46 @@ function TeamRotator() {
 
 export function MotionHome() {
   const rootRef = useRef<HTMLElement>(null);
+  const stepsRef = useRef<HTMLElement>(null);
+
+  /* The 14-day steps: the row nearest the middle of the screen lights up, with its block on the timeline. */
+  useEffect(() => {
+    const section = stepsRef.current;
+    if (!section) return;
+    const rows = [...section.querySelectorAll<HTMLElement>(".k-next-list > li")];
+    const segs = [...section.querySelectorAll<HTMLElement>(".k-tl-seg")];
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const mid = window.innerHeight / 2;
+      let active = -1;
+      let best = Infinity;
+      rows.forEach((r, i) => {
+        const b = r.getBoundingClientRect();
+        // Only a row that is actually crossing the middle band counts.
+        if (b.top > mid + window.innerHeight * 0.2 || b.bottom < mid - window.innerHeight * 0.2) return;
+        const d = Math.abs((b.top + b.bottom) / 2 - mid);
+        if (d < best) {
+          best = d;
+          active = i;
+        }
+      });
+      rows.forEach((r, i) => r.toggleAttribute("data-active", i === active));
+      segs.forEach((g, i) => g.toggleAttribute("data-active", i === active));
+      section.toggleAttribute("data-stepping", active >= 0);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
   const trackRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -865,7 +905,7 @@ export function MotionHome() {
         </section>
       ) : null}
 
-      <section id="next" className="k-next">
+      <section id="next" className="k-next" ref={stepsRef}>
         <div className="k-label">What we do</div>
         <h2 className="k-engage-heading k-next-row">{ENGAGEMENT.heading}</h2>
         <p className="k-engage-body k-next-row">{ENGAGEMENT.body}</p>
