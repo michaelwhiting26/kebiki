@@ -146,6 +146,63 @@ const TEAM_COPY = {
   body: "The same team stays with the work from the first idea through to the finished product, so you are always talking to the people making the decisions.",
 } as const;
 
+/**
+ * Commercial models. `risk` is who carries the risk of the work costing more than expected:
+ * 0 = the client, 1 = the studio. Wording is a draft of commercial terms: no prices, no percentages.
+ */
+const TERMS = {
+  label: "How we charge",
+  heading: "Five ways to work with us.",
+  body: "Most engagements start with the fourteen days above. After that we agree the model that fits the work, and put it in writing before anything starts.",
+  models: [
+    {
+      n: "01",
+      name: "Hourly consultation",
+      line: "Advice by the hour.",
+      text: "A senior second opinion: an architecture review, a technical due-diligence call, a rescue plan. You pay for the time used and can stop at any point.",
+      best: "Specific questions, reviews and short pieces of advice.",
+      risk: 0.08,
+    },
+    {
+      n: "02",
+      name: "Fixed price",
+      line: "A defined scope for a set fee.",
+      text: "We agree exactly what will be delivered and what it costs. If it takes us longer than we planned, that is our problem, not yours.",
+      best: "Work that can be specified clearly up front.",
+      risk: 0.92,
+    },
+    {
+      n: "03",
+      name: "Maximum price",
+      line: "Pay for time used, up to a ceiling.",
+      text: "You are billed for the time the work actually takes, with a cap agreed in advance. If it comes in under, you pay less. It cannot go over without your written agreement.",
+      best: "Work with real unknowns, where a fixed price would mean padding.",
+      risk: 0.62,
+    },
+    {
+      n: "04",
+      name: "Retainer",
+      line: "Reserved capacity each month.",
+      text: "A set amount of the team's time every month for a product that keeps moving: new features, improvements and support. The priorities are yours to change.",
+      best: "Live products that need continuous work.",
+      risk: 0.28,
+    },
+    {
+      n: "05",
+      name: "Equity",
+      line: "Part fee, part stake.",
+      text: "For a small number of early ventures we take part of our fee as equity, so we carry some of the risk and share in the result. We do this selectively.",
+      best: "Early-stage products we believe in.",
+      risk: 0.76,
+    },
+  ],
+  always: [
+    { title: "Agreed in writing first", text: "Scope, price and model are set down before work starts." },
+    { title: "Changes priced before they are made", text: "Nothing is added to the bill without your agreement." },
+    { title: "You own the work", text: "Every output is yours, whether we continue together or not." },
+  ],
+} as const;
+
 const SECTORS = ["Payments", "Crypto & Web3", "Markets", "Sport", "Property", "AI", "Manufacturing"] as const;
 const CONTACT_COPY = {
   title: "Something complicated?",
@@ -724,6 +781,44 @@ export function MotionHome() {
         </ol>
         <p className="k-engage-outcome k-next-row">{ENGAGEMENT.outcome}</p>
         <p className="k-engage-own k-next-row">{ENGAGEMENT.ownership}</p>
+      </section>
+
+      <section id="terms" className="k-terms">
+        <div className="k-label">{TERMS.label}</div>
+        <h2 className="k-engage-heading k-next-row">{TERMS.heading}</h2>
+        <p className="k-engage-body k-next-row">{TERMS.body}</p>
+        <ul className="k-terms-grid">
+          {TERMS.models.map((m) => (
+            <li key={m.n} className="k-term k-next-row">
+              <span className="k-term-n">{m.n}</span>
+              <h3 className="k-term-name">{m.name}</h3>
+              <p className="k-term-line">{m.line}</p>
+              <p className="k-term-text">{m.text}</p>
+              <p className="k-term-best">
+                <span className="k-term-key">Best for</span>
+                {m.best}
+              </p>
+              <div className="k-risk" role="img" aria-label={`Cost risk: ${m.risk < 0.4 ? "mostly yours" : m.risk > 0.7 ? "mostly ours" : "shared"}`}>
+                <span className="k-term-key">Who carries the cost risk</span>
+                <div className="k-risk-track">
+                  <span className="k-risk-dot" style={{ left: `${m.risk * 100}%` }} />
+                </div>
+                <div className="k-risk-ends">
+                  <span>You</span>
+                  <span>Us</span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <ul className="k-always">
+          {TERMS.always.map((a) => (
+            <li key={a.title} className="k-next-row">
+              <span className="k-always-title">{a.title}</span>
+              <span className="k-always-text">{a.text}</span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section id="work" className="k-work">

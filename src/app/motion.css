@@ -2,9 +2,35 @@
 .kmotion {
   --k-ink: #0e0e10;
   --k-paper: #f8f5f0;
-  --k-mute: #8d8a84;
-  /* The orange of the supplied logo. */
-  --k-persimmon: #fd540d;
+  /* Radix custom palette for Kebiki (accent FD540D, gray 8D8A84, background 0E0E10; dark).
+     Steps: 1-2 backgrounds, 3-5 interactive, 6-8 borders, 9-10 solid, 11-12 text. */
+  --accent-1: #130c0a;
+  --accent-2: #1f1411;
+  --accent-3: #38180e;
+  --accent-4: #4f1603;
+  --accent-5: #5e1e07;
+  --accent-6: #6f2b15;
+  --accent-7: #873b23;
+  --accent-8: #af4c2d;
+  --accent-9: #fd540d;
+  --accent-10: #ef4600;
+  --accent-11: #ff9773;
+  --accent-12: #ffd7c9;
+  --gray-1: #0f0e0d;
+  --gray-2: #191817;
+  --gray-3: #232221;
+  --gray-4: #2d2922;
+  --gray-5: #32312d;
+  --gray-6: #3e3a32;
+  --gray-7: #4b4841;
+  --gray-8: #635f57;
+  --gray-9: #726e65;
+  --gray-10: #7e7b75;
+  --gray-11: #b8b4aa;
+  --gray-12: #f3eee4;
+  --k-mute: var(--gray-10);
+  /* The orange of the supplied logo: step 9 of the accent scale. */
+  --k-persimmon: var(--accent-9);
   --k-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   background: var(--k-ink);
   color: var(--k-paper);
@@ -54,7 +80,7 @@
   letter-spacing: 0.04em;
   color: var(--k-paper);
   background: transparent;
-  border: 1px solid #3a3a40;
+  border: 1px solid var(--gray-7);
   padding: 8px 12px;
   border-radius: 2px;
   cursor: pointer;
@@ -204,17 +230,17 @@
   column-gap: 2rem;
   align-items: baseline;
   padding: 3.4rem 0;
-  border-top: 1px solid #26262b;
+  border-top: 1px solid var(--gray-6);
 }
 .kmotion .k-next-list .k-next-row:last-child {
-  border-bottom: 1px solid #26262b;
+  border-bottom: 1px solid var(--gray-6);
 }
 .kmotion .k-next-text {
   margin: 0;
   max-width: 34em;
   font-size: clamp(19px, 1.9vw, 27px);
   line-height: 1.5;
-  color: #cfcac1;
+  color: var(--gray-11);
 }
 .kmotion .k-row-out {
   margin-top: 1.8rem;
@@ -234,7 +260,7 @@
   max-width: 34em;
   font-size: clamp(16px, 1.25vw, 19px);
   line-height: 1.5;
-  color: #a8a39a;
+  color: var(--gray-11);
 }
 .kmotion .k-next-n {
   font-family: var(--k-mono);
@@ -284,7 +310,7 @@
   max-width: 30em;
   font-size: clamp(20px, 2vw, 28px);
   line-height: 1.45;
-  color: #cfcac1;
+  color: var(--gray-11);
 }
 .kmotion .k-engage-days {
   font-family: var(--k-mono);
@@ -462,7 +488,7 @@
 
 /* ---------- Selected work ---------- */
 .kmotion .k-work {
-  background: #141417;
+  background: var(--k-ink);
   padding: 20vh 8vw 16vh;
 }
 .kmotion .k-work-list {
@@ -475,10 +501,10 @@
   grid-template-columns: 15rem minmax(0, 1fr);
   column-gap: 2rem;
   padding: 4.4rem 0;
-  border-top: 1px solid #2a2a30;
+  border-top: 1px solid var(--gray-6);
 }
 .kmotion .k-work-item:last-child {
-  border-bottom: 1px solid #2a2a30;
+  border-bottom: 1px solid var(--gray-6);
 }
 .kmotion .k-work-meta {
   display: flex;
@@ -508,7 +534,7 @@
   max-width: 36em;
   font-size: clamp(18px, 1.6vw, 23px);
   line-height: 1.5;
-  color: #cfcac1;
+  color: var(--gray-11);
 }
 .kmotion .k-work-stack {
   margin: 1.8rem 0 0;
@@ -517,7 +543,7 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1.9;
-  color: #a8a39a;
+  color: var(--gray-11);
 }
 .kmotion .k-work-link {
   display: inline-block;
@@ -573,7 +599,8 @@
 
 /* ---------- The studio: the people you meet ---------- */
 .kmotion .k-team {
-  background: var(--k-ink);
+  --team-bg: var(--gray-2);
+  background: var(--team-bg);
   padding: 20vh 8vw 16vh;
 }
 .kmotion .k-team-title {
@@ -590,7 +617,7 @@
   max-width: 30em;
   font-size: clamp(20px, 2vw, 28px);
   line-height: 1.45;
-  color: #cfcac1;
+  color: var(--gray-11);
 }
 .kmotion .k-team-viewport {
   --n: 3;
@@ -728,9 +755,9 @@
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(14, 14, 16, 0) calc(var(--cover) - 17%),
-    rgba(14, 14, 16, 0.86) calc(var(--cover) - 5%),
-    var(--k-ink) var(--cover)
+    rgba(25, 24, 23, 0) calc(var(--cover) - 17%),
+    rgba(25, 24, 23, 0.86) calc(var(--cover) - 5%),
+    var(--team-bg, var(--k-ink)) var(--cover)
   );
 }
 .kmotion .k-team-frame .k-team-name,
@@ -755,4 +782,148 @@
   font-size: 13px;
   left: 8%;
   bottom: 6%;
+}
+
+/* ---------- How we charge: five models, each with who carries the cost risk ---------- */
+.kmotion .k-terms {
+  background: var(--gray-2);
+  padding: 20vh 8vw 16vh;
+}
+.kmotion .k-terms-grid {
+  list-style: none;
+  margin: 9vh 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--gray-6); /* shows through the gaps as hairlines */
+  border: 1px solid var(--gray-6);
+}
+.kmotion .k-term {
+  grid-column: span 2;
+  background: var(--gray-2);
+  padding: clamp(1.6rem, 2.6vw, 2.8rem);
+  display: flex;
+  flex-direction: column;
+}
+.kmotion .k-term:nth-child(n + 4) {
+  grid-column: span 3;
+}
+.kmotion .k-term-n {
+  font-family: var(--k-mono);
+  font-size: 13px;
+  color: var(--k-persimmon);
+}
+.kmotion .k-term-name {
+  margin: 1.4rem 0 0;
+  font-size: clamp(28px, 2.9vw, 44px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--k-paper);
+}
+.kmotion .k-term-line {
+  margin: 0.7rem 0 0;
+  font-size: clamp(18px, 1.5vw, 22px);
+  line-height: 1.3;
+  color: var(--k-paper);
+}
+.kmotion .k-term-text {
+  margin: 1.2rem 0 0;
+  font-size: clamp(16px, 1.25vw, 19px);
+  line-height: 1.5;
+  color: var(--gray-11);
+}
+.kmotion .k-term-best {
+  margin: 1.6rem 0 0;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.45;
+  color: var(--gray-11);
+}
+.kmotion .k-term-key {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-family: var(--k-mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--k-mute);
+}
+.kmotion .k-risk {
+  margin-top: auto;
+  padding-top: 2rem;
+}
+.kmotion .k-risk-track {
+  position: relative;
+  height: 1px;
+  margin: 0.9rem 5px 0;
+  background: var(--gray-8);
+}
+.kmotion .k-risk-dot {
+  position: absolute;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--k-persimmon);
+  transform: translate(-50%, -50%);
+}
+.kmotion .k-risk-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.7rem;
+  font-family: var(--k-mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--k-mute);
+}
+.kmotion .k-always {
+  list-style: none;
+  margin: 7vh 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem clamp(1.5rem, 4vw, 4rem);
+}
+.kmotion .k-always li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--k-persimmon);
+}
+.kmotion .k-always-title {
+  font-size: clamp(20px, 1.8vw, 26px);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--k-paper);
+}
+.kmotion .k-always-text {
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.45;
+  color: var(--gray-11);
+}
+@media (max-width: 980px) {
+  .kmotion .k-terms-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kmotion .k-term,
+  .kmotion .k-term:nth-child(n + 4) {
+    grid-column: span 1;
+  }
+  .kmotion .k-term:last-child {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 640px) {
+  .kmotion .k-terms-grid,
+  .kmotion .k-always {
+    grid-template-columns: 1fr;
+  }
+  .kmotion .k-term,
+  .kmotion .k-term:nth-child(n + 4),
+  .kmotion .k-term:last-child {
+    grid-column: span 1;
+  }
 }
