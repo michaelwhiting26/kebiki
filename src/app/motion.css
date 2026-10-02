@@ -408,17 +408,32 @@
 }
 /* Every outline sits on the same baseline, in black, whatever its shape. */
 .kmotion .k-city-shape {
-  height: clamp(96px, 17vw, 260px);
+  height: clamp(78px, 13.6vw, 216px);
   display: flex;
   align-items: flex-end;
   margin-bottom: 1.4rem;
 }
-.kmotion .k-city-shape svg {
+/* The dot map keeps exactly the old silhouette's footprint: same height, same aspect ratio. */
+.kmotion .k-dotmap {
+  position: relative;
   height: 100%;
-  width: auto;
-  display: block;
   max-width: 100%;
+  color: var(--k-ink);
+}
+.kmotion .k-dotmap-fallback,
+.kmotion .k-dotmap-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.kmotion .k-dotmap-fallback {
   fill: var(--k-ink);
+}
+/* Decorative only: it must never catch clicks, selection or scrolling. */
+.kmotion .k-dotmap-canvas {
+  pointer-events: none;
 }
 .kmotion .k-city-name {
   font-size: clamp(22px, 4.2vw, 62px);
@@ -550,4 +565,79 @@
   font-size: 12px;
   letter-spacing: 0.05em;
   color: var(--k-ink);
+}
+
+/* ---------- The studio: the people you meet ---------- */
+.kmotion .k-team {
+  background: var(--k-ink);
+  padding: 20vh 8vw 16vh;
+}
+.kmotion .k-team-title {
+  margin: 4vh 0 0;
+  max-width: 13em;
+  font-size: clamp(42px, 6.8vw, 104px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--k-paper);
+}
+.kmotion .k-team-body {
+  margin: 2.4rem 0 0;
+  max-width: 30em;
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.45;
+  color: #cfcac1;
+}
+.kmotion .k-team-viewport {
+  --n: 3;
+  --gap: clamp(1rem, 3vw, 3rem);
+  margin-top: 10vh;
+  overflow: hidden;
+  opacity: 0;
+}
+.kmotion .k-team-viewport[data-ready] {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+.kmotion .k-team-track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--gap);
+}
+.kmotion .k-team-track[data-shift] {
+  transform: translateX(calc(-1 * (100% + var(--gap)) / var(--n)));
+  transition: transform 0.95s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.kmotion .k-team-card {
+  flex: 0 0 calc((100% - (var(--n) - 1) * var(--gap)) / var(--n));
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.kmotion .k-team-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+.kmotion .k-team-name {
+  font-size: clamp(26px, 3.4vw, 52px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--k-paper);
+}
+@media (max-width: 640px) {
+  .kmotion .k-team-viewport {
+    --n: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kmotion .k-team-track[data-shift] {
+    transition: none;
+  }
 }

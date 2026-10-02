@@ -1,10 +1,11 @@
 "use client";
 
 import { EB_Garamond, Montserrat } from "next/font/google";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { CREAM_PATH, DOT_PATH, ORANGE_PATH } from "./logo-paths";
 import { COUNTRY_SHAPES } from "./country-paths";
+import { InteractiveDotMap } from "./dot-map";
 import "./motion.css";
 
 /** The sentence's serif. */
@@ -129,6 +130,18 @@ const PROCESS = CAPABILITIES.map((c, i) => ({
   output: ENGAGEMENT.steps[i].title,
   outputText: ENGAGEMENT.steps[i].text,
 }));
+
+/** The people you meet. Names only: no roles or titles until they are confirmed. */
+const TEAM = [
+  { name: "Michael", image: "/team/michael.jpg" },
+  { name: "Marc", image: "/team/marc.jpg" },
+  { name: "Riki", image: "/team/riki.jpg" },
+] as const;
+const TEAM_COPY = {
+  label: "The studio",
+  title: "The people you meet are the people who build.",
+  body: "The same team stays with the work from the first idea through to the finished product, so you are always talking to the people making the decisions.",
+} as const;
 
 const SECTORS = ["Payments", "Crypto & Web3", "Markets", "Sport", "Property", "AI", "Manufacturing"] as const;
 const CONTACT_COPY = {
@@ -263,9 +276,7 @@ function CityClocks() {
         return (
           <li key={c.name} className="k-city">
             <div className="k-city-shape">
-              <svg viewBox={`0 0 ${shape.w} ${shape.h}`} role="img" aria-label={`Outline of ${shape.name}`}>
-                <path d={shape.d} />
-              </svg>
+              <InteractiveDotMap d={shape.d} w={shape.w} h={shape.h} label={`Map of ${shape.name}`} />
             </div>
             <span className="k-city-name">{c.name}</span>
             <span className="k-city-time" suppressHydrationWarning>
@@ -300,6 +311,77 @@ function ContactEmail() {
       <button type="button" className="k-copy" onClick={copy} aria-live="polite">
         {copied ? "Copied" : "Copy address"}
       </button>
+    </div>
+  );
+}
+
+/**
+ * The team, in an order that belongs to no one. Each visit starts at a random person, and the row
+ * then rotates one place every few seconds, so everybody passes through the lead position equally.
+ * It pauses on hover and focus, and does not move at all for people who prefer reduced motion.
+ */
+function TeamRotator() {
+  const [order, setOrder] = useState<number[]>(() => TEAM.map((_, i) => i));
+  const [ready, setReady] = useState(false);
+  const [shifting, setShifting] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  // Before the first paint: pick a random starting person (the server cannot, it renders once).
+  useLayoutEffect(() => {
+    const start = Math.floor(Math.random() * TEAM.length);
+    setOrder(TEAM.map((_, i) => (i + start) % TEAM.length));
+    setReduceMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready || reduceMotion || paused) return;
+    const id = window.setInterval(() => {
+      if (!document.hidden) setShifting(true);
+    }, 5200);
+    return () => window.clearInterval(id);
+  }, [ready, reduceMotion, paused]);
+
+  // When the slide finishes, rotate the underlying order and reset the track with no transition.
+  const onTransitionEnd = (e: React.TransitionEvent<HTMLUListElement>) => {
+    if (e.target !== e.currentTarget || !shifting) return;
+    setOrder((o) => [...o.slice(1), o[0]]);
+    setShifting(false);
+  };
+
+  // One extra card on the end gives the slide something to bring in.
+  const cards = [...order, order[0]];
+  return (
+    <div
+      className="k-team-viewport"
+      data-ready={ready ? "1" : undefined}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={() => setPaused(false)}
+    >
+      <ul className="k-team-track" data-shift={shifting ? "1" : undefined} onTransitionEnd={onTransitionEnd}>
+        {cards.map((idx, pos) => {
+          const m = TEAM[idx];
+          const isClone = pos === TEAM.length;
+          return (
+            <li key={`${m.name}-${pos}`} className="k-team-card" aria-hidden={isClone ? true : undefined}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={m.image}
+                alt={isClone ? "" : `Illustrated portrait of ${m.name}`}
+                width={880}
+                height={1100}
+                loading="lazy"
+                decoding="async"
+                className="k-team-img"
+              />
+              <span className="k-team-name">{m.name}</span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -592,6 +674,13 @@ export function MotionHome() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section id="team" className="k-team">
+        <div className="k-label">{TEAM_COPY.label}</div>
+        <h2 className="k-team-title k-next-row">{TEAM_COPY.title}</h2>
+        <p className="k-team-body k-next-row">{TEAM_COPY.body}</p>
+        <TeamRotator />
       </section>
 
       <section id="contact" ref={contactRef} className="k-contact">
