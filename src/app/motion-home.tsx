@@ -158,9 +158,30 @@ const PROCESS = CAPABILITIES.map((c, i) => ({
 
 /** The people you meet. Names only: no roles or titles until they are confirmed. */
 const TEAM = [
-  { name: "Michael", image: "/team/michael.jpg", cover: 77 },
-  { name: "Marc", image: "/team/marc.jpg", cover: 84 },
-  { name: "Riki", image: "/team/riki.jpg", cover: 80 },
+  {
+    name: "Michael",
+    image: "/team/michael.jpg",
+    cover: 77,
+    role: "Commercial and engineering",
+    bio: "Michael scopes, prices and runs the work, and writes code alongside the team. A background in cost and delay analysis for construction disputes means every plan is built to survive scrutiny.",
+    talk: "scope, pricing, contracts and delivery risk",
+  },
+  {
+    name: "Marc",
+    image: "/team/marc.jpg",
+    cover: 84,
+    role: "Full-stack engineering",
+    bio: "Marc builds across the whole product, from the interface to the database and deployment. Marc owns how the system fits together, so what launches is something the team can keep running.",
+    talk: "architecture, data and running in production",
+  },
+  {
+    name: "Riki",
+    image: "/team/riki.jpg",
+    cover: 80,
+    role: "Engineering and marketing",
+    bio: "Riki works on both sides of a launch: building the product and putting it in front of the right people. That connects what is built to how it is found, used and measured.",
+    talk: "build, launch and growth",
+  },
 ] as const;
 /** The fade to the page's black starts just above each portrait's collarbone. */
 const coverStyle = (m: { cover: number }) => ({ ["--cover" as string]: `${m.cover}%` }) as React.CSSProperties;
@@ -527,6 +548,13 @@ function TeamRotator() {
               );
             })}
           </div>
+          <div className="k-team-detail" key={`${lead.name}-detail`}>
+            <span className="k-team-role">{lead.role}</span>
+            <p className="k-team-bio">{lead.bio}</p>
+            <p className="k-team-talk">
+              <span>Talk to {lead.name} about</span> {lead.talk}
+            </p>
+          </div>
         </div>
       ) : (
         <ul className="k-team-track" data-shift={shifting ? "1" : undefined} onTransitionEnd={onTransitionEnd}>
@@ -540,6 +568,7 @@ function TeamRotator() {
                 className="k-team-card k-team-frame"
                 style={coverStyle(m)}
                 aria-hidden={isClone ? true : undefined}
+                tabIndex={isClone ? -1 : 0}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -551,7 +580,18 @@ function TeamRotator() {
                   decoding="async"
                   className="k-team-img"
                 />
-                <span className="k-team-name">{m.name}</span>
+                <div className="k-team-meta">
+                  <span className="k-team-name">{m.name}</span>
+                  <span className="k-team-role">{m.role}</span>
+                  <div className="k-team-more">
+                    <div>
+                      <p className="k-team-bio">{m.bio}</p>
+                      <p className="k-team-talk">
+                        <span>Talk to {m.name} about</span> {m.talk}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </li>
             );
           })}

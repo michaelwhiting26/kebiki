@@ -1038,3 +1038,101 @@
   line-height: 1.7;
   color: var(--gray-10);
 }
+
+/* ---------- Team: role always visible, bio revealed on hover / focus (wide) or under the lead (phone) ---------- */
+.kmotion .k-team-card {
+  outline: none;
+}
+.kmotion .k-team-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: linear-gradient(
+    to bottom,
+    rgba(25, 24, 23, 0) 18%,
+    rgba(25, 24, 23, 0.9) 52%,
+    var(--team-bg, var(--k-ink)) 100%
+  );
+}
+.kmotion .k-team-card:hover::before,
+.kmotion .k-team-card:focus-visible::before {
+  opacity: 1;
+}
+.kmotion .k-team-card:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--k-persimmon);
+}
+.kmotion .k-team-meta {
+  position: absolute;
+  z-index: 2;
+  left: 7%;
+  right: 7%;
+  bottom: 5.5%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.kmotion .k-team-meta .k-team-name {
+  position: static;
+}
+.kmotion .k-team-role {
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--k-persimmon);
+}
+.kmotion .k-team-more {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s ease;
+}
+.kmotion .k-team-more > div {
+  overflow: hidden;
+}
+.kmotion .k-team-card:hover .k-team-more,
+.kmotion .k-team-card:focus-visible .k-team-more {
+  grid-template-rows: 1fr;
+}
+.kmotion .k-team-bio {
+  margin: 0.8rem 0 0;
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.45;
+  color: var(--gray-12);
+}
+.kmotion .k-team-talk {
+  margin: 0.8rem 0 0;
+  font-size: clamp(14px, 1vw, 16px);
+  line-height: 1.4;
+  color: var(--gray-11);
+}
+.kmotion .k-team-talk span {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-family: var(--k-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-10);
+}
+/* Phones: the lead's details under the three portraits, spanning the full width. */
+.kmotion .k-team-detail {
+  grid-column: 1 / -1;
+  margin-top: 1.2rem;
+  animation: k-team-in 0.55s ease both;
+}
+.kmotion .k-team-detail .k-team-bio {
+  font-size: 17px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kmotion .k-team-card::before,
+  .kmotion .k-team-more {
+    transition: none;
+  }
+  .kmotion .k-team-detail {
+    animation: none;
+  }
+}
