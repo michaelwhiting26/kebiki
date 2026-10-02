@@ -478,8 +478,48 @@
   color: rgba(14, 14, 16, 0.75);
   font-variant-numeric: tabular-nums;
 }
+.kmotion .k-footer-base {
+  margin-top: 3.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem 2rem;
+}
+.kmotion .k-social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+}
+.kmotion .k-social a {
+  display: inline-flex;
+  align-items: center;
+  color: var(--k-ink);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.kmotion .k-social a:hover,
+.kmotion .k-social a:focus-visible {
+  opacity: 1;
+}
+.kmotion .k-social svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+.kmotion .k-social-text {
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid currentColor;
+}
 .kmotion .k-footer-note {
-  margin: 3.6rem 0 0;
+  margin: 0;
   font-family: var(--k-mono);
   font-size: 12px;
   letter-spacing: 0.06em;
@@ -537,13 +577,28 @@
   color: var(--gray-11);
 }
 .kmotion .k-work-stack {
+  list-style: none;
   margin: 1.8rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.6rem;
   font-family: var(--k-mono);
   font-size: 12px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  line-height: 1.9;
   color: var(--gray-11);
+}
+.kmotion .k-work-stack li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.kmotion .k-stack-icon {
+  width: 15px;
+  height: 15px;
+  fill: var(--k-paper);
+  flex: none;
 }
 .kmotion .k-work-link {
   display: inline-block;
@@ -926,4 +981,50 @@
   .kmotion .k-term:last-child {
     grid-column: span 1;
   }
+}
+
+/* ---------- Contact actions: book a call, WhatsApp ---------- */
+.kmotion .k-contact-actions {
+  margin-top: 4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1rem;
+}
+.kmotion .k-contact-actions + .k-contact-email {
+  margin-top: 2.6rem;
+}
+.kmotion .k-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--k-mono);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--k-ink);
+  border: 1.5px solid var(--k-ink);
+  border-radius: 999px;
+  padding: 1rem 1.6rem;
+  transition: background 0.2s, color 0.2s;
+}
+.kmotion .k-cta-solid {
+  background: var(--k-ink);
+  color: var(--k-persimmon);
+}
+.kmotion .k-cta:hover,
+.kmotion .k-cta:focus-visible {
+  background: var(--k-ink);
+  color: var(--k-persimmon);
+}
+.kmotion .k-cta-solid:hover,
+.kmotion .k-cta-solid:focus-visible {
+  background: transparent;
+  color: var(--k-ink);
+}
+.kmotion .k-cta-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  flex: none;
 }

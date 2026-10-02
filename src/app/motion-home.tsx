@@ -4,6 +4,8 @@ import { EB_Garamond, Montserrat } from "next/font/google";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { CREAM_PATH, DOT_PATH, ORANGE_PATH } from "./logo-paths";
+import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
+import { BOOKING_URL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
 import { COUNTRY_SHAPES } from "./country-paths";
 import { InteractiveDotMap } from "./dot-map";
 import "./motion.css";
@@ -86,13 +88,16 @@ const ENGAGEMENT = {
  * Selected work, in the studio's own words (from the Quadrum site). Deliberately no headline figures,
  * no named partners or integrations, and no logos: only what can be shown running.
  */
+/** One item in a work entry's stack. `icon` is set only for a named technology with its own mark. */
+type StackItem = { name: string; icon?: BrandIcon };
+
 const WORK = [
   {
     n: "01",
     category: "Multi-chain payments",
     name: "Pepay",
     text: "Accept any supported asset and settle from one system - invoicing, payment links, QR checkout, subscriptions and reconciliation on the same ledger.",
-    stack: "React · TypeScript · Solana · BNB Chain",
+    stack: [{ name: "React", icon: "react" }, { name: "TypeScript", icon: "typescript" }, { name: "Solana", icon: "solana" }, { name: "BNB Chain", icon: "bnbchain" }] as StackItem[],
     href: "https://pepay-merchant-dashboard.vercel.app/home",
   },
   {
@@ -100,7 +105,7 @@ const WORK = [
     category: "Trading infrastructure",
     name: "DRK",
     text: "Tokenisation solved issuance. It did not solve liquidity: it makes an asset digital without making it easy to trade. DRK is the layer between tokenised assets and the institutions that trade them.",
-    stack: "TypeScript · React · EVM · Trading infrastructure",
+    stack: [{ name: "TypeScript", icon: "typescript" }, { name: "React", icon: "react" }, { name: "EVM" }, { name: "Trading infrastructure" }] as StackItem[],
     href: "https://drk-deck.vercel.app/",
   },
   {
@@ -108,7 +113,7 @@ const WORK = [
     category: "Programmable payments",
     name: "BNBPay",
     text: "Payments that move on-chain without the payer covering blockchain fees - invoices, subscriptions, gift cards and API payments for merchants, platforms and AI agents across BNB Chain and opBNB.",
-    stack: "Solidity · TypeScript · Next.js · BNB Chain",
+    stack: [{ name: "Solidity", icon: "solidity" }, { name: "TypeScript", icon: "typescript" }, { name: "Next.js", icon: "nextjs" }, { name: "BNB Chain", icon: "bnbchain" }] as StackItem[],
     href: "https://bnbpayvercel1.vercel.app",
   },
   {
@@ -116,7 +121,7 @@ const WORK = [
     category: "Property marketing",
     name: "Linton Villas",
     text: "We built the experience the developer sells through: masterplan, villa types, floor plans, financial projections, an eight-minute film and the full prospectus, as one guided journey.",
-    stack: "Strategy · UX/UI · Next.js · Interactive media",
+    stack: [{ name: "Strategy" }, { name: "UX/UI" }, { name: "Next.js", icon: "nextjs" }, { name: "Interactive media" }] as StackItem[],
     href: "https://lintonvillas.vercel.app",
   },
 ] as const;
@@ -348,6 +353,28 @@ function CityClocks() {
         );
       })}
     </ul>
+  );
+}
+
+/** Ways to talk now: a booked call and WhatsApp. Each button exists only if its channel is configured. */
+function ContactActions() {
+  if (!BOOKING_URL && !WHATSAPP_URL) return null;
+  return (
+    <div className="k-contact-actions">
+      {BOOKING_URL ? (
+        <a href={BOOKING_URL} className="k-cta k-cta-solid" target="_blank" rel="noopener noreferrer">
+          Book a call<span aria-hidden="true"> &rarr;</span>
+        </a>
+      ) : null}
+      {WHATSAPP_URL ? (
+        <a href={WHATSAPP_URL} className="k-cta" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" className="k-cta-icon" aria-hidden="true">
+            <path d={BRAND_ICONS.whatsapp.path} />
+          </svg>
+          WhatsApp us
+        </a>
+      ) : null}
+    </div>
   );
 }
 
@@ -833,7 +860,18 @@ export function MotionHome() {
               <div className="k-work-main">
                 <h2 className="k-work-name">{w.name}</h2>
                 <p className="k-work-text">{w.text}</p>
-                <p className="k-work-stack">{w.stack}</p>
+                <ul className="k-work-stack" aria-label="Built with">
+                  {w.stack.map((st) => (
+                    <li key={st.name}>
+                      {st.icon ? (
+                        <svg viewBox="0 0 24 24" className="k-stack-icon" aria-hidden="true">
+                          <path d={BRAND_ICONS[st.icon].path} />
+                        </svg>
+                      ) : null}
+                      {st.name}
+                    </li>
+                  ))}
+                </ul>
                 <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
                   View the product<span aria-hidden="true"> &rarr;</span>
                 </a>
@@ -855,13 +893,33 @@ export function MotionHome() {
         <h2 className="k-contact-title k-next-row">{CONTACT_COPY.title}</h2>
         <p className="k-contact-body k-next-row">{CONTACT_COPY.body}</p>
         <div className="k-next-row">
+          <ContactActions />
           <ContactEmail />
         </div>
         <p className="k-contact-sectors k-next-row">{SECTORS.join("  ·  ")}</p>
 
         <footer className="k-footer k-next-row">
           <CityClocks />
-          <p className="k-footer-note">&copy; {new Date().getFullYear()} Kebiki</p>
+          <div className="k-footer-base">
+            <p className="k-footer-note">&copy; {new Date().getFullYear()} Kebiki</p>
+            {SOCIAL_LINKS.length ? (
+              <ul className="k-social" aria-label="Elsewhere">
+                {SOCIAL_LINKS.map((l) => (
+                  <li key={l.key}>
+                    <a href={l.href} target="_blank" rel="noopener noreferrer" aria-label={l.label} title={l.label}>
+                      {l.icon ? (
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d={BRAND_ICONS[l.icon].path} />
+                        </svg>
+                      ) : (
+                        <span className="k-social-text">{l.label}</span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         </footer>
       </section>
     </main>
