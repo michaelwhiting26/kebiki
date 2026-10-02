@@ -167,3 +167,102 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* The logo standing in for the sentence's first word. Its baseline sits on the text baseline. */
+.kmotion .k-inline-logo {
+  display: inline-block;
+  height: 1.05em;
+  width: auto;
+  vertical-align: -0.155em;
+  fill: currentColor;
+  overflow: visible;
+  margin-right: 0.05em;
+}
+
+/* ---------- The next screen: what we do, then contact ---------- */
+.kmotion .k-next {
+  background: var(--k-ink);
+  padding: 22vh 8vw 18vh;
+}
+.kmotion .k-next-list {
+  list-style: none;
+  margin: 8vh 0 0;
+  padding: 0;
+}
+.kmotion .k-next-row {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.kmotion .k-next-row[data-in] {
+  opacity: 1;
+  transform: none;
+}
+.kmotion .k-next-list .k-next-row {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1.1fr) minmax(0, 1.6fr);
+  column-gap: 2rem;
+  align-items: baseline;
+  padding: 3.4rem 0;
+  border-top: 1px solid #26262b;
+}
+.kmotion .k-next-list .k-next-row:last-child {
+  border-bottom: 1px solid #26262b;
+}
+.kmotion .k-next-n {
+  font-family: var(--k-mono);
+  font-size: 13px;
+  color: var(--k-persimmon);
+}
+.kmotion .k-next-verb {
+  margin: 0;
+  font-size: clamp(44px, 7.4vw, 112px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--k-paper);
+}
+.kmotion .k-next-text {
+  margin: 0;
+  max-width: 34em;
+  font-size: clamp(19px, 1.9vw, 27px);
+  line-height: 1.5;
+  color: #cfcac1;
+}
+.kmotion .k-next-contact {
+  margin-top: 16vh;
+}
+.kmotion .k-next-mail {
+  display: inline-block;
+  margin-top: 1.2rem;
+  font-size: clamp(30px, 5.4vw, 84px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--k-paper);
+  text-decoration: none;
+  border-bottom: 3px solid var(--k-persimmon);
+  padding-bottom: 0.1em;
+}
+.kmotion .k-next-mail:hover,
+.kmotion .k-next-mail:focus-visible {
+  color: var(--k-persimmon);
+}
+@media (max-width: 760px) {
+  .kmotion .k-next-list .k-next-row {
+    grid-template-columns: 1fr;
+    row-gap: 0.9rem;
+    padding: 2.4rem 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kmotion .k-next-row {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Unresolved characters in the scrambling tagline. */
+.kmotion .k-svg-tagline .k-g {
+  fill: var(--k-persimmon);
+}

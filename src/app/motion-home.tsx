@@ -43,12 +43,27 @@ const T = {
   draw: [0, 0.34],
   rise: [0.34, 0.52],
   dotPop: [0.52, 0.58],
-  tagline: [0.5, 0.6],
+  tagline: [0.5, 0.53],
   expand: [0.62, 0.82],
   orangeHeader: 0.8,
   words: [0.84, 0.96],
 } as const;
 const REDUCED_P = 0.6; // reduced motion: logo fully drawn, no takeover
+/** Share of the scroll track the animation plays over; the rest holds the finished sentence. */
+const HOLD = 0.9;
+
+/** Box-drawing characters and plus signs that move through the tagline before it resolves. */
+const SCRAMBLE_GLYPHS = "+─│┼┬┴├┤╴╵╶╷".split("");
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/** The next screen, in the studio's own words (from the main site's capabilities). */
+const NEXT_ITEMS = [
+  { n: "01", verb: "Define", text: "Work out what the business is trying to achieve, who it is for, what limits it and how success gets measured." },
+  { n: "02", verb: "Design", text: "Shape the interface, the way information is organised and the system underneath it together - not as separate jobs passed between teams." },
+  { n: "03", verb: "Build", text: "Ship in working pieces, each one tested and monitored from the day it goes live." },
+  { n: "04", verb: "Evolve", text: "Keep improving the product against what real use shows and what the business needs next." },
+] as const;
+const CONTACT_EMAIL = "hello@kebiki.studio";
 
 type HeroEls = {
   clip: SVGRectElement;
@@ -74,6 +89,66 @@ function applyHero(el: HeroEls, p: number) {
   el.tagline.style.opacity = String(seg(p, T.tagline[0], T.tagline[1]));
 }
 
+/**
+ * Splits the SVG tagline into one positioned tspan per character, measured from the finished
+ * layout, so swapping glyphs while scrambling never shifts anything. Spaces get no tspan.
+ */
+function splitTagline(text: SVGTextElement): { cell: SVGTSpanElement | null; ch: string }[] {
+  const chars = [...TAGLINE];
+  const xs = chars.map((_, i) => text.getStartPositionOfChar(i).x);
+  text.removeAttribute("textLength");
+  text.removeAttribute("lengthAdjust");
+  text.textContent = "";
+  return chars.map((ch, i) => {
+    if (ch === " ") return { cell: null, ch };
+    const t = document.createElementNS(SVG_NS, "tspan");
+    t.setAttribute("x", String(xs[i]));
+    t.textContent = ch;
+    text.appendChild(t);
+    return { cell: t, ch };
+  });
+}
+
+/** Scrambled characters resolve left to right (about 16 fps), unresolved ones in the logo's orange. */
+function runTaglineScramble(cells: { cell: SVGTSpanElement | null; ch: string }[], duration = 1.6) {
+  const n = cells.length;
+  const t0 = performance.now();
+  const step = 1000 / 16;
+  let last = 0;
+  let raf = 0;
+  const paint = (t: number) => {
+    const resolved = Math.round(quadInOut(clamp01(t)) * n);
+    cells.forEach((c, i) => {
+      if (!c.cell) return;
+      const done = i < resolved;
+      c.cell.textContent = done ? c.ch : SCRAMBLE_GLYPHS[Math.floor(Math.random() * SCRAMBLE_GLYPHS.length)];
+      c.cell.setAttribute("class", done ? "" : "k-g");
+    });
+  };
+  paint(0);
+  const tick = (now: number) => {
+    if (now - last < step) {
+      raf = requestAnimationFrame(tick);
+      return;
+    }
+    last = now;
+    const t = clamp01((now - t0) / 1000 / duration);
+    paint(t);
+    if (t < 1) raf = requestAnimationFrame(tick);
+  };
+  raf = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(raf);
+}
+
+/** Puts every tagline character back to its real glyph. */
+function settleTagline(cells: { cell: SVGTSpanElement | null; ch: string }[]) {
+  cells.forEach((c) => {
+    if (!c.cell) return;
+    c.cell.textContent = c.ch;
+    c.cell.setAttribute("class", "");
+  });
+}
+
 /** The small header lockup is static: the same logo, no tagline. */
 function HeaderLogo() {
   return (
@@ -81,6 +156,17 @@ function HeaderLogo() {
       <path d={CREAM_PATH} className="k-h-cream" />
       <path d={ORANGE_PATH} className="k-h-orange" />
       <path d={DOT_PATH} className="k-h-orange" />
+    </svg>
+  );
+}
+
+/** The first word of the sentence, drawn as the logo: ink on the orange, sitting on the text baseline. */
+function InlineLogo() {
+  return (
+    <svg viewBox="366 298 934 304" className="k-inline-logo" role="img" aria-hidden="true">
+      <path d={CREAM_PATH} />
+      <path d={ORANGE_PATH} />
+      <path d={DOT_PATH} />
     </svg>
   );
 }
@@ -115,6 +201,19 @@ export function MotionHome() {
       tagline: q<SVGTextElement>(".k-svg-tagline"),
     };
 
+    /* The tagline becomes positioned characters once the font has loaded, so it can scramble. */
+    let cells: { cell: SVGTSpanElement | null; ch: string }[] | null = null;
+    let cancelled = false;
+    void document.fonts.ready.then(() => {
+      if (!cancelled && !cells) cells = splitTagline(els.tagline);
+    });
+    cleanups.push(() => {
+      cancelled = true;
+    });
+    let scrambled = false;
+    let stopScramble: (() => void) | null = null;
+    cleanups.push(() => stopScramble?.());
+
     /* Where the final dot sits on screen, measured once per layout (not per frame). */
     const geo = { cx: 0, cy: 0, r0: 0, R: 0 };
     const measure = () => {
@@ -137,10 +236,12 @@ export function MotionHome() {
     let target = forced ?? (reduce ? REDUCED_P : 0);
     let shown = target;
     let raf = 0;
+    let trackBottom = Infinity;
     const readScroll = () => {
       if (reduce || forced !== null) return;
       const r = track.getBoundingClientRect();
-      target = clamp01(-r.top / (r.height - window.innerHeight));
+      trackBottom = r.bottom;
+      target = clamp01(-r.top / (r.height - window.innerHeight) / HOLD);
     };
     const onResize = () => {
       measure();
@@ -150,6 +251,20 @@ export function MotionHome() {
     window.addEventListener("resize", onResize);
     readScroll();
 
+    /* The next screen's rows rise in as they scroll into view. */
+    const rows = [...root.querySelectorAll<HTMLElement>(".k-next-row")];
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          (e.target as HTMLElement).dataset.in = "1";
+          io.unobserve(e.target);
+        }),
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+    rows.forEach((r) => io.observe(r));
+    cleanups.push(() => io.disconnect());
+
     const wordEls = wordRefs.current.filter((w): w is HTMLSpanElement => !!w);
 
     const loop = () => {
@@ -158,6 +273,22 @@ export function MotionHome() {
       const p = shown;
 
       applyHero(els, p);
+
+      // The tagline scrambles every time the scroll passes into its window, forwards or after
+      // scrolling back above it, not just the first time.
+      if (cells) {
+        if (!scrambled && p >= T.tagline[0]) {
+          scrambled = true;
+          stopScramble?.();
+          stopScramble = reduce ? null : runTaglineScramble(cells);
+          if (reduce) settleTagline(cells);
+        } else if (scrambled && p < T.tagline[0] - 0.015) {
+          scrambled = false; // re-arm: the next pass through plays it again
+          stopScramble?.();
+          stopScramble = null;
+          settleTagline(cells);
+        }
+      }
       hint.style.opacity = p > 0.04 ? "0" : "1";
 
       /* The dot becomes the screen: a circle clip grows from the dot's own size and position. */
@@ -170,7 +301,8 @@ export function MotionHome() {
         overlay.style.clipPath = `circle(${r}px at ${geo.cx}px ${geo.cy}px)`;
       }
 
-      root.classList.toggle("k-orange", !reduce && p > T.orangeHeader);
+      // The header logo is ink on the orange screen, and cream again once the page goes dark.
+      root.classList.toggle("k-orange", !reduce && p > T.orangeHeader && trackBottom > 72);
 
       /* The sentence arrives word by word on the orange. */
       const span = T.words[1] - T.words[0];
@@ -251,7 +383,7 @@ export function MotionHome() {
                 <span className="k-sr">{SENTENCE}</span>
                 {WORDS.map((w, i) => (
                   <span key={i} aria-hidden="true">
-                    <span className="k-w" ref={(el) => { wordRefs.current[i] = el; }}>{w}</span>
+                    <span className="k-w" ref={(el) => { wordRefs.current[i] = el; }}>{i === 0 ? <InlineLogo /> : w}</span>
                     {i < WORDS.length - 1 ? " " : ""}
                   </span>
                 ))}
@@ -263,9 +395,30 @@ export function MotionHome() {
 
       {reduced ? (
         <section className="k-static">
-          <p>{SENTENCE}</p>
+          <p>
+            <InlineLogo /> {WORDS.slice(1).join(" ")}
+          </p>
         </section>
       ) : null}
+
+      <section id="next" className="k-next">
+        <div className="k-label">What we do</div>
+        <ol className="k-next-list">
+          {NEXT_ITEMS.map((it) => (
+            <li key={it.n} className="k-next-row">
+              <span className="k-next-n">{it.n}</span>
+              <h2 className="k-next-verb">{it.verb}</h2>
+              <p className="k-next-text">{it.text}</p>
+            </li>
+          ))}
+        </ol>
+        <div className="k-next-contact k-next-row">
+          <div className="k-label">Contact</div>
+          <a href={`mailto:${CONTACT_EMAIL}`} className="k-next-mail">
+            {CONTACT_EMAIL}
+          </a>
+        </div>
+      </section>
     </main>
   );
 }
