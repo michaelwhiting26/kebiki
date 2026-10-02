@@ -163,7 +163,7 @@ const TEAM = [
     image: "/team/michael.jpg",
     cover: 77,
     role: "Commercial and engineering",
-    bio: "Michael scopes, prices and runs the work, and writes code alongside the team. A background in cost and delay analysis for construction disputes means every plan is built to survive scrutiny.",
+    bio: "Michael scopes, prices and runs the work, and writes code alongside the team. A background in international arbitration, contracts and commercial work means every plan is built to survive scrutiny.",
     talk: "scope, pricing, contracts and delivery risk",
   },
   {
