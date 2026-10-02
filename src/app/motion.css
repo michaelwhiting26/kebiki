@@ -372,7 +372,7 @@
   color: var(--k-persimmon);
 }
 .kmotion .k-contact-sectors {
-  margin: 14vh 0 0;
+  margin: 9vh 0 0;
   font-family: var(--k-mono);
   font-size: clamp(11px, 1.1vw, 14px);
   letter-spacing: 0.06em;
@@ -385,11 +385,11 @@
 
 /* ---------- Footer: where we work from ---------- */
 .kmotion .k-contact {
-  padding-bottom: 12vh;
+  padding-bottom: 7vh;
 }
 .kmotion .k-footer {
-  margin-top: 20vh;
-  padding-top: 4.5rem;
+  margin-top: 11vh;
+  padding-top: 3.2rem;
   border-top: 1.5px solid rgba(14, 14, 16, 0.85);
 }
 .kmotion .k-cities {
@@ -408,16 +408,20 @@
 }
 /* Every outline sits on the same baseline, in black, whatever its shape. */
 .kmotion .k-city-shape {
-  height: clamp(78px, 13.6vw, 216px);
+  --map-h: clamp(78px, 13.6vw, 216px);
+  height: var(--map-h);
+  width: 100%;
   display: flex;
   align-items: flex-end;
-  margin-bottom: 1.4rem;
+  margin-bottom: 0.9rem;
 }
 /* The dot map keeps exactly the old silhouette's footprint: same height, same aspect ratio. */
 .kmotion .k-dotmap {
   position: relative;
-  height: 100%;
-  max-width: 100%;
+  flex: 0 0 auto;
+  /* Width first, height from the aspect ratio: as tall as --map-h allows, never wider than the column. */
+  width: min(100%, calc(var(--map-h) * var(--ratio, 1)));
+  height: auto;
   color: var(--k-ink);
 }
 .kmotion .k-dotmap-fallback,
@@ -449,7 +453,7 @@
   font-variant-numeric: tabular-nums;
 }
 .kmotion .k-footer-note {
-  margin: 7rem 0 0;
+  margin: 3.6rem 0 0;
   font-family: var(--k-mono);
   font-size: 12px;
   letter-spacing: 0.06em;
@@ -630,14 +634,125 @@
   letter-spacing: -0.02em;
   color: var(--k-paper);
 }
-@media (max-width: 640px) {
-  .kmotion .k-team-viewport {
-    --n: 1;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .kmotion .k-team-track[data-shift] {
     transition: none;
   }
+}
+
+/* Phones: all three on screen, one in detail. */
+.kmotion .k-team-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.kmotion .k-team-feature {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  animation: k-team-in 0.55s ease both;
+}
+.kmotion .k-team-thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.kmotion .k-team-thumb {
+  appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  opacity: 0.55;
+  transition: opacity 0.25s;
+  -webkit-tap-highlight-color: transparent;
+}
+.kmotion .k-team-thumb:active,
+.kmotion .k-team-thumb:focus-visible {
+  opacity: 1;
+}
+.kmotion .k-team-thumb:focus-visible {
+  outline: 2px solid var(--k-persimmon);
+  outline-offset: 3px;
+}
+.kmotion .k-team-thumb-name {
+  font-size: 15px;
+  line-height: 1.1;
+  color: var(--k-paper);
+}
+@keyframes k-team-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kmotion .k-team-feature {
+    animation: none;
+  }
+}
+
+/* Past the opening animation the corner logo steps aside, so it never sits on top of content. */
+.kmotion .k-header {
+  transition: opacity 0.3s;
+}
+.kmotion.k-past .k-header {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Portrait frame: fades to the page's black at the collarbone, name set on the dark ---------- */
+.kmotion .k-team-frame {
+  position: relative;
+  overflow: hidden;
+  --cover: 80%;
+}
+.kmotion .k-team-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(14, 14, 16, 0) calc(var(--cover) - 17%),
+    rgba(14, 14, 16, 0.86) calc(var(--cover) - 5%),
+    var(--k-ink) var(--cover)
+  );
+}
+.kmotion .k-team-frame .k-team-name,
+.kmotion .k-team-frame .k-team-thumb-name {
+  position: absolute;
+  z-index: 1;
+  left: 7%;
+  bottom: 5.5%;
+  color: var(--k-paper);
+}
+.kmotion .k-team-card.k-team-frame,
+.kmotion .k-team-feature.k-team-frame {
+  gap: 0;
+}
+.kmotion .k-team-feature .k-team-name {
+  font-size: clamp(24px, 8vw, 34px);
+}
+.kmotion .k-team-thumb.k-team-frame {
+  gap: 0;
+}
+.kmotion .k-team-thumb-name {
+  font-size: 13px;
+  left: 8%;
+  bottom: 6%;
 }

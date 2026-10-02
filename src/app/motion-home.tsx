@@ -133,10 +133,13 @@ const PROCESS = CAPABILITIES.map((c, i) => ({
 
 /** The people you meet. Names only: no roles or titles until they are confirmed. */
 const TEAM = [
-  { name: "Michael", image: "/team/michael.jpg" },
-  { name: "Marc", image: "/team/marc.jpg" },
-  { name: "Riki", image: "/team/riki.jpg" },
+  { name: "Michael", image: "/team/michael.jpg", cover: 77 },
+  { name: "Marc", image: "/team/marc.jpg", cover: 84 },
+  { name: "Riki", image: "/team/riki.jpg", cover: 80 },
 ] as const;
+/** The fade to the page's black starts just above each portrait's collarbone. */
+const coverStyle = (m: { cover: number }) => ({ ["--cover" as string]: `${m.cover}%` }) as React.CSSProperties;
+
 const TEAM_COPY = {
   label: "The studio",
   title: "The people you meet are the people who build.",
@@ -316,9 +319,12 @@ function ContactEmail() {
 }
 
 /**
- * The team, in an order that belongs to no one. Each visit starts at a random person, and the row
- * then rotates one place every few seconds, so everybody passes through the lead position equally.
- * It pauses on hover and focus, and does not move at all for people who prefer reduced motion.
+ * The team, in an order that belongs to no one. Each visit starts at a random person, and the
+ * lead then rotates every few seconds, so everybody passes through it equally.
+ *  - Wide screens: three equal portraits on a conveyor that slides one place at a time.
+ *  - Phones: all three on screen at once, one in detail and the other two as small thumbnails;
+ *    tapping a thumbnail brings that person forward.
+ * It pauses under a mouse pointer or keyboard focus, and never moves for reduced-motion visitors.
  */
 function TeamRotator() {
   const [order, setOrder] = useState<number[]>(() => TEAM.map((_, i) => i));
@@ -326,22 +332,34 @@ function TeamRotator() {
   const [shifting, setShifting] = useState(false);
   const [paused, setPaused] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [compact, setCompact] = useState(false);
 
   // Before the first paint: pick a random starting person (the server cannot, it renders once).
   useLayoutEffect(() => {
     const start = Math.floor(Math.random() * TEAM.length);
     setOrder(TEAM.map((_, i) => (i + start) % TEAM.length));
     setReduceMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const mq = window.matchMedia("(max-width: 640px)");
+    setCompact(mq.matches);
+    const onChange = () => {
+      setCompact(mq.matches);
+      setShifting(false);
+    };
+    mq.addEventListener("change", onChange);
     setReady(true);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   useEffect(() => {
     if (!ready || reduceMotion || paused) return;
     const id = window.setInterval(() => {
-      if (!document.hidden) setShifting(true);
+      if (document.hidden) return;
+      // Phones swap the featured person directly; wide screens slide the conveyor.
+      if (compact) setOrder((o) => [...o.slice(1), o[0]]);
+      else setShifting(true);
     }, 5200);
     return () => window.clearInterval(id);
-  }, [ready, reduceMotion, paused]);
+  }, [ready, reduceMotion, paused, compact]);
 
   // When the slide finishes, rotate the underlying order and reset the track with no transition.
   const onTransitionEnd = (e: React.TransitionEvent<HTMLUListElement>) => {
@@ -350,38 +368,91 @@ function TeamRotator() {
     setShifting(false);
   };
 
-  // One extra card on the end gives the slide something to bring in.
-  const cards = [...order, order[0]];
+  /** Bring one person to the front, keeping the others in their cyclic order. */
+  const feature = (idx: number) =>
+    setOrder((o) => {
+      const at = o.indexOf(idx);
+      return at <= 0 ? o : [...o.slice(at), ...o.slice(0, at)];
+    });
+
+  // Only a real mouse pauses it: a tap must not leave it stuck paused.
+  const hover = (on: boolean) => (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse") setPaused(on);
+  };
+
+  const lead = TEAM[order[0]];
   return (
     <div
       className="k-team-viewport"
       data-ready={ready ? "1" : undefined}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onPointerEnter={hover(true)}
+      onPointerLeave={hover(false)}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      <ul className="k-team-track" data-shift={shifting ? "1" : undefined} onTransitionEnd={onTransitionEnd}>
-        {cards.map((idx, pos) => {
-          const m = TEAM[idx];
-          const isClone = pos === TEAM.length;
-          return (
-            <li key={`${m.name}-${pos}`} className="k-team-card" aria-hidden={isClone ? true : undefined}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={m.image}
-                alt={isClone ? "" : `Illustrated portrait of ${m.name}`}
-                width={880}
-                height={1100}
-                loading="lazy"
-                decoding="async"
-                className="k-team-img"
-              />
-              <span className="k-team-name">{m.name}</span>
-            </li>
-          );
-        })}
-      </ul>
+      {compact ? (
+        <div className="k-team-stack">
+          <div className="k-team-feature k-team-frame" key={lead.name} style={coverStyle(lead)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={lead.image}
+              alt={`Illustrated portrait of ${lead.name}`}
+              width={880}
+              height={1100}
+              decoding="async"
+              className="k-team-img"
+            />
+            <span className="k-team-name">{lead.name}</span>
+          </div>
+          <div className="k-team-thumbs">
+            {order.slice(1).map((idx) => {
+              const m = TEAM[idx];
+              return (
+                <button
+                  key={m.name}
+                  type="button"
+                  className="k-team-thumb k-team-frame"
+                  style={coverStyle(m)}
+                  onClick={() => feature(idx)}
+                  aria-label={`Show ${m.name}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={m.image} alt="" width={880} height={1100} decoding="async" className="k-team-img" />
+                  <span className="k-team-thumb-name">{m.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <ul className="k-team-track" data-shift={shifting ? "1" : undefined} onTransitionEnd={onTransitionEnd}>
+          {/* One extra card on the end gives the slide something to bring in. */}
+          {[...order, order[0]].map((idx, pos) => {
+            const m = TEAM[idx];
+            const isClone = pos === TEAM.length;
+            return (
+              <li
+                key={`${m.name}-${pos}`}
+                className="k-team-card k-team-frame"
+                style={coverStyle(m)}
+                aria-hidden={isClone ? true : undefined}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={m.image}
+                  alt={isClone ? "" : `Illustrated portrait of ${m.name}`}
+                  width={880}
+                  height={1100}
+                  loading="lazy"
+                  decoding="async"
+                  className="k-team-img"
+                />
+                <span className="k-team-name">{m.name}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
@@ -525,6 +596,7 @@ export function MotionHome() {
 
       // The header logo is ink on the orange screen, and cream again once the page goes dark.
       root.classList.toggle("k-orange", (!reduce && p > T.orangeHeader && trackBottom > 72) || overContact);
+      root.classList.toggle("k-past", trackBottom < 72);
 
       /* The sentence arrives word by word on the orange. */
       const span = T.words[1] - T.words[0];

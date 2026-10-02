@@ -387,7 +387,9 @@ export function InteractiveDotMap({
       className="k-dotmap"
       role="img"
       aria-label={label}
-      style={{ aspectRatio: `${w} / ${h}` }}
+      // Sized from its width (never from height): WebKit collapses a height-driven aspect-ratio box
+      // inside a flex container to zero width. --ratio lets the stylesheet cap it to the column.
+      style={{ aspectRatio: `${w} / ${h}`, ["--ratio" as string]: String(w / h) } as React.CSSProperties}
     >
       {/* Static fallback until the dots are drawn (and for no-JS): the exact original silhouette. */}
       <svg
