@@ -102,7 +102,7 @@
 
 /* Scroll-scrubbed hero. The track is tall; the stage sticks while it plays. */
 .kmotion .k-track {
-  height: 330vh; /* the logo builds on load, so scroll only carries the takeover */
+  height: 230vh; /* the logo builds on load, so scroll only carries the takeover */
   position: relative;
 }
 .kmotion .k-stage {
