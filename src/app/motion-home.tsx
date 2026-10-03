@@ -452,14 +452,6 @@ function ContactActions() {
           Book a call<span aria-hidden="true"> &rarr;</span>
         </a>
       ) : null}
-      {/* COMPARISON ONLY: the same button with a light sweep through the letters. Remove one before launch. */}
-      {BOOKING_URL ? (
-        <a href={BOOKING_URL} className="k-cta k-cta-solid k-cta-sweep" target="_blank" rel="noopener noreferrer">
-          <span className="k-sweep-text">
-            Book a call<span aria-hidden="true"> &rarr;</span>
-          </span>
-        </a>
-      ) : null}
       {WHATSAPP_URL ? (
         <a href={WHATSAPP_URL} className="k-cta" target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" className="k-cta-icon" aria-hidden="true">
