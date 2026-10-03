@@ -251,6 +251,15 @@ const TERMS = {
   ],
 } as const;
 
+const SERVICES = [
+  "Product strategy",
+  "Brand identity",
+  "Product design",
+  "Web & app development",
+  "AI & automation",
+  "Blockchain & payments",
+  "Design systems",
+] as const;
 const SECTORS = ["Payments", "Crypto & Web3", "Markets", "Sport", "Property", "AI", "Manufacturing"] as const;
 const CONTACT_COPY = {
   title: "Something complicated?",
@@ -1025,7 +1034,32 @@ export function MotionHome() {
           <ContactActions />
           <ContactEmail />
         </div>
-        <p className="k-contact-sectors k-next-row">{SECTORS.join("  ·  ")}</p>
+        <dl className="k-contact-lists k-next-row">
+          <div>
+            <dt>Services</dt>
+            <dd className="k-contact-sectors">
+              {SERVICES.map((x, i) => (
+                <span key={x}>
+                  {/* the dot stays with the item before it, so no line starts with one */}
+                  <span className="k-nowrap">{i < SERVICES.length - 1 ? `${x}\u00a0·` : x}</span>
+                  {i < SERVICES.length - 1 ? "  " : ""}
+                </span>
+              ))}
+            </dd>
+          </div>
+          <div>
+            <dt>Sectors</dt>
+            <dd className="k-contact-sectors">
+              {SECTORS.map((x, i) => (
+                <span key={x}>
+                  {/* the dot stays with the item before it, so no line starts with one */}
+                  <span className="k-nowrap">{i < SECTORS.length - 1 ? `${x}\u00a0·` : x}</span>
+                  {i < SECTORS.length - 1 ? "  " : ""}
+                </span>
+              ))}
+            </dd>
+          </div>
+        </dl>
 
         <footer className="k-footer k-next-row">
           <CityClocks />

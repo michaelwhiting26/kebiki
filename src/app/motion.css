@@ -1161,3 +1161,35 @@
     transition: none;
   }
 }
+
+/* ---------- Contact: what we do and who for, as two labelled lines ---------- */
+.kmotion .k-contact-lists {
+  margin: 9vh 0 0;
+  display: grid;
+  gap: 1.6rem;
+}
+.kmotion .k-contact-lists > div {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  column-gap: 1.5rem;
+  align-items: baseline;
+}
+.kmotion .k-contact-lists dt {
+  font-family: var(--k-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.kmotion .k-contact-lists dd {
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .kmotion .k-contact-lists > div {
+    grid-template-columns: 1fr;
+    row-gap: 0.5rem;
+  }
+}
+.kmotion .k-nowrap {
+  white-space: nowrap;
+}
