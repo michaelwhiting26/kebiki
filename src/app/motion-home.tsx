@@ -159,6 +159,19 @@ function workLinkLabel(href: string) {
  */
 const TESTIMONIALS: { quote: string; name: string; role: string; company: string }[] = [];
 
+/** Layout example for local preview only: never shown on the live site, where a made-up quote would be fake proof. */
+const QUOTES_SHOWN =
+  TESTIMONIALS.length > 0 || process.env.NODE_ENV === "production"
+    ? TESTIMONIALS
+    : [
+        {
+          quote: "Example only - the client's own words go here, two or three sentences on what changed for them.",
+          name: "Client Name",
+          role: "Role",
+          company: "Company",
+        },
+      ];
+
 /** Each capability paired, in order, with the engagement output it produces. */
 const PROCESS = CAPABILITIES.map((c, i) => ({
   n: c.n,
@@ -435,6 +448,14 @@ function ContactActions() {
       {BOOKING_URL ? (
         <a href={BOOKING_URL} className="k-cta k-cta-solid" target="_blank" rel="noopener noreferrer">
           Book a call<span aria-hidden="true"> &rarr;</span>
+        </a>
+      ) : null}
+      {/* COMPARISON ONLY: the same button with a light sweep through the letters. Remove one before launch. */}
+      {BOOKING_URL ? (
+        <a href={BOOKING_URL} className="k-cta k-cta-solid k-cta-sweep" target="_blank" rel="noopener noreferrer">
+          <span className="k-sweep-text">
+            Book a call<span aria-hidden="true"> &rarr;</span>
+          </span>
         </a>
       ) : null}
       {WHATSAPP_URL ? (
@@ -1042,9 +1063,9 @@ export function MotionHome() {
             </li>
           ))}
         </ol>
-        {TESTIMONIALS.length > 0 ? (
+        {QUOTES_SHOWN.length > 0 ? (
           <ul className="k-quotes">
-            {TESTIMONIALS.map((t) => (
+            {QUOTES_SHOWN.map((t) => (
               <li key={t.name} className="k-quote k-next-row">
                 <blockquote>&ldquo;{t.quote}&rdquo;</blockquote>
                 <p className="k-quote-who">
