@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kebiki email signature</title>
+<style>
+  body { margin: 0; padding: 48px 24px; background: #f2efe9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #0e0e10; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
+  p.note { font-size: 13px; line-height: 1.55; color: #555; margin: 0 0 24px; }
+  .card { background: #fff; border: 1px solid #e3ded5; border-radius: 6px; padding: 28px; }
+  button { margin-top: 18px; font: 600 13px/1 inherit; padding: 11px 16px; border: 0; border-radius: 999px; background: #0e0e10; color: #fd540d; cursor: pointer; }
+  ol { font-size: 13px; line-height: 1.7; color: #333; padding-left: 20px; }
+  #status { font-size: 12px; color: #2b7a3d; margin-left: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kebiki email signature</h1>
+  <p class="note">The logo builds itself when the email opens (an animated GIF; Outlook on desktop shows the finished logo).</p>
+
+  <div class="card">
+    <!-- SIGNATURE START: tables and inline styles only, so it survives Gmail, Apple Mail and Outlook -->
+    <div id="signature">
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;">
+        <tr>
+          <td valign="top" style="padding:0 18px 0 0;">
+            <a href="https://kebiki.studio" style="text-decoration:none;"><img src="https://kebiki.studio/email/kebiki-signature.gif" width="120" height="120" alt="Kebiki" style="display:block;border:0;width:120px;height:120px;"></a>
+          </td>
+          <td valign="top" style="padding:2px 0 0 18px;border-left:1px solid #dddddd;">
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:24px;font-weight:bold;color:#0e0e10;">Michael Whiting</div>
+            <div style="font-size:12px;line-height:18px;color:#6b6b6b;padding-top:2px;">Engineering, contracts &amp; commercial</div>
+            <div style="font-size:11px;line-height:16px;font-weight:bold;letter-spacing:1.5px;color:#0e0e10;padding-top:10px;">KEBIKI STUDIO</div>
+            <div style="font-size:12px;line-height:18px;padding-top:2px;">
+              <a href="mailto:hello@kebiki.studio" style="color:#0e0e10;text-decoration:none;">hello@kebiki.studio</a>
+              <span style="color:#bbbbbb;">&nbsp;|&nbsp;</span>
+              <a href="https://wa.me/971505315746" style="color:#0e0e10;text-decoration:none;">+971 50 531 5746</a>
+            </div>
+            <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:collapse;margin-top:12px;">
+              <tr>
+                <td style="padding:0 6px 0 0;"><a href="https://kebiki.studio"><img src="https://kebiki.studio/email/icon-web.png" width="28" height="28" alt="Website" style="display:block;border:0;"></a></td>
+                <td style="padding:0 6px 0 0;"><a href="https://wa.me/971505315746"><img src="https://kebiki.studio/email/icon-whatsapp.png" width="28" height="28" alt="WhatsApp" style="display:block;border:0;"></a></td>
+                <td style="padding:0 8px 0 0;"><a href="https://www.instagram.com/kebiki.studio/"><img src="https://kebiki.studio/email/icon-instagram.png" width="28" height="28" alt="Instagram" style="display:block;border:0;"></a></td>
+                <td bgcolor="#0e0e10" style="background:#0e0e10;border-radius:3px;">
+                  <a href="https://cal.com/michael-whiting-fw7mdt/30min" style="display:inline-block;padding:7px 14px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:14px;font-weight:bold;letter-spacing:1px;color:#fd540d;text-decoration:none;">BOOK A CALL &rarr;</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <!-- SIGNATURE END -->
+  </div>
+
+  <button id="copy" type="button">Copy signature</button><span id="status"></span>
+
+  <ol>
+    <li>Click <b>Copy signature</b> above.</li>
+    <li>Gmail &rarr; Settings (cog) &rarr; <b>See all settings</b> &rarr; General &rarr; <b>Signature</b> &rarr; Create new.</li>
+    <li>Click in the signature box and paste (&#8984;V). Scroll down and <b>Save changes</b>.</li>
+  </ol>
+</div>
+<script>
+  document.getElementById("copy").addEventListener("click", async () => {
+    const el = document.getElementById("signature");
+    const status = document.getElementById("status");
+    try {
+      await navigator.clipboard.write([new ClipboardItem({
+        "text/html": new Blob([el.innerHTML], { type: "text/html" }),
+        "text/plain": new Blob([el.innerText], { type: "text/plain" }),
+      })]);
+      status.textContent = "Copied - paste it into Gmail.";
+    } catch (e) {
+      const r = document.createRange(); r.selectNodeContents(el);
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      status.textContent = "Selected - press ⌘C, then paste into Gmail.";
+    }
+  });
+</script>
+</body>
+</html>

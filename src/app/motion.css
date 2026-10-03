@@ -1187,3 +1187,43 @@
 .kmotion .k-nowrap {
   white-space: nowrap;
 }
+
+/* ---------- Work: client words (only rendered once real, approved quotes exist) ---------- */
+.kmotion .k-quotes {
+  list-style: none;
+  margin: 6rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 3.5rem;
+}
+.kmotion .k-quote blockquote {
+  margin: 0;
+  max-width: 30em;
+  font-size: clamp(24px, 2.6vw, 38px);
+  line-height: 1.3;
+  color: var(--k-paper);
+}
+.kmotion .k-quote-who {
+  margin: 1.2rem 0 0;
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--k-persimmon);
+}
+/* ---------- Team: LinkedIn link, once a profile is added ---------- */
+.kmotion .k-team-in {
+  display: inline-block;
+  margin-top: 0.9rem;
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--k-persimmon);
+  text-decoration: none;
+  pointer-events: auto;
+}
+.kmotion .k-team-in:hover,
+.kmotion .k-team-in:focus-visible {
+  text-decoration: underline;
+}

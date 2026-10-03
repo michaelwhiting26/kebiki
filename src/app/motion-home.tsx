@@ -100,7 +100,7 @@ const WORK = [
     name: "Pepay",
     text: "Accept any supported asset and settle from one system - invoicing, payment links, QR checkout, subscriptions and reconciliation on the same ledger.",
     stack: [{ name: "React", icon: "react" }, { name: "TypeScript", icon: "typescript" }, { name: "Solana", icon: "solana" }, { name: "BNB Chain", icon: "bnbchain" }] as StackItem[],
-    href: "https://pepay-merchant-dashboard.vercel.app/home",
+    href: "https://pepay.io",
   },
   {
     n: "02",
@@ -116,7 +116,7 @@ const WORK = [
     name: "BNBPay",
     text: "Payments that move on-chain without the payer covering blockchain fees - invoices, subscriptions, gift cards and API payments for merchants, platforms and AI agents across BNB Chain and opBNB.",
     stack: [{ name: "Solidity", icon: "solidity" }, { name: "TypeScript", icon: "typescript" }, { name: "Next.js", icon: "nextjs" }, { name: "BNB Chain", icon: "bnbchain" }] as StackItem[],
-    href: "https://bnbpayvercel1.vercel.app",
+    href: "https://bnbpay.org",
   },
   {
     n: "04",
@@ -145,8 +145,19 @@ const WORK = [
 ] as const;
 
 /** Sits under the work list: says whose work it is, and whose names they are. */
-const WORK_NOTE =
-  "Work shown was carried out by members of the Kebiki team, in some cases before the studio was formed. Product names and brands belong to their respective owners.";
+const WORK_NOTE = "Selected work by the Kebiki team. Product names and brands belong to their respective owners.";
+
+/** A live product shows its own domain; a build still on a preview host says so plainly. */
+function workLinkLabel(href: string) {
+  const host = new URL(href).hostname.replace(/^www\./, "");
+  return host.endsWith(".vercel.app") ? "View the build" : `Visit ${host}`;
+}
+
+/**
+ * Client words, exactly as given and approved in writing by the person quoted. Empty until then:
+ * the block below the work list only appears once there is at least one.
+ */
+const TESTIMONIALS: { quote: string; name: string; role: string; company: string }[] = [];
 
 /** Each capability paired, in order, with the engagement output it produces. */
 const PROCESS = CAPABILITIES.map((c, i) => ({
@@ -158,33 +169,41 @@ const PROCESS = CAPABILITIES.map((c, i) => ({
   outputText: ENGAGEMENT.steps[i].text,
 }));
 
-/** The people you meet. Names only: no roles or titles until they are confirmed. */
+/** The people you meet. Surnames show only once all three are filled in, so nobody stands out. */
 const TEAM = [
   {
     name: "Michael",
     image: "/team/michael.jpg",
     cover: 77,
+    surname: "Whiting",
+    linkedin: "",
     role: "Engineering, contracts and commercial",
-    bio: "Michael scopes, prices and runs the work, and writes code alongside the team. A background in international arbitration, contracts and commercial work means every plan is built to survive scrutiny.",
+    bio: "Michael started in construction at sixteen and now works on quantum and delay in international arbitration, where every number is tested under cross-examination. He brings the same rigour to software: scope that holds, prices that stand up, contracts that protect both sides.",
     talk: "scope, pricing, contracts and delivery risk",
   },
   {
     name: "Marc",
     image: "/team/marc.jpg",
     cover: 84,
+    surname: "",
+    linkedin: "",
     role: "Full-stack engineering",
-    bio: "Marc builds across the whole product, from the interface to the database and deployment. Marc owns how the system fits together, so what launches is something the team can keep running.",
+    bio: "Self-taught, Marc has been writing code since the age of ten and builds across the whole product, from the interface to the database and deployment. Marc owns how the system fits together, so what launches is something the team can keep running.",
     talk: "architecture, data and running in production",
   },
   {
     name: "Riki",
     image: "/team/riki.jpg",
     cover: 80,
+    surname: "",
+    linkedin: "",
     role: "Engineering and marketing",
-    bio: "Riki works on both sides of a launch: building the product and putting it in front of the right people. That connects what is built to how it is found, used and measured.",
+    bio: "Self-taught, Riki has been writing code since the age of ten and works on both sides of a launch: building the product and putting it in front of the right people.",
     talk: "build, launch and growth",
   },
 ] as const;
+const SHOW_SURNAMES = TEAM.every((m) => m.surname.trim() !== "");
+const fullName = (m: (typeof TEAM)[number]) => (SHOW_SURNAMES ? `${m.name} ${m.surname}` : m.name);
 /** The fade to the page's black starts just above each portrait's collarbone. */
 const coverStyle = (m: { cover: number }) => ({ ["--cover" as string]: `${m.cover}%` }) as React.CSSProperties;
 
@@ -262,8 +281,8 @@ const SERVICES = [
 ] as const;
 const SECTORS = ["Fintech & payments", "Crypto & Web3", "Sport & media", "Property", "Enterprise software"] as const;
 const CONTACT_COPY = {
-  title: "Something complicated?",
-  body: "Tell us what you're building, where it stands and what you need next. We read every enquiry ourselves and respond within two working days.",
+  title: "Bring us the hard part.",
+  body: "Fourteen days from now, you'll know what to build, what it will take and whether it's worth doing. Every message is answered by the people who would build it, within two working days.",
 } as const;
 
 type HeroEls = {
@@ -538,7 +557,7 @@ function TeamRotator() {
               decoding="async"
               className="k-team-img"
             />
-            <span className="k-team-name">{lead.name}</span>
+            <span className="k-team-name">{fullName(lead)}</span>
           </div>
           <div className="k-team-thumbs">
             {order.slice(1).map((idx) => {
@@ -565,6 +584,11 @@ function TeamRotator() {
             <p className="k-team-talk">
               <span>Talk to {lead.name} about</span> {lead.talk}
             </p>
+            {lead.linkedin ? (
+              <a href={lead.linkedin} className="k-team-in" target="_blank" rel="noopener noreferrer">
+                LinkedIn<span aria-hidden="true"> &rarr;</span>
+              </a>
+            ) : null}
           </div>
         </div>
       ) : (
@@ -592,7 +616,7 @@ function TeamRotator() {
                   className="k-team-img"
                 />
                 <div className="k-team-meta">
-                  <span className="k-team-name">{m.name}</span>
+                  <span className="k-team-name">{fullName(m)}</span>
                   <span className="k-team-role">{m.role}</span>
                   <div className="k-team-more">
                     <div>
@@ -600,6 +624,11 @@ function TeamRotator() {
                       <p className="k-team-talk">
                         <span>Talk to {m.name} about</span> {m.talk}
                       </p>
+                      {m.linkedin && !isClone ? (
+                        <a href={m.linkedin} className="k-team-in" target="_blank" rel="noopener noreferrer">
+                          LinkedIn<span aria-hidden="true"> &rarr;</span>
+                        </a>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -1006,13 +1035,25 @@ export function MotionHome() {
                 </ul>
                 {w.href ? (
                   <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
-                    View the product<span aria-hidden="true"> &rarr;</span>
+                    {workLinkLabel(w.href)}<span aria-hidden="true"> &rarr;</span>
                   </a>
                 ) : null}
               </div>
             </li>
           ))}
         </ol>
+        {TESTIMONIALS.length > 0 ? (
+          <ul className="k-quotes">
+            {TESTIMONIALS.map((t) => (
+              <li key={t.name} className="k-quote k-next-row">
+                <blockquote>&ldquo;{t.quote}&rdquo;</blockquote>
+                <p className="k-quote-who">
+                  {t.name}, {t.role}, {t.company}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <p className="k-work-note k-next-row">{WORK_NOTE}</p>
       </section>
 
