@@ -502,10 +502,9 @@ function HeaderLogo() {
 }
 
 const CITIES = [
-  { name: "London", zone: "Europe/London", country: "uk", scale: 1 },
-  { name: "Dubai", zone: "Asia/Dubai", country: "uae", scale: 1 },
-  // Japan is a thin diagonal, so at the same height it reads smaller than the others.
-  { name: "Tokyo", zone: "Asia/Tokyo", country: "japan", scale: 1.15 },
+  { name: "London", zone: "Europe/London", country: "uk" },
+  { name: "Dubai", zone: "Asia/Dubai", country: "uae" },
+  { name: "Tokyo", zone: "Asia/Tokyo", country: "japan" },
 ] as const;
 
 /** The studio's cities, each with its country's outline and the local time (updating each minute). Times render after mount, so server and client agree. */
@@ -522,7 +521,7 @@ function CityClocks() {
         const shape = COUNTRY_SHAPES[c.country];
         return (
           <li key={c.name} className="k-city">
-            <div className="k-city-shape" style={{ ["--map-scale" as string]: c.scale } as React.CSSProperties}>
+            <div className="k-city-shape">
               <InteractiveDotMap d={shape.d} w={shape.w} h={shape.h} label={`Map of ${shape.name}`} />
             </div>
             <span className="k-city-name">{c.name}</span>

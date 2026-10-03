@@ -434,9 +434,8 @@
 .kmotion .k-dotmap {
   position: relative;
   flex: 0 0 auto;
-  /* Width first, height from the aspect ratio: as tall as --map-h allows, never wider than the column.
-     --map-scale lets one map stand a little taller; it grows upward, so the baseline is still shared. */
-  width: min(100%, calc(var(--map-h) * var(--map-scale, 1) * var(--ratio, 1)));
+  /* Width first, height from the aspect ratio: as tall as --map-h allows, never wider than the column. */
+  width: min(100%, calc(var(--map-h) * var(--ratio, 1)));
   height: auto;
   color: var(--k-ink);
 }
