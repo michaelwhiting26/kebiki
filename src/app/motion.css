@@ -1006,22 +1006,30 @@
   line-height: 1.45;
   color: var(--k-paper);
 }
-/* The five models: one row each, so they read as a list of options, not a second set of prices. */
-.kmotion .k-models-heading {
-  margin: 14vh 0 0;
-  font-size: clamp(30px, 3.6vw, 56px);
-  font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: -0.015em;
-  color: var(--k-paper);
-}
-.kmotion .k-models-body {
-  margin: 1.4rem 0 0;
+/* What follows the fourteen days, in one line, with the way through to the five models. */
+.kmotion .k-terms-after {
+  margin: 6vh 0 0;
   max-width: 36em;
-  font-size: clamp(17px, 1.4vw, 21px);
+  font-size: clamp(18px, 1.6vw, 23px);
   line-height: 1.5;
   color: var(--gray-11);
 }
+.kmotion .k-terms-after a {
+  color: var(--k-paper);
+  text-decoration: underline;
+  text-decoration-color: var(--k-persimmon);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+  white-space: nowrap;
+}
+.kmotion .k-terms-after a:hover,
+.kmotion .k-terms-after a:focus-visible {
+  color: var(--k-persimmon);
+}
+.kmotion .k-terms-cta {
+  margin-top: 2.4rem;
+}
+/* The five models (on /terms): one row each, so they read as a list of options, not a set of prices. */
 .kmotion .k-models {
   list-style: none;
   margin: 6vh 0 0;
@@ -1203,6 +1211,17 @@
 .kmotion .k-cta-solid:focus-visible {
   background: transparent;
   color: var(--k-ink);
+}
+/* The same button on the dark screens: the orange is the fill. */
+.kmotion .k-cta-onink {
+  background: var(--k-persimmon);
+  border-color: var(--k-persimmon);
+  color: var(--k-ink);
+}
+.kmotion .k-cta-onink:hover,
+.kmotion .k-cta-onink:focus-visible {
+  background: transparent;
+  color: var(--k-persimmon);
 }
 /* The other ways in: plain text links beside the one button, so there is a single obvious action. */
 .kmotion .k-cta-link {
@@ -1621,4 +1640,34 @@
   white-space: nowrap;
   /* Clip sideways to the word's own width, so wide glyphs never overlap the next word. */
   clip-path: inset(-50% 0 -50% 0);
+}
+
+/* ---------- Inner pages (/terms): the logo and a way back, in the normal flow ---------- */
+.kmotion .k-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 22px 28px;
+}
+.kmotion .k-page-back {
+  font-family: var(--k-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--k-paper);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+}
+.kmotion .k-page-back:hover,
+.kmotion .k-page-back:focus-visible {
+  color: var(--k-persimmon);
+}
+.kmotion.k-page .k-terms {
+  padding-top: 10vh;
+  min-height: calc(100vh - 78px);
+}
+.kmotion.k-page .k-terms-cta {
+  margin-top: 7vh;
 }

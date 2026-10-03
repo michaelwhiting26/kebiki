@@ -1,11 +1,12 @@
 "use client";
 
 import { EB_Garamond, Montserrat } from "next/font/google";
+import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { CREAM_PATH, DOT_PATH, ORANGE_PATH } from "./logo-paths";
 import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
-import { BOOKING_URL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
+import { BOOKING_URL, CONTACT_EMAIL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
 import { COUNTRY_SHAPES } from "./country-paths";
 import { InteractiveDotMap } from "./dot-map";
 import { addTick, setLenis } from "./clock";
@@ -84,7 +85,6 @@ const CAPABILITIES = [
   { n: "03", verb: "Build", text: "Ship in working pieces, each one tested and monitored from the day it goes live." },
   { n: "04", verb: "Evolve", text: "Keep improving the product against what real use shows and what the business needs next." },
 ] as const;
-const CONTACT_EMAIL = "hello@kebiki.studio";
 
 /** How an engagement starts, in the studio's own words (from the main site). */
 const ENGAGEMENT = {
@@ -343,10 +343,9 @@ const TEAM_COPY = {
 } as const;
 
 /**
- * Commercial models. `risk` is who carries the risk of the work costing more than expected:
- * 0 = the client, 1 = the studio. Wording is a draft of commercial terms. `packages` are the three
- * fixed-price tiers, shown as cards with the price leading; `models` are the five commercial models
- * (no prices, no percentages), shown as rows beneath.
+ * How we charge, on the home page: the three fixed-price tiers as cards with the price leading, one
+ * line on what follows, and the three things that always hold. The five commercial models that line
+ * refers to live on /terms (see terms-data.ts). Wording is a draft of commercial terms.
  */
 const TERMS = {
   label: "How we charge",
@@ -380,50 +379,7 @@ const TERMS = {
       },
     ],
   },
-  heading: "Five ways to work with us.",
-  body: "Most engagements start with the fourteen days above. After that we agree the model that fits the work, and put it in writing before anything starts.",
-  models: [
-    {
-      n: "01",
-      name: "Hourly consultation",
-      line: "Advice by the hour.",
-      text: "A senior second opinion: an architecture review, a technical due-diligence call, a rescue plan. You pay for the time used and can stop at any point.",
-      best: "Specific questions, reviews and short pieces of advice.",
-      risk: 0.08,
-    },
-    {
-      n: "02",
-      name: "Fixed price",
-      line: "A defined scope for a set fee.",
-      text: "We agree exactly what will be delivered and what it costs. If it takes us longer than we planned, that is our problem, not yours.",
-      best: "Work that can be specified clearly up front.",
-      risk: 0.92,
-    },
-    {
-      n: "03",
-      name: "Maximum price",
-      line: "Pay for time used, up to a ceiling.",
-      text: "You are billed for the time the work actually takes, with a cap agreed in advance. If it comes in under, you pay less. It cannot go over without your written agreement.",
-      best: "Work with real unknowns, where a fixed price would mean padding.",
-      risk: 0.62,
-    },
-    {
-      n: "04",
-      name: "Retainer",
-      line: "Reserved capacity each month.",
-      text: "A set amount of the team's time every month for a product that keeps moving: new features, improvements and support. The priorities are yours to change.",
-      best: "Live products that need continuous work.",
-      risk: 0.28,
-    },
-    {
-      n: "05",
-      name: "Equity",
-      line: "Part fee, part stake.",
-      text: "For a small number of early ventures we take part of our fee as equity, so we carry some of the risk and share in the result. We do this selectively.",
-      best: "Early-stage products we believe in.",
-      risk: 0.76,
-    },
-  ],
+  after: { text: "After the fourteen days we agree fixed price, capped, retainer or equity, in writing.", link: "The five ways to work with us" },
   always: [
     { title: "Agreed in writing first", text: "Scope, price and model are set down before work starts." },
     { title: "Changes priced before they are made", text: "Nothing is added to the bill without your agreement." },
@@ -1273,36 +1229,12 @@ export function MotionHome() {
             </li>
           ))}
         </ul>
-        <h3 className="k-models-heading k-next-row">{TERMS.heading}</h3>
-        <p className="k-models-body k-next-row">{TERMS.body}</p>
-        <ul className="k-models">
-          {TERMS.models.map((m) => (
-            <li key={m.n} className="k-model k-next-row">
-              <span className="k-term-n">{m.n}</span>
-              <div className="k-model-title">
-                <h4 className="k-model-name">{m.name}</h4>
-                <p className="k-model-line">{m.line}</p>
-              </div>
-              <div className="k-model-main">
-                <p className="k-model-text">{m.text}</p>
-                <p className="k-model-best">
-                  <span className="k-term-key">Best for</span>
-                  {m.best}
-                </p>
-              </div>
-              <div className="k-risk" role="img" aria-label={`Cost risk: ${m.risk < 0.4 ? "mostly yours" : m.risk > 0.7 ? "mostly ours" : "shared"}`}>
-                <span className="k-term-key">Who carries the cost risk</span>
-                <div className="k-risk-track">
-                  <span className="k-risk-dot" style={{ left: `${m.risk * 100}%` }} />
-                </div>
-                <div className="k-risk-ends">
-                  <span>You</span>
-                  <span>Us</span>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <p className="k-terms-after k-next-row">
+          {TERMS.after.text}{" "}
+          <Link href="/terms">
+            {TERMS.after.link}<span aria-hidden="true"> &rarr;</span>
+          </Link>
+        </p>
         <ul className="k-always">
           {TERMS.always.map((a) => (
             <li key={a.title} className="k-next-row">

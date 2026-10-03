@@ -6,6 +6,9 @@
  *   NEXT_PUBLIC_BOOKING_URL      full https link to the booking page, e.g. https://cal.com/<name>/<event>
  *   NEXT_PUBLIC_WHATSAPP_NUMBER  the WhatsApp number in international form, e.g. +44 7700 900123
  */
+/** The one public address. The mailbox must exist and be read. */
+export const CONTACT_EMAIL = "hello@kebiki.studio";
+
 const rawBooking = (process.env.NEXT_PUBLIC_BOOKING_URL ?? "").trim();
 /** Only an https link is accepted; anything else is treated as not set. */
 export const BOOKING_URL = /^https:\/\/[^\s]+$/.test(rawBooking) ? rawBooking : "";
