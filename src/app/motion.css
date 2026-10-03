@@ -1265,3 +1265,20 @@
     color: inherit;
   }
 }
+
+/* ---------- Scroll progress: a hairline along the top edge ---------- */
+.kmotion .k-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 6;
+  height: 2px;
+  background: var(--k-persimmon);
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+  transition: background-color 0.3s;
+}
+/* On the orange screens the bar turns ink so it stays visible. */
+.kmotion.k-orange .k-progress {
+  background: var(--k-ink);
+}

@@ -8,6 +8,8 @@ import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
 import { BOOKING_URL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
 import { COUNTRY_SHAPES } from "./country-paths";
 import { InteractiveDotMap } from "./dot-map";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 import "./motion.css";
 
 /** The sentence's serif. */
@@ -664,6 +666,42 @@ function TeamRotator() {
 
 export function MotionHome() {
   const rootRef = useRef<HTMLElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  /*
+   * Smooth wheel and trackpad scrolling (Lenis). It moves the real scroll position, so the sticky
+   * hero, observers and the scrollbar keep working. Touch stays native, and visitors who ask for
+   * reduced motion get the browser's own scrolling.
+   */
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false, anchors: true, autoRaf: true });
+    return () => lenis.destroy();
+  }, []);
+
+  /* A thin bar along the top shows how far through the page the visitor is. */
+  useEffect(() => {
+    const bar = progressRef.current;
+    if (!bar) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0})`;
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
   const stepsRef = useRef<HTMLElement>(null);
 
   /* The 14-day steps: the row nearest the middle of the screen lights up. */
@@ -827,7 +865,8 @@ export function MotionHome() {
         }
       }
       if (!reduce && forced === null) target = base + scrollS * (1 - base);
-      shown += (target - shown) * (reduce || forced !== null || autoplaying ? 1 : 0.1);
+      const ease = document.documentElement.classList.contains("lenis") ? 0.35 : 0.1;
+      shown += (target - shown) * (reduce || forced !== null || autoplaying ? 1 : ease);
       if (Math.abs(target - shown) < 0.0005) shown = target;
       const p = shown;
 
@@ -887,6 +926,7 @@ export function MotionHome() {
 
   return (
     <main id="main" ref={rootRef} className={`kmotion ${garamond.className}`}>
+      <div ref={progressRef} className="k-progress" aria-hidden="true" />
       <header className="k-header">
         <HeaderLogo />
       </header>
