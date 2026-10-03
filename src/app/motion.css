@@ -1406,3 +1406,17 @@
     transition: none;
   }
 }
+
+/* ---------- Sentence words: scramble layer over the (hidden) real word ---------- */
+.kmotion .k-w {
+  position: relative;
+}
+.kmotion .k-w-scr {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  white-space: nowrap;
+  /* Clip sideways to the word's own width, so wide glyphs never overlap the next word. */
+  clip-path: inset(-50% 0 -50% 0);
+}

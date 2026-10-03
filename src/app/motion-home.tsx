@@ -669,6 +669,9 @@ function TeamRotator() {
   );
 }
 
+/** Characters the sentence's words cycle through before settling. */
+const SCRAMBLE = "abcdeghknopqrsuvxyz+=/<>";
+
 /** Section markers: shown bottom left while each section is on screen. */
 const CHAPTERS = [
   { id: "next", label: "What we do" },
@@ -886,6 +889,7 @@ export function MotionHome() {
     cleanups.push(() => io.disconnect());
 
     const wordEls = wordRefs.current.filter((w): w is HTMLSpanElement => !!w);
+    const scrambleAt: number[] = [];
 
     const loop = () => {
       const autoplaying = !introDone;
@@ -939,13 +943,38 @@ export function MotionHome() {
       root.classList.toggle("k-orange", (!reduce && p > T.orangeHeader && trackBottom > 72) || overContact);
       root.classList.toggle("k-past", trackBottom < 72);
 
-      /* The sentence arrives word by word on the orange. */
+      /*
+       * The sentence arrives word by word on the orange. Each word after the logo scrambles and
+       * settles left to right as it comes in (the effect from the original studio page). The scramble
+       * sits in a layer over the hidden real word, so the line never reflows while it plays.
+       */
       const span = T.words[1] - T.words[0];
+      const now = performance.now();
       wordEls.forEach((w, i) => {
         const start = T.words[0] + (i / WORDS.length) * span * 0.8;
         const local = quadInOut(seg(p, start, start + span * 0.2));
-        w.style.opacity = String(local);
+        w.style.opacity = String(Math.min(1, local * 2.5));
         w.style.transform = `translateY(${(1 - local) * 0.5}em)`;
+        if (i === 0) return;
+        const real = w.firstElementChild as HTMLElement | null;
+        const scr = w.lastElementChild as HTMLElement | null;
+        if (!real || !scr) return;
+        const scrambling = local > 0 && local < 1;
+        if (!scrambling) {
+          if (real.style.visibility) {
+            real.style.visibility = "";
+            scr.textContent = "";
+          }
+          return;
+        }
+        if (now - (scrambleAt[i] ?? 0) < 55) return; // new glyphs ~18 times a second, not every frame
+        scrambleAt[i] = now;
+        const word = WORDS[i];
+        const settled = Math.floor(local * word.length);
+        real.style.visibility = "hidden";
+        scr.textContent = [...word]
+          .map((ch, k) => (k < settled || !/[a-z]/i.test(ch) ? ch : SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)]))
+          .join("");
       });
 
       /* Once the sentence has landed, the name's origin settles in, bottom right. */
@@ -1034,7 +1063,16 @@ export function MotionHome() {
                 <span className="k-sr">{SENTENCE}</span>
                 {WORDS.map((w, i) => (
                   <span key={i} aria-hidden="true">
-                    <span className="k-w" ref={(el) => { wordRefs.current[i] = el; }}>{i === 0 ? <InlineLogo /> : w}</span>
+                    <span className="k-w" ref={(el) => { wordRefs.current[i] = el; }}>
+                      {i === 0 ? (
+                        <InlineLogo />
+                      ) : (
+                        <>
+                          <span className="k-w-real">{w}</span>
+                          <span className="k-w-scr" />
+                        </>
+                      )}
+                    </span>
                     {i < WORDS.length - 1 ? " " : ""}
                   </span>
                 ))}
