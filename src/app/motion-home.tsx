@@ -745,6 +745,7 @@ export function MotionHome() {
   const hintRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const sealRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLElement>(null);
   const [reduced, setReduced] = useState(false);
 
@@ -912,6 +913,14 @@ export function MotionHome() {
         w.style.transform = `translateY(${(1 - local) * 0.5}em)`;
       });
 
+      /* Once the sentence has landed, the name's origin settles in, bottom right. */
+      const seal = sealRef.current;
+      if (seal) {
+        const k = quadInOut(seg(p, T.words[1] - 0.01, T.words[1] + 0.03));
+        seal.style.opacity = String(k);
+        seal.style.transform = `translateY(${(1 - k) * 12}px)`;
+      }
+
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -988,6 +997,14 @@ export function MotionHome() {
                   </span>
                 ))}
               </p>
+              <div className="k-seal" lang="ja" ref={sealRef}>
+                <span className="k-seal-rule" aria-hidden="true" />
+                <span className="k-seal-ja">罫引き</span>
+                <span className="k-seal-en" lang="en">
+                  <span>kebiki</span>
+                  <span>marking gauge</span>
+                </span>
+              </div>
             </div>
           ) : null}
         </div>
@@ -998,6 +1015,14 @@ export function MotionHome() {
           <p>
             <InlineLogo /> {WORDS.slice(1).join(" ")}
           </p>
+          <div className="k-seal" lang="ja">
+            <span className="k-seal-rule" aria-hidden="true" />
+            <span className="k-seal-ja">罫引き</span>
+            <span className="k-seal-en" lang="en">
+              <span>kebiki</span>
+              <span>marking gauge</span>
+            </span>
+          </div>
         </section>
       ) : null}
 
