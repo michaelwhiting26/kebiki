@@ -669,8 +669,11 @@ function TeamRotator() {
   );
 }
 
-/** Characters the sentence's words cycle through before settling. */
-const SCRAMBLE = "abcdeghknopqrsuvxyz+=/<>";
+/** The text shuffle from the original studio page: glyphs it cycles through, and how long it takes to settle. */
+const SHUFFLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&*+=/<>";
+const SHUFFLE_MS = 1100;
+/** Characters in the sentence after the logo word, which the shuffle settles across. */
+const SENTENCE_CHARS = WORDS.slice(1).join(" ").length;
 
 /** Section markers: shown bottom left while each section is on screen. */
 const CHAPTERS = [
@@ -889,7 +892,7 @@ export function MotionHome() {
     cleanups.push(() => io.disconnect());
 
     const wordEls = wordRefs.current.filter((w): w is HTMLSpanElement => !!w);
-    const scrambleAt: number[] = [];
+    let shuffleStart: number | null = null;
 
     const loop = () => {
       const autoplaying = !introDone;
@@ -944,36 +947,38 @@ export function MotionHome() {
       root.classList.toggle("k-past", trackBottom < 72);
 
       /*
-       * The sentence arrives word by word on the orange. Each word after the logo scrambles and
-       * settles left to right as it comes in (the effect from the original studio page). The scramble
-       * sits in a layer over the hidden real word, so the line never reflows while it plays.
+       * The sentence: the same text shuffle as the original studio page. When the orange screen is
+       * reached, every word after the logo appears scrambled at once and settles left to right across
+       * the whole line in SHUFFLE_MS; it replays each time the visitor scrolls back above it. The
+       * scramble is drawn in a clipped layer over the hidden real word, so lines never reflow.
        */
-      const span = T.words[1] - T.words[0];
       const now = performance.now();
+      const wordsOn = p >= T.words[0];
+      if (wordsOn && shuffleStart === null) shuffleStart = now;
+      if (!wordsOn && p < T.words[0] - 0.01) shuffleStart = null;
+      const t = shuffleStart === null ? 0 : Math.min((now - shuffleStart) / SHUFFLE_MS, 1);
+      const settledChars = Math.floor(t * SENTENCE_CHARS);
+      let offset = 0;
       wordEls.forEach((w, i) => {
-        const start = T.words[0] + (i / WORDS.length) * span * 0.8;
-        const local = quadInOut(seg(p, start, start + span * 0.2));
-        w.style.opacity = String(Math.min(1, local * 2.5));
-        w.style.transform = `translateY(${(1 - local) * 0.5}em)`;
+        w.style.opacity = wordsOn ? "1" : "0";
+        w.style.transform = "";
         if (i === 0) return;
+        const word = WORDS[i];
         const real = w.firstElementChild as HTMLElement | null;
         const scr = w.lastElementChild as HTMLElement | null;
+        const start = offset;
+        offset += word.length + 1;
         if (!real || !scr) return;
-        const scrambling = local > 0 && local < 1;
-        if (!scrambling) {
+        if (!wordsOn || t >= 1 || reduce) {
           if (real.style.visibility) {
             real.style.visibility = "";
             scr.textContent = "";
           }
           return;
         }
-        if (now - (scrambleAt[i] ?? 0) < 55) return; // new glyphs ~18 times a second, not every frame
-        scrambleAt[i] = now;
-        const word = WORDS[i];
-        const settled = Math.floor(local * word.length);
         real.style.visibility = "hidden";
         scr.textContent = [...word]
-          .map((ch, k) => (k < settled || !/[a-z]/i.test(ch) ? ch : SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)]))
+          .map((ch, k) => (start + k < settledChars || !/[a-z0-9]/i.test(ch) ? ch : SHUFFLE_GLYPHS[Math.floor(Math.random() * SHUFFLE_GLYPHS.length)]))
           .join("");
       });
 
