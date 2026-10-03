@@ -616,12 +616,11 @@ export function MotionHome() {
   const rootRef = useRef<HTMLElement>(null);
   const stepsRef = useRef<HTMLElement>(null);
 
-  /* The 14-day steps: the row nearest the middle of the screen lights up, with its block on the timeline. */
+  /* The 14-day steps: the row nearest the middle of the screen lights up. */
   useEffect(() => {
     const section = stepsRef.current;
     if (!section) return;
     const rows = [...section.querySelectorAll<HTMLElement>(".k-next-list > li")];
-    const segs = [...section.querySelectorAll<HTMLElement>(".k-tl-seg")];
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -639,8 +638,6 @@ export function MotionHome() {
         }
       });
       rows.forEach((r, i) => r.toggleAttribute("data-active", i === active));
-      segs.forEach((g, i) => g.toggleAttribute("data-active", i === active));
-      section.toggleAttribute("data-stepping", active >= 0);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update);
