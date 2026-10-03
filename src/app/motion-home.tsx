@@ -1095,6 +1095,9 @@ export function MotionHome() {
       <header className="k-header">
         <HeaderLogo />
       </header>
+      <a href={`mailto:${CONTACT_EMAIL}`} className="k-top-cta">
+        {CONTACT_COPY.cta}
+      </a>
 
       <section ref={trackRef} className="k-track" style={reduced ? { height: "100vh" } : undefined}>
         <div ref={stageRef} className="k-stage">
@@ -1235,6 +1238,11 @@ export function MotionHome() {
             {TERMS.after.link}<span aria-hidden="true"> &rarr;</span>
           </Link>
         </p>
+        <div className="k-terms-cta k-next-row">
+          <a href={`mailto:${CONTACT_EMAIL}`} className="k-cta k-cta-onink">
+            {CONTACT_COPY.cta}<span aria-hidden="true"> &rarr;</span>
+          </a>
+        </div>
         <ul className="k-always">
           {TERMS.always.map((a) => (
             <li key={a.title} className="k-next-row">

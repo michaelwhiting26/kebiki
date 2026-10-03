@@ -897,6 +897,38 @@
   opacity: 0;
   pointer-events: none;
 }
+/* Its place is taken, in the opposite corner, by a way to get in touch that stays within reach.
+   It steps aside again over the contact screen, where the same button is already on show. */
+.kmotion .k-top-cta {
+  position: fixed;
+  top: 18px;
+  right: 28px;
+  z-index: 5;
+  font-family: var(--k-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--k-paper);
+  background: color-mix(in srgb, var(--k-ink) 82%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--gray-7);
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0s 0.3s, color 0.2s, border-color 0.2s;
+}
+.kmotion.k-past:not(.k-orange) .k-top-cta {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.kmotion .k-top-cta:hover,
+.kmotion .k-top-cta:focus-visible {
+  color: var(--k-persimmon);
+  border-color: var(--k-persimmon);
+}
 
 /* ---------- Portrait frame: fades to the page's black at the collarbone, name set on the dark ---------- */
 .kmotion .k-team-frame {
