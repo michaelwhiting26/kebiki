@@ -168,6 +168,107 @@ function workLinkLabel(href: string) {
   return host.endsWith(".vercel.app") ? "View the build" : `Visit ${host}`;
 }
 
+/** The work roller: degrees between neighbouring names on the drum, and scroll per project (in screens). */
+const ROLLER = { step: 24, perItem: 0.6 } as const;
+
+/** Where a name sits on the drum, `d` places from the front (negative is above). */
+function rollerStyle(d: number) {
+  return {
+    transform: `rotateX(${(-d * ROLLER.step).toFixed(2)}deg) translateZ(var(--k-roller-r))`,
+    opacity: Math.pow(clamp01(1 - Math.abs(d) / 2.4), 1.6).toFixed(3),
+  };
+}
+
+/**
+ * Selected work on a vertical roller. The screen sticks while the visitor scrolls: the project names
+ * turn on a drum, one place per project, and the details beside it follow the name at the front.
+ * With reduced motion there is no drum and the projects read as a plain list (see motion.css).
+ */
+function WorkRoller() {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const names = [...track.querySelectorAll<HTMLElement>(".k-roller-name")];
+    const panels = [...track.querySelectorAll<HTMLElement>(".k-roller-panel")];
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const r = track.getBoundingClientRect();
+      const raw = clamp01(-r.top / (r.height - window.innerHeight)) * (names.length - 1);
+      // Settle on each project: slow near a whole place, quicker in between.
+      const f = raw - Math.floor(raw);
+      const pos = Math.floor(raw) + f * f * (3 - 2 * f);
+      const active = Math.round(pos);
+      names.forEach((el, i) => {
+        Object.assign(el.style, rollerStyle(i - pos));
+        el.toggleAttribute("data-active", i === active);
+      });
+      panels.forEach((el, i) => el.toggleAttribute("data-active", i === active));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  return (
+    <div ref={trackRef} className="k-roller-track" style={{ height: `${100 + (WORK.length - 1) * ROLLER.perItem * 100}vh` }}>
+      <div className="k-roller-stage">
+        <div className="k-label">Selected work</div>
+        <div className="k-roller-body">
+          <div className="k-roller-drum" aria-hidden="true">
+            <div className="k-roller-wheel">
+              {WORK.map((w, i) => (
+                <span key={w.name} className="k-roller-name" style={rollerStyle(i)} data-active={i === 0 ? "" : undefined}>
+                  {w.name}
+                </span>
+              ))}
+            </div>
+          </div>
+          <ol className="k-roller-panels">
+            {WORK.map((w, i) => (
+              <li key={w.name} className="k-roller-panel" data-active={i === 0 ? "" : undefined}>
+                <div className="k-work-meta">
+                  <span className="k-work-n">{w.n}</span>
+                  <span className="k-work-cat">{w.category}</span>
+                </div>
+                <h2 className="k-roller-panel-name">{w.name}</h2>
+                <p className="k-work-text">{w.text}</p>
+                <ul className="k-work-stack" aria-label="Built with">
+                  {w.stack.map((st) => (
+                    <li key={st.name}>
+                      {st.icon ? (
+                        <svg viewBox="0 0 24 24" className="k-stack-icon" aria-hidden="true">
+                          <path d={BRAND_ICONS[st.icon].path} />
+                        </svg>
+                      ) : null}
+                      {st.name}
+                    </li>
+                  ))}
+                </ul>
+                {w.href ? (
+                  <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
+                    {workLinkLabel(w.href)}<span aria-hidden="true"> &rarr;</span>
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Client words, exactly as given and approved in writing by the person quoted. Empty until then:
  * the block below the work list only appears once there is at least one.
@@ -243,10 +344,41 @@ const TEAM_COPY = {
 
 /**
  * Commercial models. `risk` is who carries the risk of the work costing more than expected:
- * 0 = the client, 1 = the studio. Wording is a draft of commercial terms: no prices, no percentages.
+ * 0 = the client, 1 = the studio. Wording is a draft of commercial terms. `packages` are the three
+ * fixed-price tiers (with prices); `models` are the five commercial models (no prices, no percentages).
  */
 const TERMS = {
   label: "How we charge",
+  packages: {
+    heading: "Three prices. All fixed.",
+    body: "Three fixed-price ways to start, published before you ask.",
+    models: [
+      {
+        n: "01",
+        name: "Scribe",
+        line: "\u00a37,450 \u00b7 5 days",
+        text: "A written second opinion on a build in progress: planned against actual, what your contract says about change, and whether to carry on, re-scope or stop. No build. The fee is credited in full against Line within 30 days.",
+        best: "A build that feels late and you need an independent read.",
+        risk: 0.9,
+      },
+      {
+        n: "02",
+        name: "Line",
+        line: "\u00a318,500 \u00b7 14 days",
+        text: "All four outputs above. The hardest part is live on Day 9, and you finish with a costed plan another team could carry out. Half the fee is credited if we go on to finish the build within 30 days.",
+        best: "The product. Late builds, and new software that has to be right first time.",
+        risk: 0.92,
+      },
+      {
+        n: "03",
+        name: "Gauge",
+        line: "\u00a329,500 \u00b7 14 days + 30",
+        text: "Line, plus an independent, assumption-logged estimate of the cost and time to completion, fit for a board, lender or investor, and a review at 30 days.",
+        best: "When someone else has to rely on the number.",
+        risk: 0.92,
+      },
+    ],
+  },
   heading: "Five ways to work with us.",
   body: "Most engagements start with the fourteen days above. After that we agree the model that fits the work, and put it in writing before anything starts.",
   models: [
@@ -671,7 +803,7 @@ function TeamRotator() {
 
 /** The text shuffle from the original studio page: glyphs it cycles through, and how long it takes to settle. */
 const SHUFFLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&*+=/<>";
-const SHUFFLE_MS = 1100;
+const SHUFFLE_MS = 2200;
 /** Characters in the sentence after the logo word, which the shuffle settles across. */
 const SENTENCE_CHARS = WORDS.slice(1).join(" ").length;
 
@@ -1136,32 +1268,36 @@ export function MotionHome() {
 
       <section id="terms" className="k-terms">
         <div className="k-label">{TERMS.label}</div>
-        <h2 className="k-engage-heading k-next-row">{TERMS.heading}</h2>
-        <p className="k-engage-body k-next-row">{TERMS.body}</p>
-        <ul className="k-terms-grid">
-          {TERMS.models.map((m) => (
-            <li key={m.n} className="k-term k-next-row">
-              <span className="k-term-n">{m.n}</span>
-              <h3 className="k-term-name">{m.name}</h3>
-              <p className="k-term-line">{m.line}</p>
-              <p className="k-term-text">{m.text}</p>
-              <p className="k-term-best">
-                <span className="k-term-key">Best for</span>
-                {m.best}
-              </p>
-              <div className="k-risk" role="img" aria-label={`Cost risk: ${m.risk < 0.4 ? "mostly yours" : m.risk > 0.7 ? "mostly ours" : "shared"}`}>
-                <span className="k-term-key">Who carries the cost risk</span>
-                <div className="k-risk-track">
-                  <span className="k-risk-dot" style={{ left: `${m.risk * 100}%` }} />
-                </div>
-                <div className="k-risk-ends">
-                  <span>You</span>
-                  <span>Us</span>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {[TERMS.packages, TERMS].map((g) => (
+          <div key={g.heading} className="k-terms-group">
+            <h2 className="k-engage-heading k-next-row">{g.heading}</h2>
+            <p className="k-engage-body k-next-row">{g.body}</p>
+            <ul className="k-terms-grid">
+              {g.models.map((m) => (
+                <li key={m.n} className="k-term k-next-row">
+                  <span className="k-term-n">{m.n}</span>
+                  <h3 className="k-term-name">{m.name}</h3>
+                  <p className="k-term-line">{m.line}</p>
+                  <p className="k-term-text">{m.text}</p>
+                  <p className="k-term-best">
+                    <span className="k-term-key">Best for</span>
+                    {m.best}
+                  </p>
+                  <div className="k-risk" role="img" aria-label={`Cost risk: ${m.risk < 0.4 ? "mostly yours" : m.risk > 0.7 ? "mostly ours" : "shared"}`}>
+                    <span className="k-term-key">Who carries the cost risk</span>
+                    <div className="k-risk-track">
+                      <span className="k-risk-dot" style={{ left: `${m.risk * 100}%` }} />
+                    </div>
+                    <div className="k-risk-ends">
+                      <span>You</span>
+                      <span>Us</span>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
         <ul className="k-always">
           {TERMS.always.map((a) => (
             <li key={a.title} className="k-next-row">
@@ -1173,38 +1309,7 @@ export function MotionHome() {
       </section>
 
       <section id="work" className="k-work">
-        <div className="k-label">Selected work</div>
-        <ol className="k-work-list">
-          {WORK.map((w) => (
-            <li key={w.name} className="k-work-item k-next-row">
-              <div className="k-work-meta">
-                <span className="k-work-n">{w.n}</span>
-                <span className="k-work-cat">{w.category}</span>
-              </div>
-              <div className="k-work-main">
-                <h2 className="k-work-name">{w.name}</h2>
-                <p className="k-work-text">{w.text}</p>
-                <ul className="k-work-stack" aria-label="Built with">
-                  {w.stack.map((st) => (
-                    <li key={st.name}>
-                      {st.icon ? (
-                        <svg viewBox="0 0 24 24" className="k-stack-icon" aria-hidden="true">
-                          <path d={BRAND_ICONS[st.icon].path} />
-                        </svg>
-                      ) : null}
-                      {st.name}
-                    </li>
-                  ))}
-                </ul>
-                {w.href ? (
-                  <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
-                    {workLinkLabel(w.href)}<span aria-hidden="true"> &rarr;</span>
-                  </a>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ol>
+        <WorkRoller />
         {QUOTES_SHOWN.length > 0 ? (
           <ul className="k-quotes">
             {QUOTES_SHOWN.map((t) => (

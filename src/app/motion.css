@@ -526,25 +526,156 @@
   color: rgba(14, 14, 16, 0.75);
 }
 
-/* ---------- Selected work ---------- */
+/* ---------- Selected work: a vertical roller. The track is tall; the stage sticks while the drum turns. ---------- */
 .kmotion .k-work {
   background: var(--k-ink);
-  padding: 20vh 8vw 16vh;
+  padding: 0 8vw 16vh;
 }
-.kmotion .k-work-list {
-  list-style: none;
-  margin: 8vh 0 0;
-  padding: 0;
+.kmotion .k-roller-track {
+  position: relative;
 }
-.kmotion .k-work-item {
+.kmotion .k-roller-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.kmotion .k-roller-stage > .k-label {
+  position: absolute;
+  top: 14vh;
+  left: 0;
+}
+.kmotion .k-roller-body {
   display: grid;
-  grid-template-columns: 15rem minmax(0, 1fr);
-  column-gap: 2rem;
-  padding: 4.4rem 0;
-  border-top: 1px solid var(--gray-6);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  column-gap: 5vw;
+  align-items: center;
 }
-.kmotion .k-work-item:last-child {
-  border-bottom: 1px solid var(--gray-6);
+/* The drum. Names sit on its surface, --k-roller-r from the axle; the wheel is set back by the same
+   amount so the name at the front is drawn at its true size. */
+.kmotion .k-roller-drum {
+  --k-roller-r: 2.7em;
+  position: relative;
+  height: 5.6em;
+  font-size: clamp(36px, min(5.6vw, 11vh), 96px);
+  perspective: 12em;
+}
+.kmotion .k-roller-wheel {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(-1 * var(--k-roller-r)));
+}
+.kmotion .k-roller-name {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -0.5em;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  color: var(--gray-9);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  transition: color 0.3s ease;
+}
+.kmotion .k-roller-name[data-active] {
+  color: var(--k-paper);
+}
+/* Every project's details share one cell, so the panel is as tall as the longest and never jumps. */
+.kmotion .k-roller-panels {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.kmotion .k-roller-panel {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px);
+  transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s 0.3s;
+}
+.kmotion .k-roller-panel[data-active] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+.kmotion .k-roller-panel .k-work-meta {
+  flex-direction: row;
+  gap: 1rem;
+}
+/* The name is on the drum; here it is for screen readers, and for the plain list below. */
+.kmotion .k-roller-panel-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .kmotion .k-roller-body {
+    grid-template-columns: 1fr;
+    row-gap: 3vh;
+  }
+  .kmotion .k-roller-drum {
+    font-size: clamp(30px, min(10.5vw, 6.5vh), 60px);
+    height: 4.6em;
+  }
+  .kmotion .k-roller-stage > .k-label {
+    top: 11vh;
+  }
+}
+/* Reduced motion: no drum and nothing sticks. The projects read as a plain list. */
+@media (prefers-reduced-motion: reduce) {
+  .kmotion .k-roller-track {
+    height: auto !important;
+  }
+  .kmotion .k-roller-stage {
+    position: static;
+    height: auto;
+    display: block;
+    padding-top: 20vh;
+  }
+  .kmotion .k-roller-stage > .k-label {
+    position: static;
+  }
+  .kmotion .k-roller-drum {
+    display: none;
+  }
+  .kmotion .k-roller-body,
+  .kmotion .k-roller-panels {
+    display: block;
+  }
+  .kmotion .k-roller-body {
+    margin-top: 8vh;
+  }
+  .kmotion .k-roller-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    padding: 3rem 0;
+    border-top: 1px solid var(--gray-6);
+  }
+  .kmotion .k-roller-panel-name {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 1.2rem 0 0;
+    overflow: visible;
+    clip-path: none;
+    font-size: clamp(40px, 7vw, 96px);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    color: var(--k-paper);
+  }
 }
 .kmotion .k-work-meta {
   display: flex;
@@ -560,14 +691,6 @@
 }
 .kmotion .k-work-cat {
   color: var(--k-mute);
-}
-.kmotion .k-work-name {
-  margin: 0;
-  font-size: clamp(48px, 8vw, 128px);
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: -0.025em;
-  color: var(--k-paper);
 }
 .kmotion .k-work-text {
   margin: 1.4rem 0 0;
@@ -615,17 +738,6 @@
 .kmotion .k-work-link:hover,
 .kmotion .k-work-link:focus-visible {
   color: var(--k-persimmon);
-}
-@media (max-width: 760px) {
-  .kmotion .k-work-item {
-    grid-template-columns: 1fr;
-    row-gap: 1.4rem;
-    padding: 3rem 0;
-  }
-  .kmotion .k-work-meta {
-    flex-direction: row;
-    gap: 1rem;
-  }
 }
 
 /* The fourteen days as a bar: one tick a day, split into the four phases. */
@@ -839,10 +951,13 @@
   bottom: 6%;
 }
 
-/* ---------- How we charge: five models, each with who carries the cost risk ---------- */
+/* ---------- How we charge: three fixed-price tiers, then five models, each with who carries the cost risk ---------- */
 .kmotion .k-terms {
   background: var(--gray-2);
   padding: 20vh 8vw 16vh;
+}
+.kmotion .k-terms-group + .k-terms-group {
+  margin-top: 14vh;
 }
 .kmotion .k-terms-grid {
   list-style: none;
