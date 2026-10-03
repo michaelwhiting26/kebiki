@@ -169,7 +169,7 @@ function workLinkLabel(href: string) {
 }
 
 /** The work roller: degrees between neighbouring names on the drum, and scroll per project (in screens). */
-const ROLLER = { step: 24, perItem: 0.6 } as const;
+const ROLLER = { step: 24, perItem: 0.4 } as const;
 
 /** Where a name sits on the drum, `d` places from the front (negative is above). */
 function rollerStyle(d: number) {
@@ -182,7 +182,8 @@ function rollerStyle(d: number) {
 /**
  * Selected work on a vertical roller. The screen sticks while the visitor scrolls: the project names
  * turn on a drum, one place per project, and the details beside it follow the name at the front.
- * With reduced motion there is no drum and the projects read as a plain list (see motion.css).
+ * With reduced motion, and on phones, there is no drum and nothing sticks: the projects read as a
+ * plain list (see motion.css).
  */
 function WorkRoller() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -192,9 +193,11 @@ function WorkRoller() {
     if (!track || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const names = [...track.querySelectorAll<HTMLElement>(".k-roller-name")];
     const panels = [...track.querySelectorAll<HTMLElement>(".k-roller-panel")];
+    const narrow = window.matchMedia("(max-width: 760px)");
     let raf = 0;
     const update = () => {
       raf = 0;
+      if (narrow.matches) return; // the plain list: nothing to turn
       const r = track.getBoundingClientRect();
       const raw = clamp01(-r.top / (r.height - window.innerHeight)) * (names.length - 1);
       // Settle on each project: slow near a whole place, quicker in between.

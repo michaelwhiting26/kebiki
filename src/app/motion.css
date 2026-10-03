@@ -608,21 +608,8 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-@media (max-width: 760px) {
-  .kmotion .k-roller-body {
-    grid-template-columns: 1fr;
-    row-gap: 3vh;
-  }
-  .kmotion .k-roller-drum {
-    font-size: clamp(30px, min(10.5vw, 6.5vh), 60px);
-    height: 4.6em;
-  }
-  .kmotion .k-roller-stage > .k-label {
-    top: 11vh;
-  }
-}
-/* Reduced motion: no drum and nothing sticks. The projects read as a plain list. */
-@media (prefers-reduced-motion: reduce) {
+/* Reduced motion, and phones: no drum and nothing sticks. The projects read as a plain list. */
+@media (prefers-reduced-motion: reduce), (max-width: 760px) {
   .kmotion .k-roller-track {
     height: auto !important;
   }
