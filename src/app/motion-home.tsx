@@ -306,9 +306,9 @@ const TEAM = [
     cover: 77,
     surname: "Whiting",
     linkedin: "",
-    role: "Engineering and delivery",
-    bio: "Michael scopes, prices and runs every project, and codes alongside the team. International arbitration taught him to build plans that hold up under scrutiny.",
-    talk: "scope, pricing, contracts and delivery risk",
+    role: "Engineering & Delivery",
+    bio: "Michael turns ambitious ideas into projects that ship. He scopes the work, prices it, builds alongside the team and keeps delivery from going sideways. A background in international arbitration means he has a healthy obsession with plans that survive contact with reality.",
+    talk: "scope, pricing, contracts & getting it over the line",
   },
   {
     name: "Marc",
@@ -316,9 +316,9 @@ const TEAM = [
     cover: 84,
     surname: "",
     linkedin: "",
-    role: "Full-stack engineering",
-    bio: "Self-taught, Marc has been writing code since the age of ten and builds across the whole product, from the interface to the database and deployment. Marc owns how the system fits together, so what launches is something the team can keep running.",
-    talk: "architecture, data and running in production",
+    role: "Full-Stack Engineering",
+    bio: "Marc has been writing code since he was ten. He builds across the whole stack and has a habit of understanding how every moving part fits together - from the interface to the database to whatever wakes you up at 2am.",
+    talk: "architecture, data & keeping things alive in production",
   },
   {
     name: "Riki",
@@ -326,9 +326,9 @@ const TEAM = [
     cover: 80,
     surname: "",
     linkedin: "",
-    role: "Engineering and growth",
-    bio: "Self-taught, Riki has been writing code since the age of ten and works on both sides of a launch: building the product and putting it in front of the right people.",
-    talk: "build, launch and growth",
+    role: "Engineering & Growth",
+    bio: "Riki works on both sides of a launch: building the thing and making sure people actually find it. He moves between product, engineering and growth without treating them like separate jobs - because the best product is fairly useless if nobody knows it exists.",
+    talk: "building, launching & finding traction",
   },
 ] as const;
 const SHOW_SURNAMES = TEAM.every((m) => m.surname.trim() !== "");
