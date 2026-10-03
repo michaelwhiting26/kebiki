@@ -1000,10 +1000,6 @@ export function MotionHome() {
               <div className="k-seal" lang="ja" ref={sealRef}>
                 <span className="k-seal-rule" aria-hidden="true" />
                 <span className="k-seal-ja">罫引き</span>
-                <span className="k-seal-en" lang="en">
-                  <span>kebiki</span>
-                  <span>marking gauge</span>
-                </span>
               </div>
             </div>
           ) : null}
@@ -1018,10 +1014,6 @@ export function MotionHome() {
           <div className="k-seal" lang="ja">
             <span className="k-seal-rule" aria-hidden="true" />
             <span className="k-seal-ja">罫引き</span>
-            <span className="k-seal-en" lang="en">
-              <span>kebiki</span>
-              <span>marking gauge</span>
-            </span>
           </div>
         </section>
       ) : null}

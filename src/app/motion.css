@@ -1310,20 +1310,6 @@
   background: currentColor;
   opacity: 0.55;
 }
-.kmotion .k-seal-en {
-  writing-mode: vertical-rl;
-  display: flex;
-  gap: 0.9rem;
-  font-family: var(--k-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-.kmotion .k-seal-en span:first-child {
-  opacity: 1;
-  font-weight: 600;
-}
 /* Reduced motion: sits in the static block, already visible. */
 .kmotion .k-static {
   position: relative;
