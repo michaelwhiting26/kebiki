@@ -54,6 +54,17 @@ const T = {
   orangeHeader: 0.8,
   words: [0.84, 0.96],
 } as const;
+/**
+ * A brief resistance while the orange circle sweeps past the left edge, so its arc and the logo
+ * hold on screen for a moment. Slows the expansion around DWELL.at (in expansion progress) to
+ * DWELL.slow of its speed at the centre, and makes it up either side; the start and end are unchanged.
+ */
+const DWELL = { at: 0.65, width: 0.2, slow: 0.9 } as const;
+function dwell(u: number) {
+  const d = u - DWELL.at;
+  if (Math.abs(d) >= DWELL.width) return u;
+  return u - ((DWELL.slow * DWELL.width) / Math.PI) * Math.sin((Math.PI * d) / DWELL.width);
+}
 const REDUCED_P = 0.6; // reduced motion: logo fully drawn, no takeover
 /** Share of the scroll track the animation plays over; the rest holds the finished sentence. */
 const HOLD = 0.9;
@@ -193,7 +204,7 @@ const TEAM = [
     surname: "Whiting",
     linkedin: "",
     role: "Engineering, contracts and commercial",
-    bio: "Michael started in construction at sixteen and now works on quantum and delay in international arbitration, where every number is tested under cross-examination. He brings the same rigour to software: scope that holds, prices that stand up, contracts that protect both sides.",
+    bio: "Michael scopes, prices and runs every project, and codes alongside the team. International arbitration taught him to build plans that hold up under scrutiny.",
     talk: "scope, pricing, contracts and delivery risk",
   },
   {
@@ -883,7 +894,7 @@ export function MotionHome() {
       hint.style.opacity = introDone && scrollS < 0.02 ? "1" : "0";
 
       /* The dot becomes the screen: a circle clip grows from the dot's own size and position. */
-      const e = reduce ? 0 : quadInOut(seg(p, T.expand[0], T.expand[1]));
+      const e = reduce ? 0 : quadInOut(dwell(seg(p, T.expand[0], T.expand[1])));
       if (e <= 0) {
         overlay.style.display = "none";
       } else {
@@ -1145,26 +1156,22 @@ export function MotionHome() {
         <dl className="k-contact-lists k-next-row">
           <div>
             <dt>Services</dt>
-            <dd className="k-contact-sectors">
-              {SERVICES.map((x, i) => (
-                <span key={x}>
-                  {/* the dot stays with the item before it, so no line starts with one */}
-                  <span className="k-nowrap">{i < SERVICES.length - 1 ? `${x}\u00a0·` : x}</span>
-                  {i < SERVICES.length - 1 ? "  " : ""}
-                </span>
-              ))}
+            <dd>
+              <ul className="k-tags">
+                {SERVICES.map((x) => (
+                  <li key={x}>{x}</li>
+                ))}
+              </ul>
             </dd>
           </div>
           <div>
             <dt>Sectors</dt>
-            <dd className="k-contact-sectors">
-              {SECTORS.map((x, i) => (
-                <span key={x}>
-                  {/* the dot stays with the item before it, so no line starts with one */}
-                  <span className="k-nowrap">{i < SECTORS.length - 1 ? `${x}\u00a0·` : x}</span>
-                  {i < SECTORS.length - 1 ? "  " : ""}
-                </span>
-              ))}
+            <dd>
+              <ul className="k-tags">
+                {SECTORS.map((x) => (
+                  <li key={x}>{x}</li>
+                ))}
+              </ul>
             </dd>
           </div>
         </dl>
