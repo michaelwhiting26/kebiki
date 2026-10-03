@@ -420,10 +420,12 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.7rem;
+  container-type: inline-size; /* lets the maps size against their own column */
 }
-/* Every outline sits on the same baseline, in black, whatever its shape. */
+/* Every outline sits on the same baseline, in black, whatever its shape. The height is capped so the
+   widest map (the UAE, 1.27 wide to 1 tall) still fits its column: all three stay the same height. */
 .kmotion .k-city-shape {
-  --map-h: clamp(78px, 13.6vw, 216px);
+  --map-h: min(clamp(78px, 13.6vw, 216px), calc(100cqw / 1.27));
   height: var(--map-h);
   width: 100%;
   display: flex;
@@ -915,6 +917,25 @@
 .kmotion .k-top-cta:focus-visible {
   color: var(--k-persimmon);
   border-color: var(--k-persimmon);
+  animation-play-state: paused;
+}
+/* A slow orange ring breathes out from it, so the eye finds it without it shouting. */
+@keyframes k-top-cta-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--k-persimmon) 50%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 11px transparent;
+  }
+}
+.kmotion.k-past:not(.k-orange) .k-top-cta {
+  animation: k-top-cta-pulse 2.8s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kmotion.k-past:not(.k-orange) .k-top-cta {
+    animation: none;
+  }
 }
 
 /* ---------- Portrait frame: fades to the page's black at the collarbone, name set on the dark ---------- */
