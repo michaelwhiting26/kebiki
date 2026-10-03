@@ -1169,7 +1169,8 @@
   margin-top: 4rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.9rem 1rem;
+  align-items: center;
+  gap: 1.2rem 2.2rem;
 }
 .kmotion .k-contact-actions + .k-contact-email {
   margin-top: 2.6rem;
@@ -1203,9 +1204,29 @@
   background: transparent;
   color: var(--k-ink);
 }
+/* The other ways in: plain text links beside the one button, so there is a single obvious action. */
+.kmotion .k-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--k-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+  color: var(--k-ink);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.kmotion .k-cta-link:hover,
+.kmotion .k-cta-link:focus-visible {
+  opacity: 1;
+}
 .kmotion .k-cta-icon {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   fill: currentColor;
   flex: none;
 }

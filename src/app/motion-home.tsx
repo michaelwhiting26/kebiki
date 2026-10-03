@@ -586,16 +586,16 @@ function ContactActions() {
         {CONTACT_COPY.cta}<span aria-hidden="true"> &rarr;</span>
       </a>
       {BOOKING_URL ? (
-        <a href={BOOKING_URL} className="k-cta" target="_blank" rel="noopener noreferrer">
+        <a href={BOOKING_URL} className="k-cta-link" target="_blank" rel="noopener noreferrer">
           Book a call<span aria-hidden="true"> &rarr;</span>
         </a>
       ) : null}
       {WHATSAPP_URL ? (
-        <a href={WHATSAPP_URL} className="k-cta" target="_blank" rel="noopener noreferrer">
+        <a href={WHATSAPP_URL} className="k-cta-link" target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" className="k-cta-icon" aria-hidden="true">
             <path d={BRAND_ICONS.whatsapp.path} />
           </svg>
-          WhatsApp us
+          WhatsApp
         </a>
       ) : null}
     </div>
