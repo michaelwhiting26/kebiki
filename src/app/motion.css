@@ -1319,3 +1319,90 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Living background: a fixed dot field behind the dark sections ---------- */
+.kmotion .k-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.kmotion.k-past .k-field {
+  opacity: 1;
+}
+/* Content sits above the field; the dark sections let it show through. */
+.kmotion > section,
+.kmotion > footer {
+  position: relative;
+  z-index: 1;
+}
+.kmotion .k-next,
+.kmotion .k-work {
+  background: transparent;
+}
+.kmotion .k-terms {
+  background: color-mix(in srgb, var(--gray-2) 80%, transparent);
+}
+.kmotion .k-team {
+  --team-bg: var(--gray-2);
+  background: color-mix(in srgb, var(--gray-2) 80%, transparent);
+}
+
+/* ---------- Chapter marker: which section you are in, bottom left ---------- */
+.kmotion .k-chapter {
+  position: fixed;
+  left: 28px;
+  bottom: 24px;
+  z-index: 6;
+  width: 18rem;
+  height: 14px;
+  overflow: hidden;
+  font-family: var(--k-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray-11);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease, color 0.3s;
+}
+.kmotion .k-chapter[data-on] {
+  opacity: 1;
+}
+.kmotion .k-chapter span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  transform: translateY(110%);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.3s;
+}
+.kmotion .k-chapter span[data-active] {
+  transform: none;
+  opacity: 1;
+}
+.kmotion .k-chapter b {
+  font-weight: 600;
+  color: var(--k-persimmon);
+  margin-right: 0.6em;
+}
+.kmotion.k-orange .k-chapter {
+  color: var(--k-ink);
+}
+.kmotion.k-orange .k-chapter b {
+  color: var(--k-ink);
+}
+@media (max-width: 640px) {
+  .kmotion .k-chapter {
+    left: 16px;
+    bottom: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kmotion .k-chapter span {
+    transition: none;
+  }
+}

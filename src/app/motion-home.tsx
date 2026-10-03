@@ -8,6 +8,8 @@ import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
 import { BOOKING_URL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
 import { COUNTRY_SHAPES } from "./country-paths";
 import { InteractiveDotMap } from "./dot-map";
+import { addTick, setLenis } from "./clock";
+import { ScrollField } from "./scroll-field";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import "./motion.css";
@@ -667,9 +669,36 @@ function TeamRotator() {
   );
 }
 
+/** Section markers: shown bottom left while each section is on screen. */
+const CHAPTERS = [
+  { id: "next", label: "What we do" },
+  { id: "terms", label: "How we charge" },
+  { id: "work", label: "Work" },
+  { id: "team", label: "The studio" },
+  { id: "contact", label: "Contact" },
+] as const;
+
 export function MotionHome() {
   const rootRef = useRef<HTMLElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const [chapter, setChapter] = useState<string | null>(null);
+
+  /* Which section is crossing the middle of the screen, for the chapter marker bottom left. */
+  useEffect(() => {
+    const ids = CHAPTERS.map((c) => c.id);
+    const els = ids.map((id) => document.getElementById(id)).filter((e): e is HTMLElement => !!e);
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setChapter(e.target.id);
+          else setChapter((cur) => (cur === e.target.id ? null : cur));
+        });
+      },
+      { rootMargin: "-50% 0px -50% 0px" },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
 
   /*
    * Smooth wheel and trackpad scrolling (Lenis). It moves the real scroll position, so the sticky
@@ -679,8 +708,12 @@ export function MotionHome() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
-    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false, anchors: true, autoRaf: true });
-    return () => lenis.destroy();
+    const lenis = new Lenis({ lerp: 0.08, wheelMultiplier: 0.8, smoothWheel: true, syncTouch: false, anchors: true });
+    setLenis(lenis); // driven by the page's single clock (./clock)
+    return () => {
+      setLenis(null);
+      lenis.destroy();
+    };
   }, []);
 
   /* A thin bar along the top shows how far through the page the visitor is. */
@@ -812,7 +845,6 @@ export function MotionHome() {
     let base = 0;
     let introDone = reduce || forced !== null;
     const introStart = performance.now();
-    let raf = 0;
     let trackBottom = Infinity;
     let overContact = false;
     const readContact = () => {
@@ -924,12 +956,11 @@ export function MotionHome() {
         seal.style.transform = `translateY(${(1 - k) * 12}px)`;
       }
 
-      raf = requestAnimationFrame(loop);
     };
-    raf = requestAnimationFrame(loop);
+    const stopLoop = addTick(loop);
 
     cleanups.push(() => {
-      cancelAnimationFrame(raf);
+      stopLoop();
       window.removeEventListener("scroll", readScroll);
       window.removeEventListener("resize", onResize);
     });
@@ -938,7 +969,15 @@ export function MotionHome() {
 
   return (
     <main id="main" ref={rootRef} className={`kmotion ${garamond.className}`}>
+      <ScrollField />
       <div ref={progressRef} className="k-progress" aria-hidden="true" />
+      <div className="k-chapter" aria-hidden="true" data-on={chapter ? "" : undefined}>
+        {CHAPTERS.map((c, i) => (
+          <span key={c.id} data-active={chapter === c.id ? "" : undefined}>
+            <b>{String(i + 1).padStart(2, "0")}</b> {c.label}
+          </span>
+        ))}
+      </div>
       <header className="k-header">
         <HeaderLogo />
       </header>
