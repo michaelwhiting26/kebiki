@@ -260,7 +260,7 @@ const SERVICES = [
   "Blockchain & payments",
   "Design systems",
 ] as const;
-const SECTORS = ["Payments", "Crypto & Web3", "Markets", "Sport", "Property", "AI", "Manufacturing"] as const;
+const SECTORS = ["Fintech & payments", "Crypto & Web3", "Sport & media", "Property", "Enterprise software"] as const;
 const CONTACT_COPY = {
   title: "Something complicated?",
   body: "Tell us what you're building, where it stands and what you need next. We read every enquiry ourselves and respond within two working days.",
