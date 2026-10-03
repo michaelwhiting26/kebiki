@@ -21,7 +21,7 @@ const montserrat = Montserrat({ subsets: ["latin"], weight: ["500"], display: "s
 
 const TAGLINE = "complex digital products, built to last.";
 const SENTENCE =
-  "Kebiki is a founder-led product strategy, design and engineering studio focused on turning complex ideas into refined digital products.";
+  "We work with founders to define, design and build complex digital products from idea to production.";
 const WORDS = SENTENCE.split(" ");
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
@@ -345,7 +345,8 @@ const TEAM_COPY = {
 /**
  * Commercial models. `risk` is who carries the risk of the work costing more than expected:
  * 0 = the client, 1 = the studio. Wording is a draft of commercial terms. `packages` are the three
- * fixed-price tiers (with prices); `models` are the five commercial models (no prices, no percentages).
+ * fixed-price tiers, shown as cards with the price leading; `models` are the five commercial models
+ * (no prices, no percentages), shown as rows beneath.
  */
 const TERMS = {
   label: "How we charge",
@@ -356,26 +357,26 @@ const TERMS = {
       {
         n: "01",
         name: "Scribe",
-        line: "\u00a37,450 \u00b7 5 days",
+        price: "\u00a37,450",
+        term: "5 days",
         text: "A written second opinion on a build in progress: planned against actual, what your contract says about change, and whether to carry on, re-scope or stop. No build. The fee is credited in full against Line within 30 days.",
         best: "A build that feels late and you need an independent read.",
-        risk: 0.9,
       },
       {
         n: "02",
         name: "Line",
-        line: "\u00a318,500 \u00b7 14 days",
+        price: "\u00a318,500",
+        term: "14 days",
         text: "All four outputs above. The hardest part is live on Day 9, and you finish with a costed plan another team could carry out. Half the fee is credited if we go on to finish the build within 30 days.",
         best: "The product. Late builds, and new software that has to be right first time.",
-        risk: 0.92,
       },
       {
         n: "03",
         name: "Gauge",
-        line: "\u00a329,500 \u00b7 14 days + 30",
+        price: "\u00a329,500",
+        term: "14 days + 30",
         text: "Line, plus an independent, assumption-logged estimate of the cost and time to completion, fit for a board, lender or investor, and a review at 30 days.",
         best: "When someone else has to rely on the number.",
-        risk: 0.92,
       },
     ],
   },
@@ -442,7 +443,8 @@ const SERVICES = [
 const SECTORS = ["Fintech & payments", "Crypto & Web3", "Sport & media", "Property", "Enterprise software"] as const;
 const CONTACT_COPY = {
   title: "Bring us the hard part.",
-  body: "Fourteen days from now, you'll know what to build, what it will take and whether it's worth doing. Every message is answered by the people who would build it, within two working days.",
+  body: "If you're building something technically difficult, we'd like to hear about it.",
+  cta: "Start a conversation",
 } as const;
 
 type HeroEls = {
@@ -540,17 +542,6 @@ function HeaderLogo() {
   );
 }
 
-/** The first word of the sentence, drawn as the logo: ink on the orange, sitting on the text baseline. */
-function InlineLogo() {
-  return (
-    <svg viewBox="366 298 934 304" className="k-inline-logo" role="img" aria-hidden="true">
-      <path d={CREAM_PATH} />
-      <path d={ORANGE_PATH} />
-      <path d={DOT_PATH} />
-    </svg>
-  );
-}
-
 const CITIES = [
   { name: "London", zone: "Europe/London", country: "uk" },
   { name: "Dubai", zone: "Asia/Dubai", country: "uae" },
@@ -589,11 +580,13 @@ function CityClocks() {
 
 /** Ways to talk now: a booked call and WhatsApp. Each button exists only if its channel is configured. */
 function ContactActions() {
-  if (!BOOKING_URL && !WHATSAPP_URL) return null;
   return (
     <div className="k-contact-actions">
+      <a href={`mailto:${CONTACT_EMAIL}`} className="k-cta k-cta-solid">
+        {CONTACT_COPY.cta}<span aria-hidden="true"> &rarr;</span>
+      </a>
       {BOOKING_URL ? (
-        <a href={BOOKING_URL} className="k-cta k-cta-solid" target="_blank" rel="noopener noreferrer">
+        <a href={BOOKING_URL} className="k-cta" target="_blank" rel="noopener noreferrer">
           Book a call<span aria-hidden="true"> &rarr;</span>
         </a>
       ) : null}
@@ -804,8 +797,8 @@ function TeamRotator() {
 /** The text shuffle from the original studio page: glyphs it cycles through, and how long it takes to settle. */
 const SHUFFLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&*+=/<>";
 const SHUFFLE_MS = 2200;
-/** Characters in the sentence after the logo word, which the shuffle settles across. */
-const SENTENCE_CHARS = WORDS.slice(1).join(" ").length;
+/** Characters in the sentence, which the shuffle settles across. */
+const SENTENCE_CHARS = SENTENCE.length;
 
 /** Section markers: shown bottom left while each section is on screen. */
 const CHAPTERS = [
@@ -1080,7 +1073,7 @@ export function MotionHome() {
 
       /*
        * The sentence: the same text shuffle as the original studio page. When the orange screen is
-       * reached, every word after the logo appears scrambled at once and settles left to right across
+       * reached, every word appears scrambled at once and settles left to right across
        * the whole line in SHUFFLE_MS; it replays each time the visitor scrolls back above it. The
        * scramble is drawn in a clipped layer over the hidden real word, so lines never reflow.
        */
@@ -1094,7 +1087,6 @@ export function MotionHome() {
       wordEls.forEach((w, i) => {
         w.style.opacity = wordsOn ? "1" : "0";
         w.style.transform = "";
-        if (i === 0) return;
         const word = WORDS[i];
         const real = w.firstElementChild as HTMLElement | null;
         const scr = w.lastElementChild as HTMLElement | null;
@@ -1201,14 +1193,8 @@ export function MotionHome() {
                 {WORDS.map((w, i) => (
                   <span key={i} aria-hidden="true">
                     <span className="k-w" ref={(el) => { wordRefs.current[i] = el; }}>
-                      {i === 0 ? (
-                        <InlineLogo />
-                      ) : (
-                        <>
-                          <span className="k-w-real">{w}</span>
-                          <span className="k-w-scr" />
-                        </>
-                      )}
+                      <span className="k-w-real">{w}</span>
+                      <span className="k-w-scr" />
                     </span>
                     {i < WORDS.length - 1 ? " " : ""}
                   </span>
@@ -1226,7 +1212,7 @@ export function MotionHome() {
       {reduced ? (
         <section className="k-static">
           <p>
-            <InlineLogo /> {WORDS.slice(1).join(" ")}
+            {SENTENCE}
           </p>
           <div className="k-seal" lang="ja">
             <span className="k-seal-rule" aria-hidden="true" />
@@ -1268,36 +1254,55 @@ export function MotionHome() {
 
       <section id="terms" className="k-terms">
         <div className="k-label">{TERMS.label}</div>
-        {[TERMS.packages, TERMS].map((g) => (
-          <div key={g.heading} className="k-terms-group">
-            <h2 className="k-engage-heading k-next-row">{g.heading}</h2>
-            <p className="k-engage-body k-next-row">{g.body}</p>
-            <ul className="k-terms-grid">
-              {g.models.map((m) => (
-                <li key={m.n} className="k-term k-next-row">
-                  <span className="k-term-n">{m.n}</span>
-                  <h3 className="k-term-name">{m.name}</h3>
-                  <p className="k-term-line">{m.line}</p>
-                  <p className="k-term-text">{m.text}</p>
-                  <p className="k-term-best">
-                    <span className="k-term-key">Best for</span>
-                    {m.best}
-                  </p>
-                  <div className="k-risk" role="img" aria-label={`Cost risk: ${m.risk < 0.4 ? "mostly yours" : m.risk > 0.7 ? "mostly ours" : "shared"}`}>
-                    <span className="k-term-key">Who carries the cost risk</span>
-                    <div className="k-risk-track">
-                      <span className="k-risk-dot" style={{ left: `${m.risk * 100}%` }} />
-                    </div>
-                    <div className="k-risk-ends">
-                      <span>You</span>
-                      <span>Us</span>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <h2 className="k-engage-heading k-next-row">{TERMS.packages.heading}</h2>
+        <p className="k-engage-body k-next-row">{TERMS.packages.body}</p>
+        <ul className="k-terms-grid">
+          {TERMS.packages.models.map((m) => (
+            <li key={m.n} className="k-term k-next-row">
+              <div className="k-term-head">
+                <span className="k-term-n">{m.n}</span>
+                <span className="k-term-term">{m.term}</span>
+              </div>
+              <h3 className="k-term-name">{m.name}</h3>
+              <p className="k-term-price">{m.price}</p>
+              <p className="k-term-text">{m.text}</p>
+              <p className="k-term-best">
+                <span className="k-term-key">Best for</span>
+                {m.best}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <h3 className="k-models-heading k-next-row">{TERMS.heading}</h3>
+        <p className="k-models-body k-next-row">{TERMS.body}</p>
+        <ul className="k-models">
+          {TERMS.models.map((m) => (
+            <li key={m.n} className="k-model k-next-row">
+              <span className="k-term-n">{m.n}</span>
+              <div className="k-model-title">
+                <h4 className="k-model-name">{m.name}</h4>
+                <p className="k-model-line">{m.line}</p>
+              </div>
+              <div className="k-model-main">
+                <p className="k-model-text">{m.text}</p>
+                <p className="k-model-best">
+                  <span className="k-term-key">Best for</span>
+                  {m.best}
+                </p>
+              </div>
+              <div className="k-risk" role="img" aria-label={`Cost risk: ${m.risk < 0.4 ? "mostly yours" : m.risk > 0.7 ? "mostly ours" : "shared"}`}>
+                <span className="k-term-key">Who carries the cost risk</span>
+                <div className="k-risk-track">
+                  <span className="k-risk-dot" style={{ left: `${m.risk * 100}%` }} />
+                </div>
+                <div className="k-risk-ends">
+                  <span>You</span>
+                  <span>Us</span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
         <ul className="k-always">
           {TERMS.always.map((a) => (
             <li key={a.title} className="k-next-row">

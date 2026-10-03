@@ -194,17 +194,6 @@
   white-space: nowrap;
 }
 
-/* The logo standing in for the sentence's first word. Its baseline sits on the text baseline. */
-.kmotion .k-inline-logo {
-  display: inline-block;
-  height: 1.05em;
-  width: auto;
-  vertical-align: -0.155em;
-  fill: currentColor;
-  overflow: visible;
-  margin-right: 0.05em;
-}
-
 /* ---------- The next screen: what we do, then contact ---------- */
 .kmotion .k-next {
   background: var(--k-ink);
@@ -951,64 +940,134 @@
   bottom: 6%;
 }
 
-/* ---------- How we charge: three fixed-price tiers, then five models, each with who carries the cost risk ---------- */
+/* ---------- How we charge: three fixed-price tiers as cards, then the five models as rows ---------- */
 .kmotion .k-terms {
   background: var(--gray-2);
   padding: 20vh 8vw 16vh;
-}
-.kmotion .k-terms-group + .k-terms-group {
-  margin-top: 14vh;
 }
 .kmotion .k-terms-grid {
   list-style: none;
   margin: 9vh 0 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   background: var(--gray-6); /* shows through the gaps as hairlines */
   border: 1px solid var(--gray-6);
 }
 .kmotion .k-term {
-  grid-column: span 2;
   background: var(--gray-2);
   padding: clamp(1.6rem, 2.6vw, 2.8rem);
   display: flex;
   flex-direction: column;
 }
-.kmotion .k-term:nth-child(n + 4) {
-  grid-column: span 3;
+.kmotion .k-term-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
 }
-.kmotion .k-term-n {
+.kmotion .k-term-n,
+.kmotion .k-term-term {
   font-family: var(--k-mono);
   font-size: 13px;
   color: var(--k-persimmon);
 }
-.kmotion .k-term-name {
-  margin: 1.4rem 0 0;
-  font-size: clamp(28px, 2.9vw, 44px);
-  font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: -0.015em;
-  color: var(--k-paper);
+.kmotion .k-term-term {
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--k-mute);
 }
-.kmotion .k-term-line {
-  margin: 0.7rem 0 0;
-  font-size: clamp(18px, 1.5vw, 22px);
-  line-height: 1.3;
+.kmotion .k-term-name {
+  margin: 1.6rem 0 0;
+  font-size: clamp(20px, 1.8vw, 26px);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--gray-11);
+}
+.kmotion .k-term-price {
+  margin: 0.4rem 0 0;
+  font-size: clamp(40px, 4.6vw, 72px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
   color: var(--k-paper);
 }
 .kmotion .k-term-text {
-  margin: 1.2rem 0 0;
+  margin: 1.8rem 0 0;
   font-size: clamp(16px, 1.25vw, 19px);
   line-height: 1.5;
   color: var(--gray-11);
 }
 .kmotion .k-term-best {
-  margin: 1.6rem 0 0;
+  margin: auto 0 0;
+  padding-top: 1.8rem;
   font-size: clamp(15px, 1.15vw, 17px);
   line-height: 1.45;
+  color: var(--k-paper);
+}
+/* The five models: one row each, so they read as a list of options, not a second set of prices. */
+.kmotion .k-models-heading {
+  margin: 14vh 0 0;
+  font-size: clamp(30px, 3.6vw, 56px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--k-paper);
+}
+.kmotion .k-models-body {
+  margin: 1.4rem 0 0;
+  max-width: 36em;
+  font-size: clamp(17px, 1.4vw, 21px);
+  line-height: 1.5;
   color: var(--gray-11);
+}
+.kmotion .k-models {
+  list-style: none;
+  margin: 6vh 0 0;
+  padding: 0;
+  border-bottom: 1px solid var(--gray-6);
+}
+.kmotion .k-model {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1.05fr) minmax(0, 1.9fr) minmax(11rem, 0.8fr);
+  column-gap: clamp(1.5rem, 3vw, 3.5rem);
+  align-items: start;
+  padding: 2.6rem 0;
+  border-top: 1px solid var(--gray-6);
+}
+.kmotion .k-model .k-term-n {
+  padding-top: 0.5em;
+}
+.kmotion .k-model-name {
+  margin: 0;
+  font-size: clamp(24px, 2.2vw, 34px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--k-paper);
+}
+.kmotion .k-model-line {
+  margin: 0.5rem 0 0;
+  font-size: clamp(16px, 1.25vw, 19px);
+  line-height: 1.35;
+  color: var(--gray-11);
+}
+.kmotion .k-model-text {
+  margin: 0;
+  font-size: clamp(16px, 1.25vw, 19px);
+  line-height: 1.5;
+  color: var(--gray-11);
+}
+.kmotion .k-model-best {
+  margin: 1.2rem 0 0;
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.45;
+  color: var(--k-paper);
+}
+.kmotion .k-model .k-risk {
+  margin-top: 0;
+  padding-top: 0.3rem;
 }
 .kmotion .k-term-key {
   display: block;
@@ -1076,25 +1135,32 @@
 }
 @media (max-width: 980px) {
   .kmotion .k-terms-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
-  .kmotion .k-term,
-  .kmotion .k-term:nth-child(n + 4) {
-    grid-column: span 1;
+  .kmotion .k-model {
+    grid-template-columns: 3.2rem minmax(0, 1fr) minmax(0, 1.4fr);
+    row-gap: 1.8rem;
   }
-  .kmotion .k-term:last-child {
-    grid-column: span 2;
+  .kmotion .k-model .k-risk {
+    grid-column: 3;
+    max-width: 22rem;
   }
 }
 @media (max-width: 640px) {
-  .kmotion .k-terms-grid,
   .kmotion .k-always {
     grid-template-columns: 1fr;
   }
-  .kmotion .k-term,
-  .kmotion .k-term:nth-child(n + 4),
-  .kmotion .k-term:last-child {
-    grid-column: span 1;
+  .kmotion .k-model {
+    grid-template-columns: 1fr;
+    row-gap: 1.2rem;
+    padding: 2.2rem 0;
+  }
+  .kmotion .k-model .k-term-n {
+    padding-top: 0;
+  }
+  .kmotion .k-model .k-risk {
+    grid-column: auto;
+    max-width: none;
   }
 }
 
