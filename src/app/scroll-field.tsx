@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { addTick, scrollVelocity } from "./clock";
+import { addScene, scrollVelocity, type FrameState } from "./clock";
 
 /**
  * A fixed field of faint dots behind the dark sections, in the same dot language as the city maps.
@@ -28,9 +28,12 @@ export function ScrollField() {
     const root = canvas.closest(".kmotion");
     let w = 0;
     let h = 0;
-    let dpr = 1;
+    let dpr = 0;
+    /* Sized to the viewport. The clock calls this when the layout changes; it only acts on a new size. */
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const nd = Math.min(window.devicePixelRatio || 1, 2);
+      if (window.innerWidth === w && window.innerHeight === h && nd === dpr) return;
+      dpr = nd;
       w = window.innerWidth;
       h = window.innerHeight;
       canvas.width = Math.round(w * dpr);
@@ -38,8 +41,6 @@ export function ScrollField() {
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
     };
-    resize();
-    window.addEventListener("resize", resize);
 
     let px = -9999;
     let py = -9999;
@@ -57,7 +58,7 @@ export function ScrollField() {
     let stretch = 0;
     const rowH = SPACING * 0.866; // hex rows
 
-    const draw = () => {
+    const draw = ({ scroll }: FrameState) => {
       // Skip the work while the hero is still playing; the field only fades in after it.
       if (!root?.classList.contains("k-past")) return;
       const v = scrollVelocity();
@@ -67,7 +68,7 @@ export function ScrollField() {
       ctx.clearRect(0, 0, w, h);
       ctx.fillStyle = `rgba(${INK}, 0.09)`;
 
-      const offset = -((window.scrollY * DRIFT) % (rowH * 2));
+      const offset = -((scroll * DRIFT) % (rowH * 2));
       const rows = Math.ceil(h / rowH) + 3;
       const cols = Math.ceil(w / SPACING) + 2;
       const dir = v >= 0 ? 1 : -1;
@@ -96,11 +97,10 @@ export function ScrollField() {
         }
       }
     };
-    const stop = addTick(draw);
+    const stop = addScene({ measure: resize, update: draw });
 
     return () => {
       stop();
-      window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onLeave);
     };

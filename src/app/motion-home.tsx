@@ -9,7 +9,7 @@ import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
 import { BOOKING_URL, CONTACT_EMAIL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
 import { COUNTRY_SHAPES } from "./country-paths";
 import { InteractiveDotMap } from "./dot-map";
-import { addTick, setLenis } from "./clock";
+import { addScene, addTick, documentTop, setLenis, type FrameState } from "./clock";
 import { ScrollField } from "./scroll-field";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
@@ -218,32 +218,34 @@ function WorkRoller() {
     if (!track || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const names = [...track.querySelectorAll<HTMLElement>(".k-roller-name")];
     const panels = [...track.querySelectorAll<HTMLElement>(".k-roller-panel")];
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const r = track.getBoundingClientRect();
-      const raw = clamp01(-r.top / (r.height - window.innerHeight)) * (names.length - 1);
-      // Settle on each project: slow near a whole place, quicker in between.
-      const f = raw - Math.floor(raw);
-      const pos = Math.floor(raw) + f * f * (3 - 2 * f);
-      const active = Math.round(pos);
-      names.forEach((el, i) => {
-        Object.assign(el.style, rollerStyle(i - pos));
-        el.toggleAttribute("data-active", i === active);
-      });
-      panels.forEach((el, i) => el.toggleAttribute("data-active", i === active));
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    /* The track's place in the document, measured when the layout changes; each frame is arithmetic. */
+    let top = 0;
+    let height = 0;
+    let lastPos = NaN;
+    return addScene({
+      measure() {
+        // The track itself is never transformed, so its rectangle gives its exact (fractional) size.
+        const r = track.getBoundingClientRect();
+        top = r.top + window.scrollY;
+        height = r.height;
+        lastPos = NaN;
+      },
+      update({ scroll, vh }) {
+        const span = height - vh;
+        const raw = (span > 0 ? clamp01((scroll - top) / span) : 0) * (names.length - 1);
+        // Settle on each project: slow near a whole place, quicker in between.
+        const f = raw - Math.floor(raw);
+        const pos = Math.floor(raw) + f * f * (3 - 2 * f);
+        if (pos === lastPos) return; // nothing has moved: write nothing
+        lastPos = pos;
+        const active = Math.round(pos);
+        names.forEach((el, i) => {
+          Object.assign(el.style, rollerStyle(i - pos));
+          el.toggleAttribute("data-active", i === active);
+        });
+        panels.forEach((el, i) => el.toggleAttribute("data-active", i === active));
+      },
+    });
   }, []);
 
   return (
@@ -436,7 +438,6 @@ function runTaglineScramble(cells: { cell: SVGTSpanElement | null; ch: string }[
   const t0 = performance.now();
   const step = 1000 / 16;
   let last = 0;
-  let raf = 0;
   const paint = (t: number) => {
     const resolved = Math.round(quadInOut(clamp01(t)) * n);
     cells.forEach((c, i) => {
@@ -447,18 +448,14 @@ function runTaglineScramble(cells: { cell: SVGTSpanElement | null; ch: string }[
     });
   };
   paint(0);
-  const tick = (now: number) => {
-    if (now - last < step) {
-      raf = requestAnimationFrame(tick);
-      return;
-    }
+  const stop = addTick(({ time: now }) => {
+    if (now - last < step) return;
     last = now;
     const t = clamp01((now - t0) / 1000 / duration);
     paint(t);
-    if (t < 1) raf = requestAnimationFrame(tick);
-  };
-  raf = requestAnimationFrame(tick);
-  return () => cancelAnimationFrame(raf);
+    if (t >= 1) stop();
+  });
+  return stop;
 }
 
 /** Puts every tagline character back to its real glyph. */
@@ -802,23 +799,13 @@ export function MotionHome() {
   useEffect(() => {
     const bar = progressRef.current;
     if (!bar) return;
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0})`;
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    let last = -1;
+    return addTick(({ scroll, limit }) => {
+      const v = limit > 0 ? clamp01(scroll / limit) : 0;
+      if (v === last) return;
+      last = v;
+      bar.style.transform = `scaleX(${v})`;
+    });
   }, []);
   const stepsRef = useRef<HTMLElement>(null);
 
@@ -827,35 +814,36 @@ export function MotionHome() {
     const section = stepsRef.current;
     if (!section) return;
     const rows = [...section.querySelectorAll<HTMLElement>(".k-next-list > li")];
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const mid = window.innerHeight / 2;
-      let active = -1;
-      let best = Infinity;
-      rows.forEach((r, i) => {
-        const b = r.getBoundingClientRect();
-        // Only a row that is actually crossing the middle band counts.
-        if (b.top > mid + window.innerHeight * 0.2 || b.bottom < mid - window.innerHeight * 0.2) return;
-        const d = Math.abs((b.top + b.bottom) / 2 - mid);
-        if (d < best) {
-          best = d;
-          active = i;
+    /* Each row's place in the document, measured when the layout changes. */
+    let tops: number[] = [];
+    let heights: number[] = [];
+    let shown = -2;
+    return addScene({
+      measure() {
+        tops = rows.map(documentTop);
+        heights = rows.map((r) => r.offsetHeight);
+      },
+      update({ scroll, vh }) {
+        const mid = vh / 2;
+        const band = vh * 0.2;
+        let active = -1;
+        let best = Infinity;
+        for (let i = 0; i < rows.length; i++) {
+          const top = tops[i] - scroll;
+          const bottom = top + heights[i];
+          // Only a row that is actually crossing the middle band counts.
+          if (top > mid + band || bottom < mid - band) continue;
+          const d = Math.abs((top + bottom) / 2 - mid);
+          if (d < best) {
+            best = d;
+            active = i;
+          }
         }
-      });
-      rows.forEach((r, i) => r.toggleAttribute("data-active", i === active));
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+        if (active === shown) return;
+        shown = active;
+        rows.forEach((r, i) => r.toggleAttribute("data-active", i === active));
+      },
+    });
   }, []);
   const trackRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -929,26 +917,56 @@ export function MotionHome() {
     const introStart = performance.now();
     let trackBottom = Infinity;
     let overContact = false;
-    const readContact = () => {
-      const c = contactRef.current?.getBoundingClientRect();
-      overContact = !!c && c.top < 40 && c.bottom > 40;
-    };
+    const wordEls = wordRefs.current.filter((w): w is HTMLSpanElement => !!w);
+
+    /*
+     * Everything the frame needs from the layout, read here and nowhere else: where the track and
+     * the contact section sit in the document, how far the animation plays, and each word's width.
+     * The clock calls this when the layout changes; the frame itself only does arithmetic.
+     */
     const phone = window.matchMedia("(max-width: 760px)");
-    const readScroll = () => {
-      readContact();
+    let trackTop = 0;
+    let trackHeight = 0;
+    let playPx = 1;
+    let contactTop = Infinity;
+    let contactHeight = 0;
+    let seenW = -1;
+    let seenH = -1;
+    const wordWidth: number[] = [];
+    const glyphWidth: number[] = [];
+    const measureLayout = () => {
+      // The dot's position depends only on the viewport, so it is re-read only when that changes.
+      if (window.innerWidth !== seenW || window.innerHeight !== seenH) {
+        seenW = window.innerWidth;
+        seenH = window.innerHeight;
+        measure();
+      }
+      // The track and the contact section are never transformed, so their rectangles are exact.
+      const tr = track.getBoundingClientRect();
+      trackTop = tr.top + window.scrollY;
+      trackHeight = tr.height;
+      playPx = PLAY_VH * (trackHeight / (phone.matches ? TRACK_VH.phone : TRACK_VH.wide));
+      const contact = contactRef.current;
+      const cr = contact?.getBoundingClientRect();
+      contactTop = cr ? cr.top + window.scrollY : Infinity;
+      contactHeight = cr ? cr.height : 0;
+      wordEls.forEach((w, i) => {
+        const real = w.firstElementChild as HTMLElement | null;
+        wordWidth[i] = real ? real.offsetWidth : 0;
+        glyphWidth[i] = real ? parseFloat(getComputedStyle(real).fontSize) * JA_SCALE : 1;
+      });
+    };
+    /** Where the page is, from a scroll position and the cached layout. */
+    const place = (scroll: number) => {
+      const cTop = contactTop - scroll;
+      overContact = cTop < 40 && cTop + contactHeight > 40;
       if (reduce || forced !== null) return;
-      const r = track.getBoundingClientRect();
-      trackBottom = r.bottom;
-      const vh = r.height / (phone.matches ? TRACK_VH.phone : TRACK_VH.wide);
-      scrollS = clamp01(-r.top / (PLAY_VH * vh));
+      const top = trackTop - scroll;
+      trackBottom = top + trackHeight;
+      scrollS = clamp01(-top / playPx);
     };
-    const onResize = () => {
-      measure();
-      readScroll();
-    };
-    window.addEventListener("scroll", readScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    readScroll();
+    measureLayout();
+    place(window.scrollY);
     // Arriving part-way down the page (a reload, a #link) skips the intro.
     if (!introDone && scrollS > 0) {
       base = INTRO.end;
@@ -969,11 +987,11 @@ export function MotionHome() {
     rows.forEach((r) => io.observe(r));
     cleanups.push(() => io.disconnect());
 
-    const wordEls = wordRefs.current.filter((w): w is HTMLSpanElement => !!w);
     let shuffleStart: number | null = null;
     let shuffleTick = -1;
 
-    const loop = () => {
+    const loop = ({ scroll }: FrameState) => {
+      place(scroll);
       const autoplaying = !introDone;
       if (autoplaying) {
         const t = clamp01((performance.now() - introStart - INTRO.delay) / INTRO.ms);
@@ -1072,9 +1090,8 @@ export function MotionHome() {
         scr.firstChild!.textContent = word.slice(0, settled);
         let glyphs = "";
         /* As many whole glyphs as fit in the unsettled part of the word, so none is cut at its edge. */
-        const glyphW = parseFloat(getComputedStyle(real).fontSize) * JA_SCALE;
-        const room = real.offsetWidth * (pending / word.length);
-        const count = pending ? Math.max(1, Math.floor(room / glyphW + 0.12)) : 0;
+        const room = wordWidth[i] * (pending / word.length);
+        const count = pending ? Math.max(1, Math.floor(room / glyphWidth[i] + 0.12)) : 0;
         const held = ja.textContent ?? "";
         if (!redraw && held.length >= count) {
           /* Between ticks: keep the same characters, dropping only those the English has reached. */
@@ -1096,13 +1113,7 @@ export function MotionHome() {
       }
 
     };
-    const stopLoop = addTick(loop);
-
-    cleanups.push(() => {
-      stopLoop();
-      window.removeEventListener("scroll", readScroll);
-      window.removeEventListener("resize", onResize);
-    });
+    cleanups.push(addScene({ measure: measureLayout, update: loop }));
     return () => cleanups.forEach((c) => c());
   }, []);
 

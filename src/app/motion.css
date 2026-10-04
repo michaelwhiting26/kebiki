@@ -411,18 +411,6 @@
     justify-self: start;
   }
 }
-.kmotion .k-engage-cta-note a {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--gray-8);
-  text-underline-offset: 0.25em;
-  transition: color 0.2s, text-decoration-color 0.2s;
-}
-.kmotion .k-engage-cta-note a:hover,
-.kmotion .k-engage-cta-note a:focus-visible {
-  color: var(--k-persimmon);
-  text-decoration-color: var(--k-persimmon);
-}
 /* A two-sentence heading: each sentence is its own block, and wraps into even lines when it has to
    (so a narrow screen never leaves one word alone on a line). */
 .kmotion .k-head-line {
@@ -1997,4 +1985,72 @@
 }
 .kmotion.k-page .k-terms-cta {
   margin-top: 7vh;
+}
+
+/* ---------- Phones: the consultation block reads as one piece ----------
+   The supporting line tucks under the headline in the quieter grey, the three steps become a numbered
+   list with hairline rules, and the button spans the column. */
+@media (max-width: 640px) {
+  .kmotion .k-next {
+    padding-top: 14vh;
+  }
+  .kmotion .k-next > .k-engage-heading {
+    margin-top: 1.6rem;
+    font-size: clamp(40px, 11.5vw, 52px);
+  }
+  .kmotion .k-engage-heading + .k-engage-lead {
+    margin-top: 1.1rem;
+    font-size: 19px;
+    line-height: 1.4;
+    color: var(--gray-11);
+  }
+  .kmotion .k-always.k-consult {
+    margin-top: 2.6rem;
+    gap: 0;
+    counter-reset: k-step;
+    border-bottom: 1px solid var(--gray-6);
+  }
+  .kmotion .k-always.k-consult li {
+    counter-increment: k-step;
+    position: relative;
+    gap: 0.35rem;
+    padding: 1.15rem 0 1.25rem 2.6rem;
+    border-top: 1px solid var(--gray-6);
+  }
+  .kmotion .k-always.k-consult li::before {
+    content: "0" counter(k-step);
+    position: absolute;
+    left: 0;
+    top: 1.45rem;
+    font-family: var(--k-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--k-persimmon);
+  }
+  .kmotion .k-always.k-consult .k-always-title {
+    font-size: 21px;
+  }
+  .kmotion .k-always.k-consult .k-always-text {
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .kmotion .k-engage-cta {
+    margin-top: 2.2rem;
+  }
+  .kmotion .k-engage-cta .k-cta {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 1.05rem 0.9rem;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .kmotion .k-block {
+    margin-top: 16vh;
+  }
+  /* The corner section marker sits on top of the text at this width, so it is not shown. */
+  .kmotion .k-chapter {
+    display: none;
+  }
 }

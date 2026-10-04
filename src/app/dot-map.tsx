@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { addScene, documentTop, lastFrameScroll } from "./clock";
+
 /**
  * A land mass drawn as a field of small dots that gently part around the pointer and spring back.
  *
@@ -273,14 +275,22 @@ export function InteractiveDotMap({
       raf = requestAnimationFrame(frame);
     };
 
+    /* The map's place in the document, measured when the layout changes (see ./clock). */
+    let boxTop = 0;
+    let boxLeft = 0;
+    const measurePlace = () => {
+      boxTop = documentTop(box);
+      boxLeft = box.getBoundingClientRect().left + window.scrollX;
+    };
+    measurePlace();
+
     /** Convert the last known client position into this canvas's space and decide whether to react. */
-    const updatePointer = () => {
+    const updatePointer = (scroll = lastFrameScroll()) => {
       if (!haveClient || reduce) return;
-      const rect = canvas.getBoundingClientRect();
-      px = lastClientX - rect.left;
-      py = lastClientY - rect.top;
-      const near =
-        px > -R && px < rect.width + R && py > -R && py < rect.height + R && visible;
+      // From the map's cached place in the document: no layout is read here.
+      px = lastClientX - boxLeft;
+      py = lastClientY - (boxTop - scroll);
+      const near = px > -R && px < cssW + R && py > -R && py < cssH + R && visible;
       if (near) {
         pointerActive = true;
         wake();
@@ -302,14 +312,6 @@ export function InteractiveDotMap({
         pointerActive = false;
         wake();
       }
-    };
-    let scrollRaf = 0;
-    const onScroll = () => {
-      if (scrollRaf || !haveClient) return;
-      scrollRaf = requestAnimationFrame(() => {
-        scrollRaf = 0;
-        updatePointer();
-      });
     };
     const onOut = (e: PointerEvent) => {
       if (!e.relatedTarget) release(); // the pointer left the window
@@ -363,13 +365,24 @@ export function InteractiveDotMap({
       window.addEventListener("pointerup", release, { passive: true });
       window.addEventListener("pointercancel", release, { passive: true });
       window.addEventListener("pointerout", onOut, { passive: true });
-      window.addEventListener("scroll", onScroll, { passive: true });
     }
+    /* While the page scrolls under a resting pointer, the pointer's place on the map moves with it. */
+    let seenScroll = NaN;
+    const stopScene = reduce
+      ? null
+      : addScene({
+          measure: measurePlace,
+          update({ scroll }) {
+            if (scroll === seenScroll) return;
+            seenScroll = scroll;
+            if (haveClient) updatePointer(scroll);
+          },
+        });
 
     return () => {
       cancelAnimationFrame(raf);
       cancelAnimationFrame(resizeRaf);
-      cancelAnimationFrame(scrollRaf);
+      stopScene?.();
       ro.disconnect();
       io.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
@@ -377,7 +390,6 @@ export function InteractiveDotMap({
       window.removeEventListener("pointerup", release);
       window.removeEventListener("pointercancel", release);
       window.removeEventListener("pointerout", onOut);
-      window.removeEventListener("scroll", onScroll);
     };
   }, [d, w, h, interactionRadius, spring, damping, push, maxDisplacement]);
 
