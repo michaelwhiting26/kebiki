@@ -505,6 +505,7 @@ function CityClocks() {
                 ? new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: c.zone }).format(now)
                 : "\u00a0"}
             </span>
+            <span className="k-city-note">Operating internationally</span>
           </li>
         );
       })}
