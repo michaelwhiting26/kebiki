@@ -320,7 +320,7 @@ const TEAM = [
     surname: "Whiting",
     linkedin: "",
     role: "Engineering & Delivery",
-    bio: "Michael turns ambitious ideas into projects that ship. He scopes the work, prices it, builds alongside the team and keeps delivery from going sideways. A background in international arbitration means he has a healthy obsession with plans that survive contact with reality.",
+    bio: "Michael scopes the work, prices it and builds alongside the team. He came from international arbitration, where he watched projects come apart in front of tribunals, and has been suspicious of optimistic plans ever since. If he asks what happens when it goes wrong, he\u2019s not being negative. He\u2019s pricing it.",
     talk: "scope, pricing, contracts & getting it over the line",
   },
   {
