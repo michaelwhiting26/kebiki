@@ -383,6 +383,29 @@
     justify-self: start;
   }
 }
+.kmotion .k-engage-cta-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--gray-8);
+  text-underline-offset: 0.25em;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+.kmotion .k-engage-cta-note a:hover,
+.kmotion .k-engage-cta-note a:focus-visible {
+  color: var(--k-persimmon);
+  text-decoration-color: var(--k-persimmon);
+}
+/* A two-sentence heading: each sentence is its own block, and wraps into even lines when it has to
+   (so a narrow screen never leaves one word alone on a line). */
+.kmotion .k-head-line {
+  display: block;
+  text-wrap: balance;
+}
+@media (max-width: 760px) {
+  .kmotion .k-head-line + .k-head-line {
+    margin-top: 0.32em;
+  }
+}
 .kmotion .k-engage-cta-note {
   margin: 1.1rem 0 0;
   font-size: clamp(15px, 1.2vw, 18px);

@@ -379,7 +379,7 @@ const SERVICES = [
   "Blockchain & payments",
   "Design systems",
 ] as const;
-const SECTORS = ["Fintech & payments", "Crypto & Web3", "Sport & media", "Property", "Enterprise software"] as const;
+const SECTORS = ["Fintech & payments", "Crypto & Web3", "Sport & media", "Construction & infrastructure", "Enterprise software"] as const;
 const CONTACT_COPY = {
   title: "Bring us the hard part.",
   body: "If you're building something technically difficult, we'd like to hear about it.",
@@ -1173,9 +1173,8 @@ export function MotionHome() {
         <div className="k-label">{HOW.consult.label}</div>
         <p className="k-engage-lead k-next-row">{HOW.consult.lead}</p>
         <h2 className="k-engage-heading k-next-row">
-          {HOW.consult.heading[0]}
-          <br />
-          {HOW.consult.heading[1]}
+          <span className="k-head-line">{HOW.consult.heading[0]}</span>
+          <span className="k-head-line">{HOW.consult.heading[1]}</span>
         </h2>
         <ul className="k-always k-consult">
           {HOW.consult.points.map((c) => (
@@ -1195,7 +1194,9 @@ export function MotionHome() {
             {HOW.consult.cta}<span aria-hidden="true"> &#8599;</span>
           </a>
         </p>
-        <p className="k-engage-cta-note k-next-row">{HOW.consult.ctaNote}</p>
+        <p className="k-engage-cta-note k-next-row">
+          <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("An idea to talk through")}`}>{HOW.consult.ctaNote}</a>
+        </p>
 
         <div className="k-block">
           <div className="k-label k-label-inline">{HOW.routes.label}</div>
@@ -1237,9 +1238,8 @@ export function MotionHome() {
             ))}
           </ol>
           <p className="k-engage-outcome k-next-row">
-            {HOW.sprint.outcome[0]}
-            <br />
-            {HOW.sprint.outcome[1]}
+            <span className="k-head-line">{HOW.sprint.outcome[0]}</span>
+            <span className="k-head-line">{HOW.sprint.outcome[1]}</span>
           </p>
           <p className="k-engage-own k-next-row">{HOW.sprint.ownership}</p>
         </div>
