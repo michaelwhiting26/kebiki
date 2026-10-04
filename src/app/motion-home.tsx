@@ -735,7 +735,17 @@ function TeamRotator() {
 }
 
 /** The text shuffle from the original studio page: glyphs it cycles through, and how long it takes to settle. */
-const SHUFFLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&*+=/<>";
+/**
+ * What the sentence is written in before it settles into English: katakana, hiragana and a few
+ * kanji from the marking gauge's own trade (rule, pull, line, ink, craft, measure, make).
+ */
+const SHUFFLE_GLYPHS = [
+  ..."アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン",
+  ..."あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん",
+  ..."罫引線墨匠技形作設計図工木尺寸定規",
+];
+/** The Japanese is set a little smaller than the Latin so the two sit level (matches .k-w-ja). */
+const JA_SCALE = 0.82;
 const SHUFFLE_MS = 2200;
 /** Characters in the sentence, which the shuffle settles across. */
 const SENTENCE_CHARS = SENTENCE.length;
@@ -1041,9 +1051,25 @@ export function MotionHome() {
           return;
         }
         real.style.visibility = "hidden";
-        scr.textContent = [...word]
-          .map((ch, k) => (start + k < settledChars || !/[a-z0-9]/i.test(ch) ? ch : SHUFFLE_GLYPHS[Math.floor(Math.random() * SHUFFLE_GLYPHS.length)]))
-          .join("");
+        /* Letters already reached are English; the rest of the word is still Japanese. */
+        const settled = Math.min(Math.max(settledChars - start, 0), word.length);
+        const pending = word.length - settled;
+        let ja = scr.lastElementChild as HTMLElement | null;
+        if (!ja) {
+          ja = document.createElement("span");
+          ja.className = "k-w-ja";
+          ja.lang = "ja";
+          scr.replaceChildren(document.createTextNode(""), ja);
+        }
+        scr.firstChild!.textContent = word.slice(0, settled);
+        let glyphs = "";
+        /* As many whole glyphs as fit in the unsettled part of the word, so none is cut at its edge. */
+        const glyphW = parseFloat(getComputedStyle(real).fontSize) * JA_SCALE;
+        const room = real.offsetWidth * (pending / word.length);
+        for (let k = pending ? Math.max(1, Math.floor(room / glyphW + 0.12)) : 0; k > 0; k--) {
+          glyphs += SHUFFLE_GLYPHS[Math.floor(Math.random() * SHUFFLE_GLYPHS.length)];
+        }
+        ja.textContent = glyphs;
       });
 
       /* Once the sentence has landed, the name's origin settles in, bottom right. */

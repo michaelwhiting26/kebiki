@@ -1851,6 +1851,12 @@
 .kmotion .k-w {
   position: relative;
 }
+/* The Japanese the sentence settles out of: the same brush-like face as the seal, sized to sit level with the Latin. */
+.kmotion .k-w-ja {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Songti SC", serif;
+  font-size: 0.82em;
+  letter-spacing: 0;
+}
 .kmotion .k-w-scr {
   position: absolute;
   left: 0;
