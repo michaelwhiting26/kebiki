@@ -22,7 +22,7 @@ const montserrat = Montserrat({ subsets: ["latin"], weight: ["500"], display: "s
 
 const TAGLINE = "complex digital products, built to last.";
 const SENTENCE =
-  "Bring us the complicated idea. We'll challenge it, define what should exist, and build the version worth building.";
+  "Bring us the complicated idea. We'll challenge it, test the hardest part first, and build the version worth building.";
 const WORDS = SENTENCE.split(" ");
 /** The opening statement ("Bring us the complicated idea.") is set larger, on its own line. */
 const HEAD_WORDS = 5;
