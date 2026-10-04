@@ -362,6 +362,7 @@ const TEAM_COPY = {
  */
 const TERMS = {
   label: "How we charge",
+  heading: "Agree the risk before the work starts.",
   after: { text: "Every engagement is priced before it starts: fixed price, capped, retainer or equity, agreed in writing.", link: "The five ways to work with us" },
   always: [
     { title: "Agreed in writing first", text: "Scope, price and model are set down before work starts." },
@@ -1247,6 +1248,7 @@ export function MotionHome() {
 
       <section id="terms" className="k-terms">
         <div className="k-label">{TERMS.label}</div>
+        <h2 className="k-engage-heading k-next-row">{TERMS.heading}</h2>
         <p className="k-terms-after k-next-row">
           {TERMS.after.text}{" "}
           <Link href="/terms">
