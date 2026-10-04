@@ -335,7 +335,7 @@ const TEAM = [
     surname: "",
     linkedin: "",
     role: "Full-Stack Engineering",
-    bio: "Marc has been writing code since he was ten and builds across the whole stack like it\u2019s muscle memory. He is, as far as we can tell, a genetic anomaly who doesn\u2019t sleep. If he goes quiet, don\u2019t worry. He\u2019s cooking.",
+    bio: "Marc has been writing code since the womb and builds across the whole stack like it\u2019s muscle memory. He is, as far as we can tell, a genetic anomaly who doesn\u2019t sleep. If he goes quiet, don\u2019t worry. He\u2019s cooking.",
     talk: "architecture, data & keeping things alive in production",
   },
   {
