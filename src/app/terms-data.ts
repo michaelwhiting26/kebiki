@@ -6,7 +6,7 @@
 export const COMMERCIAL_MODELS = {
   label: "How we charge",
   heading: "Five ways to work with us.",
-  body: "After the first conversation we agree the model that fits the work, and put it in writing before anything starts.",
+  body: "After the first conversation we agree the model that fits the work, and put it in writing before anything starts or changes.",
   models: [
     {
       n: "01",

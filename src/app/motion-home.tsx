@@ -356,19 +356,14 @@ const TEAM_COPY = {
 } as const;
 
 /**
- * How we charge, on the home page: one line on how the stages are priced and the three things that
- * always hold. The five commercial models that line refers to live on /terms (see terms-data.ts).
+ * How we charge, on the home page: a headline and one line on how work is priced. The five
+ * commercial models that line refers to live on /terms (see terms-data.ts).
  * Wording is a draft of commercial terms.
  */
 const TERMS = {
   label: "How we charge",
   heading: "Agree the risk before the work starts.",
   after: { text: "Every engagement is priced before it starts: fixed price, capped, retainer or equity, agreed in writing.", link: "The five ways to work with us" },
-  always: [
-    { title: "Agreed in writing first", text: "Scope, price and model are set down before work starts." },
-    { title: "Changes priced before they are made", text: "Nothing is added to the bill without your agreement." },
-    { title: "You own the work", text: "Every output is yours once it is paid for, whether we continue together or not." },
-  ],
 } as const;
 
 const SERVICES = [
@@ -1287,14 +1282,6 @@ export function MotionHome() {
             {CONTACT_COPY.cta}<span aria-hidden="true"> &rarr;</span>
           </a>
         </div>
-        <ul className="k-always">
-          {TERMS.always.map((a) => (
-            <li key={a.title} className="k-next-row">
-              <span className="k-always-title">{a.title}</span>
-              <span className="k-always-text">{a.text}</span>
-            </li>
-          ))}
-        </ul>
       </section>
 
       <section id="work" className="k-work">
