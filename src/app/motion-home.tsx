@@ -1172,11 +1172,11 @@ export function MotionHome() {
 
       <section id="next" className="k-next" ref={stepsRef}>
         <div className="k-label">{HOW.consult.label}</div>
-        <p className="k-engage-lead k-next-row">{HOW.consult.lead}</p>
         <h2 className="k-engage-heading k-next-row">
           <span className="k-head-line">{HOW.consult.heading[0]}</span>
           <span className="k-head-line">{HOW.consult.heading[1]}</span>
         </h2>
+        <p className="k-engage-lead k-next-row">{HOW.consult.lead}</p>
         <ul className="k-always k-consult">
           {HOW.consult.points.map((c) => (
             <li key={c.title} className="k-next-row">

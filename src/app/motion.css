@@ -300,6 +300,9 @@
 .kmotion .k-engage-lead + .k-engage-heading {
   margin-top: 2.4rem;
 }
+.kmotion .k-engage-heading + .k-engage-lead {
+  margin-top: 2.4rem;
+}
 /* ---------- How an engagement starts: consultation, routes, sprint ---------- */
 .kmotion .k-always.k-consult {
   margin-top: 7vh;
