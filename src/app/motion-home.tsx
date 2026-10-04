@@ -71,8 +71,13 @@ function dwell(u: number) {
   return u - ((DWELL.slow * DWELL.width) / Math.PI) * Math.sin((Math.PI * d) / DWELL.width);
 }
 const REDUCED_P = 0.6; // reduced motion: logo fully drawn, no takeover
-/** Share of the scroll track the animation plays over; the rest holds the finished sentence. */
-const HOLD = 0.9;
+/**
+ * The scroll track, in viewport heights (matches .k-track in motion.css), and the part of it the
+ * animation plays over. Whatever is left holds the finished sentence on screen. Phones get a much
+ * longer hold: a flick would otherwise carry the reader past before the sentence has settled.
+ */
+const TRACK_VH = { wide: 230, phone: 330 } as const;
+const PLAY_VH = 117;
 /** On load the logo builds by itself up to the finished mark; scrolling then plays the rest. */
 const INTRO = { end: T.dotPop[1], delay: 300, ms: 2500 };
 
@@ -202,8 +207,8 @@ function rollerStyle(d: number) {
 /**
  * Selected work on a vertical roller. The screen sticks while the visitor scrolls: the project names
  * turn on a drum, one place per project, and the details beside it follow the name at the front.
- * With reduced motion, and on phones, there is no drum and nothing sticks: the projects read as a
- * plain list (see motion.css).
+ * On phones the drum sits above the details, one project at a time. With reduced motion there is no
+ * drum and nothing sticks: the projects read as a plain list (see motion.css).
  */
 function WorkRoller() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -213,11 +218,9 @@ function WorkRoller() {
     if (!track || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const names = [...track.querySelectorAll<HTMLElement>(".k-roller-name")];
     const panels = [...track.querySelectorAll<HTMLElement>(".k-roller-panel")];
-    const narrow = window.matchMedia("(max-width: 760px)");
     let raf = 0;
     const update = () => {
       raf = 0;
-      if (narrow.matches) return; // the plain list: nothing to turn
       const r = track.getBoundingClientRect();
       const raw = clamp01(-r.top / (r.height - window.innerHeight)) * (names.length - 1);
       // Settle on each project: slow near a whole place, quicker in between.
@@ -930,12 +933,14 @@ export function MotionHome() {
       const c = contactRef.current?.getBoundingClientRect();
       overContact = !!c && c.top < 40 && c.bottom > 40;
     };
+    const phone = window.matchMedia("(max-width: 760px)");
     const readScroll = () => {
       readContact();
       if (reduce || forced !== null) return;
       const r = track.getBoundingClientRect();
       trackBottom = r.bottom;
-      scrollS = clamp01(-r.top / (r.height - window.innerHeight) / HOLD);
+      const vh = r.height / (phone.matches ? TRACK_VH.phone : TRACK_VH.wide);
+      scrollS = clamp01(-r.top / (PLAY_VH * vh));
     };
     const onResize = () => {
       measure();
@@ -1125,6 +1130,9 @@ export function MotionHome() {
       </a>
 
       <section ref={trackRef} className="k-track" style={reduced ? { height: "100vh" } : undefined}>
+        {/* Phones: a flick stops here, on the finished sentence, before the page carries on. Placed on
+            the track itself (not the sticky stage), so it sits at a fixed point in the scroll. */}
+        {!reduced ? <span className="k-track-stop" aria-hidden="true" /> : null}
         <div ref={stageRef} className="k-stage">
           <div className={`k-hero ${montserrat.className}`} role="img" aria-label={`kebiki. ${TAGLINE}`}>
             <svg ref={svgRef} viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`} aria-hidden="true">

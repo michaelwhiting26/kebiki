@@ -105,6 +105,31 @@
   height: 230vh; /* the logo builds on load, so scroll only carries the takeover */
   position: relative;
 }
+/* Phones: a longer track holds the finished sentence for a further screen of scrolling, and a stop
+   just past the end of the animation catches a flick there (TRACK_VH and PLAY_VH in motion-home.tsx). */
+.kmotion .k-track-stop {
+  display: none;
+}
+@media (max-width: 760px) {
+  .kmotion .k-track {
+    height: 330vh;
+  }
+}
+@media (max-width: 760px) and (pointer: coarse) {
+  html {
+    scroll-snap-type: y proximity;
+  }
+  .kmotion .k-track-stop {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 124vh;
+    width: 1px;
+    height: 1px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
 .kmotion .k-stage {
   position: sticky;
   top: 0;
@@ -790,8 +815,30 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-/* Reduced motion, and phones: no drum and nothing sticks. The projects read as a plain list. */
-@media (prefers-reduced-motion: reduce), (max-width: 760px) {
+/* Phones: the drum on top, the front project's details under it, all within one screen. */
+@media (max-width: 760px) {
+  .kmotion .k-roller-stage > .k-label {
+    top: 11vh;
+  }
+  .kmotion .k-roller-body {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 1.6rem;
+    padding-top: 6vh;
+  }
+  .kmotion .k-roller-drum {
+    height: 3.6em;
+    font-size: clamp(34px, 11vw, 54px);
+    /* Names further round the drum fade out at its edges, so none runs into the details below. */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%);
+  }
+  .kmotion .k-roller-panel .k-work-text {
+    font-size: 17px;
+    line-height: 1.45;
+  }
+}
+/* Reduced motion: no drum and nothing sticks. The projects read as a plain list. */
+@media (prefers-reduced-motion: reduce) {
   .kmotion .k-roller-track {
     height: auto !important;
   }
