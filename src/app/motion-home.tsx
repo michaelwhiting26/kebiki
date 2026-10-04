@@ -340,7 +340,7 @@ const TEAM = [
     surname: "",
     linkedin: "",
     role: "Engineering & Growth",
-    bio: "Riki works on both sides of a launch: building the thing and making sure people actually find it. He moves between product, engineering and growth without treating them like separate jobs - because the best product is fairly useless if nobody knows it exists.",
+    bio: "Riki works on both sides of a launch: building the thing and making sure people actually find it. He moves between product, engineering and growth with more energy than most teams have between them.",
     talk: "building, launching & finding traction",
   },
 ] as const;
