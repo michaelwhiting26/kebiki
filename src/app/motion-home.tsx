@@ -330,7 +330,7 @@ const TEAM = [
     surname: "",
     linkedin: "",
     role: "Full-Stack Engineering",
-    bio: "Marc has been writing code since he was ten. He builds across the whole stack and has a habit of understanding how every moving part fits together - from the interface to the database to whatever wakes you up at 2am.",
+    bio: "Marc has been writing code since he was ten and builds across the whole stack like it\u2019s muscle memory. He is, as far as we can tell, a genetic anomaly who doesn\u2019t sleep. If he goes quiet, don\u2019t worry. He\u2019s cooking.",
     talk: "architecture, data & keeping things alive in production",
   },
   {
@@ -375,6 +375,7 @@ const SERVICES = [
   "Product strategy",
   "Brand identity",
   "Product design",
+  "3D & product visualisation",
   "Web & app development",
   "AI & automation",
   "Blockchain & payments",
