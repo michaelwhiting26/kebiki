@@ -601,22 +601,6 @@
   align-items: flex-end;
   margin-bottom: 0.9rem;
 }
-/* Phones: the columns follow each map's own width (UK narrow, UAE wide, Australia between), so the
-   three maps fill the row with even gaps instead of sitting in equal thirds. The row itself is the
-   measure: one shared height, set so the three widths plus two gaps exactly span it. */
-@media (max-width: 640px) {
-  .kmotion .k-cities {
-    container-type: inline-size;
-    grid-template-columns: 0.75fr 1.27fr 1.08fr;
-    gap: 2.4rem 1.25rem;
-  }
-  .kmotion .k-city {
-    container-type: normal;
-  }
-  .kmotion .k-city-shape {
-    --map-h: calc((100cqw - 2.5rem) / 3.1);
-  }
-}
 /* The dot map keeps exactly the old silhouette's footprint: same height, same aspect ratio. */
 .kmotion .k-dotmap {
   position: relative;
