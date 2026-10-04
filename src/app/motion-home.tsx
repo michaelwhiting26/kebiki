@@ -362,8 +362,8 @@ const TEAM_COPY = {
  */
 const TERMS = {
   label: "How we charge",
-  heading: "Agree the risk before the work starts.",
-  after: { text: "Every engagement is priced before it starts: fixed price, capped, retainer or equity, agreed in writing.", link: "The five ways to work with us" },
+  heading: "You know the price before the work starts.",
+  after: { text: "Fixed price, capped, retainer or equity, agreed in writing.", link: "The five ways to work with us" },
 } as const;
 
 const SERVICES = [
