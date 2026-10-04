@@ -5,7 +5,8 @@ Engineering spec for taking kebiki.studio's scroll and animation to the standard
 - **Written:** 4 October 2026
 - **Reference:** `~/Code/libraries/lenis-dev-analysis.md` (the lenis.dev teardown, 2 October 2026)
 - **Audited code:** `~/Code/kebiki-motion` at commit `cce458f`, plus uncommitted phone styles
-- **Status:** WP1 and WP2 are built (4 October 2026). WP3 to WP9 are not started.
+- **Status:** WP1 and WP2 are built (4 October 2026). WP3 is built (5 October 2026): decision D2 was "scroll-driven". WP5 is closed by the same change: the phone scroll stop existed only to protect a timed animation, so it is removed and D3 no longer applies. WP4 and WP6 to WP9 are not started.
+- **WP3 as built:** the sentence settles over 70 viewport-heights of scroll after it appears (`SETTLE_VH`), on a 280vh track at every width (`TRACK_VH`). The waiting Japanese characters are chosen by a hash of word, slot and step, so the same scroll position always draws the same frame. No timers remain in the sentence animation.
 - **Measured for WP1 and WP2** (scripted sweep of 81 scroll positions, 1,620 frames, 1160 px wide, comparing before and after): frame callbacks per frame went from 2.3 on average and 8 at worst to exactly 1; layout reads inside frames went from several per scroll frame to 0; the rendered output was identical at every position. A Chrome performance trace and real-device testing have not been done.
 
 ## 1. Summary

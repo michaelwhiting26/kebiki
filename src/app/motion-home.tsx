@@ -72,12 +72,13 @@ function dwell(u: number) {
 }
 const REDUCED_P = 0.6; // reduced motion: logo fully drawn, no takeover
 /**
- * The scroll track, in viewport heights (matches .k-track in motion.css), and the part of it the
- * animation plays over. Whatever is left holds the finished sentence on screen. Phones get a much
- * longer hold: a flick would otherwise carry the reader past before the sentence has settled.
+ * The scroll track, in viewport heights (matches .k-track in motion.css), and how it is spent:
+ * the logo and the orange takeover play over PLAY_VH, the sentence then settles out of Japanese over
+ * SETTLE_VH, and what is left holds the finished sentence before the page moves on.
  */
-const TRACK_VH = { wide: 230, phone: 330 } as const;
+const TRACK_VH = 280;
 const PLAY_VH = 117;
+const SETTLE_VH = 70;
 /** On load the logo builds by itself up to the finished mark; scrolling then plays the rest. */
 const INTRO = { end: T.dotPop[1], delay: 300, ms: 2500 };
 
@@ -741,9 +742,18 @@ const SHUFFLE_GLYPHS = [
 ];
 /** The Japanese is set a little smaller than the Latin so the two sit level (matches .k-w-ja). */
 const JA_SCALE = 0.82;
-const SHUFFLE_MS = 3400;
-/** How often the Japanese characters change while they wait: slow enough to read as writing, not static. */
-const SHUFFLE_TICK_MS = 140;
+/**
+ * How many times the waiting Japanese is redrawn as the sentence settles. The characters are a
+ * function of scroll position, not of time: the same place on the page always shows the same frame.
+ */
+const SHUFFLE_STEPS = 34;
+/** A repeatable pick from the glyph set for one character slot at one step. */
+function glyphAt(word: number, slot: number, step: number) {
+  let h = Math.imul(word + 1, 374761393) ^ Math.imul(slot + 1, 668265263) ^ Math.imul(step + 1, 1274126177);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return SHUFFLE_GLYPHS[((h ^ (h >>> 16)) >>> 0) % SHUFFLE_GLYPHS.length];
+}
+
 /** Characters in the sentence, which the shuffle settles across. */
 const SENTENCE_CHARS = SENTENCE.length;
 
@@ -923,10 +933,12 @@ export function MotionHome() {
      * the contact section sit in the document, how far the animation plays, and each word's width.
      * The clock calls this when the layout changes; the frame itself only does arithmetic.
      */
-    const phone = window.matchMedia("(max-width: 760px)");
     let trackTop = 0;
     let trackHeight = 0;
     let playPx = 1;
+    let settleFrom = 0; // px into the track where the sentence starts to settle
+    let settlePx = 1; // px of scroll it settles over
+    let into = 0; // px scrolled into the track
     let contactTop = Infinity;
     let contactHeight = 0;
     let seenW = -1;
@@ -944,7 +956,11 @@ export function MotionHome() {
       const tr = track.getBoundingClientRect();
       trackTop = tr.top + window.scrollY;
       trackHeight = tr.height;
-      playPx = PLAY_VH * (trackHeight / (phone.matches ? TRACK_VH.phone : TRACK_VH.wide));
+      const vhPx = trackHeight / TRACK_VH;
+      playPx = PLAY_VH * vhPx;
+      // The words appear at T.words[0] of the animation, which the scroll reaches this far in.
+      settleFrom = ((T.words[0] - INTRO.end) / (1 - INTRO.end)) * playPx;
+      settlePx = SETTLE_VH * vhPx;
       const contact = contactRef.current;
       const cr = contact?.getBoundingClientRect();
       contactTop = cr ? cr.top + window.scrollY : Infinity;
@@ -962,7 +978,8 @@ export function MotionHome() {
       if (reduce || forced !== null) return;
       const top = trackTop - scroll;
       trackBottom = top + trackHeight;
-      scrollS = clamp01(-top / playPx);
+      into = -top;
+      scrollS = clamp01(into / playPx);
     };
     measureLayout();
     place(window.scrollY);
@@ -986,8 +1003,9 @@ export function MotionHome() {
     rows.forEach((r) => io.observe(r));
     cleanups.push(() => io.disconnect());
 
-    let shuffleStart: number | null = null;
-    let shuffleTick = -1;
+    /* How far the sentence has settled (0 Japanese, 1 English): scroll-driven, smoothed like the hero. */
+    let settled = 0;
+    const wordKey: string[] = [];
 
     const loop = ({ scroll }: FrameState) => {
       place(scroll);
@@ -1043,25 +1061,22 @@ export function MotionHome() {
       root.classList.toggle("k-past", trackBottom < 72);
 
       /*
-       * The sentence: the same text shuffle as the original studio page. When the orange screen is
-       * reached, every word appears scrambled at once and settles left to right across
-       * the whole line in SHUFFLE_MS; it replays each time the visitor scrolls back above it. The
-       * scramble is drawn in a clipped layer over the hidden real word, so lines never reflow.
+       * The sentence settles out of Japanese into English as the visitor scrolls, left to right
+       * across the whole line, and back again if they scroll up. It is driven by scroll position
+       * alone, so it cannot be scrolled past unfinished. The scramble is drawn in a clipped layer
+       * over the hidden real word, so lines never reflow.
        */
-      const now = performance.now();
       const wordsOn = p >= T.words[0];
-      if (wordsOn && shuffleStart === null) shuffleStart = now;
-      if (!wordsOn && p < T.words[0] - 0.01) shuffleStart = null;
-      const t = shuffleStart === null ? 0 : Math.min((now - shuffleStart) / SHUFFLE_MS, 1);
-      /* The characters are redrawn on a slow tick, not every frame; between ticks they hold still. */
-      const tick = shuffleStart === null ? -1 : Math.floor((now - shuffleStart) / SHUFFLE_TICK_MS);
-      const redraw = tick !== shuffleTick;
-      shuffleTick = tick;
+      const settleTarget =
+        reduce || !wordsOn ? 0 : forced !== null ? seg(p, T.words[0], T.words[1]) : clamp01((into - settleFrom) / settlePx);
+      settled += (settleTarget - settled) * (forced !== null ? 1 : ease);
+      if (Math.abs(settleTarget - settled) < 0.0005) settled = settleTarget;
+      const t = settled;
+      const step = Math.floor(t * SHUFFLE_STEPS);
       const settledChars = Math.floor(t * SENTENCE_CHARS);
       let offset = 0;
       wordEls.forEach((w, i) => {
         w.style.opacity = wordsOn ? "1" : "0";
-        w.style.transform = "";
         const word = WORDS[i];
         const real = w.firstElementChild as HTMLElement | null;
         const scr = w.lastElementChild as HTMLElement | null;
@@ -1072,13 +1087,22 @@ export function MotionHome() {
           if (real.style.visibility) {
             real.style.visibility = "";
             scr.textContent = "";
+            wordKey[i] = "";
           }
           return;
         }
-        real.style.visibility = "hidden";
         /* Letters already reached are English; the rest of the word is still Japanese. */
-        const settled = Math.min(Math.max(settledChars - start, 0), word.length);
-        const pending = word.length - settled;
+        const done = Math.min(Math.max(settledChars - start, 0), word.length);
+        const pending = word.length - done;
+        /* As many whole glyphs as fit in the unsettled part of the word, so none is cut at its edge. */
+        const room = wordWidth[i] * (pending / word.length);
+        // A word not yet reached always shows at least one; a part-settled word shows only what fits.
+        const fit = Math.floor(room / glyphWidth[i] + 0.12);
+        const count = pending ? (done === 0 ? Math.max(1, fit) : fit) : 0;
+        const key = `${done}:${count}:${step}`;
+        if (wordKey[i] === key) return; // nothing about this word has changed: write nothing
+        wordKey[i] = key;
+        real.style.visibility = "hidden";
         let ja = scr.lastElementChild as HTMLElement | null;
         if (!ja) {
           ja = document.createElement("span");
@@ -1086,27 +1110,16 @@ export function MotionHome() {
           ja.lang = "ja";
           scr.replaceChildren(document.createTextNode(""), ja);
         }
-        scr.firstChild!.textContent = word.slice(0, settled);
+        scr.firstChild!.textContent = word.slice(0, done);
         let glyphs = "";
-        /* As many whole glyphs as fit in the unsettled part of the word, so none is cut at its edge. */
-        const room = wordWidth[i] * (pending / word.length);
-        const count = pending ? Math.max(1, Math.floor(room / glyphWidth[i] + 0.12)) : 0;
-        const held = ja.textContent ?? "";
-        if (!redraw && held.length >= count) {
-          /* Between ticks: keep the same characters, dropping only those the English has reached. */
-          if (held.length > count) ja.textContent = held.slice(held.length - count);
-          return;
-        }
-        for (let k = count; k > 0; k--) {
-          glyphs += SHUFFLE_GLYPHS[Math.floor(Math.random() * SHUFFLE_GLYPHS.length)];
-        }
+        for (let k = 0; k < count; k++) glyphs += glyphAt(i, k, step);
         ja.textContent = glyphs;
       });
 
       /* Once the sentence has landed, the name's origin settles in, bottom right. */
       const seal = sealRef.current;
       if (seal) {
-        const k = quadInOut(seg(p, T.words[1] - 0.01, T.words[1] + 0.03));
+        const k = quadInOut(seg(t, 0.88, 1));
         seal.style.opacity = String(k);
         seal.style.transform = `translateY(${(1 - k) * 12}px)`;
       }
@@ -1140,9 +1153,6 @@ export function MotionHome() {
       </a>
 
       <section ref={trackRef} className="k-track" style={reduced ? { height: "100vh" } : undefined}>
-        {/* Phones: a flick stops here, on the finished sentence, before the page carries on. Placed on
-            the track itself (not the sticky stage), so it sits at a fixed point in the scroll. */}
-        {!reduced ? <span className="k-track-stop" aria-hidden="true" /> : null}
         <div ref={stageRef} className="k-stage">
           <div className={`k-hero ${montserrat.className}`} role="img" aria-label={`kebiki. ${TAGLINE}`}>
             <svg ref={svgRef} viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`} aria-hidden="true">

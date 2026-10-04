@@ -102,33 +102,8 @@
 
 /* Scroll-scrubbed hero. The track is tall; the stage sticks while it plays. */
 .kmotion .k-track {
-  height: 230vh; /* the logo builds on load, so scroll only carries the takeover */
+  height: 280vh; /* TRACK_VH in motion-home.tsx: the takeover, the sentence settling, then a hold */
   position: relative;
-}
-/* Phones: a longer track holds the finished sentence for a further screen of scrolling, and a stop
-   just past the end of the animation catches a flick there (TRACK_VH and PLAY_VH in motion-home.tsx). */
-.kmotion .k-track-stop {
-  display: none;
-}
-@media (max-width: 760px) {
-  .kmotion .k-track {
-    height: 330vh;
-  }
-}
-@media (max-width: 760px) and (pointer: coarse) {
-  html {
-    scroll-snap-type: y proximity;
-  }
-  .kmotion .k-track-stop {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 124vh;
-    width: 1px;
-    height: 1px;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
 }
 .kmotion .k-stage {
   position: sticky;
