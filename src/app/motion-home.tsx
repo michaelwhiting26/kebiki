@@ -742,7 +742,9 @@ const SHUFFLE_GLYPHS = [
 ];
 /** The Japanese is set a little smaller than the Latin so the two sit level (matches .k-w-ja). */
 const JA_SCALE = 0.82;
-const SHUFFLE_MS = 2200;
+const SHUFFLE_MS = 3400;
+/** How often the Japanese characters change while they wait: slow enough to read as writing, not static. */
+const SHUFFLE_TICK_MS = 140;
 /** Characters in the sentence, which the shuffle settles across. */
 const SENTENCE_CHARS = SENTENCE.length;
 
@@ -964,6 +966,7 @@ export function MotionHome() {
 
     const wordEls = wordRefs.current.filter((w): w is HTMLSpanElement => !!w);
     let shuffleStart: number | null = null;
+    let shuffleTick = -1;
 
     const loop = () => {
       const autoplaying = !introDone;
@@ -1028,6 +1031,10 @@ export function MotionHome() {
       if (wordsOn && shuffleStart === null) shuffleStart = now;
       if (!wordsOn && p < T.words[0] - 0.01) shuffleStart = null;
       const t = shuffleStart === null ? 0 : Math.min((now - shuffleStart) / SHUFFLE_MS, 1);
+      /* The characters are redrawn on a slow tick, not every frame; between ticks they hold still. */
+      const tick = shuffleStart === null ? -1 : Math.floor((now - shuffleStart) / SHUFFLE_TICK_MS);
+      const redraw = tick !== shuffleTick;
+      shuffleTick = tick;
       const settledChars = Math.floor(t * SENTENCE_CHARS);
       let offset = 0;
       wordEls.forEach((w, i) => {
@@ -1062,7 +1069,14 @@ export function MotionHome() {
         /* As many whole glyphs as fit in the unsettled part of the word, so none is cut at its edge. */
         const glyphW = parseFloat(getComputedStyle(real).fontSize) * JA_SCALE;
         const room = real.offsetWidth * (pending / word.length);
-        for (let k = pending ? Math.max(1, Math.floor(room / glyphW + 0.12)) : 0; k > 0; k--) {
+        const count = pending ? Math.max(1, Math.floor(room / glyphW + 0.12)) : 0;
+        const held = ja.textContent ?? "";
+        if (!redraw && held.length >= count) {
+          /* Between ticks: keep the same characters, dropping only those the English has reached. */
+          if (held.length > count) ja.textContent = held.slice(held.length - count);
+          return;
+        }
+        for (let k = count; k > 0; k--) {
           glyphs += SHUFFLE_GLYPHS[Math.floor(Math.random() * SHUFFLE_GLYPHS.length)];
         }
         ja.textContent = glyphs;
