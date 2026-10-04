@@ -81,44 +81,43 @@ const SCRAMBLE_GLYPHS = "+─│┼┬┴├┤╴╵╶╷".split("");
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 /**
- * How we work: the four stages every product goes through, each with one short description and how
- * it is charged. Define is the paid way in; its three published sizes are the cards in TERMS below.
- * Wording is a draft of commercial terms.
+ * How an engagement starts, in three blocks: the first conversation, the four routes that can follow
+ * it, and the 14-day sprint in detail. Wording is a draft of commercial terms.
  */
 const HOW = {
-  label: "How we work",
-  lead: "You don\u2019t need a brief. In fact, we\u2019re often most useful before you\u2019ve convinced yourself you already know the answer.",
-  heading: "Four stages. You commit to one at a time.",
-  cta: "Book a consultation",
-  body: "Each is priced in writing before it starts, and ends with something finished that you own.",
-  stages: [
-    {
-      n: "01",
-      verb: "Define",
-      text: "We work out what the business is trying to achieve, who it is for and what stands in the way, and test the riskiest part before you spend on the rest. You leave with a decision and a costed plan, not another deck.",
-      charge: "Fixed price, published below",
-    },
-    {
-      n: "02",
-      verb: "Design",
-      text: "We shape the interface, the way information is organised and the system underneath it together, not as separate jobs passed between teams. You get a design you can click through and a build plan with a price on it.",
-      charge: "Fixed price, agreed at the end of Define",
-    },
-    {
-      n: "03",
-      verb: "Build",
-      text: "We ship in working pieces, each one tested and monitored from the day it goes live. You see progress as running software, and the code is yours.",
-      charge: "Fixed or capped price, agreed before work starts",
-    },
-    {
-      n: "04",
-      verb: "Evolve",
-      text: "We keep improving the product against what real use shows and what the business needs next. The team that built it stays on it.",
-      charge: "Monthly retainer, priorities yours to change",
-    },
-  ],
-  outcome: "One stage at a time. Nothing you cannot walk away from.",
-  ownership: "Every output is yours once it is paid for, whether we continue together or not. No lock-in. No dependency. No obligation.",
+  consult: {
+    label: "Initial consultation",
+    lead: "You don\u2019t need a brief. In fact, we\u2019re often most useful before you\u2019ve convinced yourself you already know the answer.",
+    heading: ["Start with the problem.", "We\u2019ll challenge the rest."],
+    points: [
+      { title: "Understand the outcome", text: "What the business is trying to achieve, who it is for and why it matters now." },
+      { title: "Expose the assumptions", text: "What is known, what is guessed and what could make the whole idea fail." },
+      { title: "Choose the next move", text: "Advice, a sprint, a scoped build - or a recommendation not to build yet." },
+    ],
+    cta: "Book a 30-minute conversation",
+  },
+  routes: {
+    label: "What happens next",
+    lead: "There is no compulsory package. Once the problem is clear, we recommend the smallest engagement that can answer the next important question.",
+    items: [
+      { n: "01", title: "Need an answer", text: "Architecture reviews, technical due diligence, product advice or an independent read on a build already in progress.", tag: "Consultation / advisory", href: "" },
+      { n: "02", title: "Need to prove it", text: "When the important unknowns still need evidence, we define, design and build enough of the product to make a confident decision.", tag: "14-day sprint", href: "#sprint" },
+      { n: "03", title: "Know what needs building", text: "A defined product or workstream with clear outcomes, delivered on an agreed commercial model and written scope.", tag: "Scoped delivery", href: "" },
+      { n: "04", title: "Have something live", text: "Reserved senior product and engineering capacity for a product that needs to keep moving after launch.", tag: "Ongoing product work", href: "" },
+    ],
+  },
+  sprint: {
+    label: "When uncertainty is the problem",
+    lead: "The 14-day sprint is usually the right next step when committing to the whole build would still mean guessing.",
+    steps: [
+      { n: "01", days: "Day 01 - 02", verb: "Define", text: "Work out what the business is actually trying to achieve, who it is for, what limits it and how success gets measured.", output: "The problem, restated", outputText: "A precise definition everyone involved can agree on." },
+      { n: "02", days: "Day 03 - 05", verb: "Design", text: "Shape the interface, information and system together - not as separate jobs passed between teams.", output: "The constraint map", outputText: "What we know, what we assume and what still needs an answer." },
+      { n: "03", days: "Day 06 - 09", verb: "Build", text: "Build the part that creates the most useful evidence first. Real software exposes problems that workshops cannot.", output: "A working first version", outputText: "One important part, built end to end and deployed." },
+      { n: "04", days: "Day 10 - 14", verb: "Decide", text: "Turn what we learned into a written recommendation with the real trade-offs, risks, cost drivers and next steps.", output: "The decision", outputText: "A plan another capable team could execute without us." },
+    ],
+    outcome: ["You leave with a decision.", "Not another deck."],
+    ownership: "Every output is yours, whether we continue together or not. No lock-in. No dependency. No obligation.",
+  },
 } as const;
 
 /**
@@ -356,43 +355,13 @@ const TEAM_COPY = {
 } as const;
 
 /**
- * How we charge, on the home page: the three published sizes of Define as cards with the price leading,
- * one line on how the later stages are priced, and the three things that always hold. The five commercial models that line
- * refers to live on /terms (see terms-data.ts). Wording is a draft of commercial terms.
+ * How we charge, on the home page: one line on how the stages are priced and the three things that
+ * always hold. The five commercial models that line refers to live on /terms (see terms-data.ts).
+ * Wording is a draft of commercial terms.
  */
 const TERMS = {
   label: "How we charge",
-  packages: {
-    heading: "Three ways to start. All fixed price.",
-    body: "Define is the one stage we can price before we know your product, so we publish it. Choose by where you are starting from.",
-    models: [
-      {
-        n: "01",
-        name: "Scribe",
-        price: "\u00a37,450",
-        term: "About 1 week",
-        text: "Define for a build already under way. A written second opinion: planned against actual, what your contract says about change, and whether to carry on, re-scope or stop. No build. The fee is credited in full against Line within 30 days.",
-        best: "A build that feels late and needs an independent read.",
-      },
-      {
-        n: "02",
-        name: "Line",
-        price: "\u00a318,500",
-        term: "About 2 weeks",
-        text: "Define in full, for a new product or an idea. The problem written down, every assumption listed, the hardest part built and running, and a costed plan another team could carry out. Half the fee is credited if we go on to finish the build within 30 days.",
-        best: "A new product, or software that has to be right first time.",
-      },
-      {
-        n: "03",
-        name: "Gauge",
-        price: "\u00a329,500",
-        term: "About 2 weeks + 30 days",
-        text: "Line, plus an independent, assumption-logged estimate of the cost and time to completion, fit for a board, lender or investor, and a review at 30 days.",
-        best: "When someone else has to rely on the number.",
-      },
-    ],
-  },
-  after: { text: "Design, Build and Evolve are priced once Define has shown what they involve: fixed price, capped, retainer or equity, agreed in writing before each stage starts.", link: "The five ways to work with us" },
+  after: { text: "Every engagement is priced before it starts: fixed price, capped, retainer or equity, agreed in writing.", link: "The five ways to work with us" },
   always: [
     { title: "Agreed in writing first", text: "Scope, price and model are set down before work starts." },
     { title: "Changes priced before they are made", text: "Nothing is added to the bill without your agreement." },
@@ -1200,10 +1169,21 @@ export function MotionHome() {
       ) : null}
 
       <section id="next" className="k-next" ref={stepsRef}>
-        <div className="k-label">{HOW.label}</div>
-        <p className="k-engage-lead k-next-row">{HOW.lead}</p>
-        <h2 className="k-engage-heading k-next-row">{HOW.heading}</h2>
-        <p className="k-engage-body k-next-row">{HOW.body}</p>
+        <div className="k-label">{HOW.consult.label}</div>
+        <p className="k-engage-lead k-next-row">{HOW.consult.lead}</p>
+        <h2 className="k-engage-heading k-next-row">
+          {HOW.consult.heading[0]}
+          <br />
+          {HOW.consult.heading[1]}
+        </h2>
+        <ul className="k-always k-consult">
+          {HOW.consult.points.map((c) => (
+            <li key={c.title} className="k-next-row">
+              <span className="k-always-title">{c.title}</span>
+              <span className="k-always-text">{c.text}</span>
+            </li>
+          ))}
+        </ul>
         <p className="k-engage-cta k-next-row">
           {/* The booking page when one is set; otherwise the same button writes an email. */}
           <a
@@ -1211,49 +1191,60 @@ export function MotionHome() {
             className="k-cta k-cta-onink"
             {...(BOOKING_URL ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           >
-            {HOW.cta}<span aria-hidden="true"> &rarr;</span>
+            {HOW.consult.cta}<span aria-hidden="true"> &#8599;</span>
           </a>
         </p>
-        <ol className="k-next-list">
-          {HOW.stages.map((it) => (
-            <li key={it.n} className="k-next-row">
-              <span className="k-next-n">{it.n}</span>
-              <h3 className="k-next-verb">{it.verb}</h3>
-              <div className="k-next-detail">
-                <p className="k-next-text">{it.text}</p>
-                <p className="k-next-charge">
-                  <span className="k-term-key">How it is charged</span>
-                  {it.charge}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <p className="k-engage-outcome k-next-row">{HOW.outcome}</p>
-        <p className="k-engage-own k-next-row">{HOW.ownership}</p>
+
+        <div className="k-block">
+          <div className="k-label k-label-inline">{HOW.routes.label}</div>
+          <p className="k-engage-lead k-engage-lead-wide k-next-row">{HOW.routes.lead}</p>
+          <ul className="k-routes">
+            {HOW.routes.items.map((r) => (
+              <li key={r.n} className="k-next-row">
+                <span className="k-next-n">{r.n}</span>
+                <h3 className="k-route-title">{r.title}</h3>
+                <p className="k-route-text">{r.text}</p>
+                {r.href ? (
+                  <a href={r.href} className="k-route-tag">
+                    {r.tag}<span aria-hidden="true"> &darr;</span>
+                  </a>
+                ) : (
+                  <span className="k-route-tag">{r.tag}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="k-block" id="sprint">
+          <div className="k-label k-label-inline">{HOW.sprint.label}</div>
+          <p className="k-engage-lead k-engage-lead-wide k-next-row">{HOW.sprint.lead}</p>
+          <ol className="k-next-list">
+            {HOW.sprint.steps.map((it) => (
+              <li key={it.n} className="k-next-row">
+                <span className="k-next-n">{it.n}</span>
+                <h3 className="k-next-verb">{it.verb}</h3>
+                <div className="k-next-detail">
+                  <p className="k-next-text">{it.text}</p>
+                  <p className="k-next-charge">
+                    <span className="k-term-key">{it.days} &middot; {it.output}</span>
+                    {it.outputText}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="k-engage-outcome k-next-row">
+            {HOW.sprint.outcome[0]}
+            <br />
+            {HOW.sprint.outcome[1]}
+          </p>
+          <p className="k-engage-own k-next-row">{HOW.sprint.ownership}</p>
+        </div>
       </section>
 
       <section id="terms" className="k-terms">
         <div className="k-label">{TERMS.label}</div>
-        <h2 className="k-engage-heading k-next-row">{TERMS.packages.heading}</h2>
-        <p className="k-engage-body k-next-row">{TERMS.packages.body}</p>
-        <ul className="k-terms-grid">
-          {TERMS.packages.models.map((m) => (
-            <li key={m.n} className="k-term k-next-row">
-              <div className="k-term-head">
-                <span className="k-term-n">{m.n}</span>
-                <span className="k-term-term">{m.term}</span>
-              </div>
-              <h3 className="k-term-name">{m.name}</h3>
-              <p className="k-term-price">{m.price}</p>
-              <p className="k-term-text">{m.text}</p>
-              <p className="k-term-best">
-                <span className="k-term-key">Best for</span>
-                {m.best}
-              </p>
-            </li>
-          ))}
-        </ul>
         <p className="k-terms-after k-next-row">
           {TERMS.after.text}{" "}
           <Link href="/terms">

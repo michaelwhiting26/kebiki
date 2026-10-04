@@ -300,6 +300,89 @@
 .kmotion .k-engage-lead + .k-engage-heading {
   margin-top: 2.4rem;
 }
+/* ---------- How an engagement starts: consultation, routes, sprint ---------- */
+.kmotion .k-always.k-consult {
+  margin-top: 7vh;
+}
+/* Each later block starts well clear of the one above, under its own small label. */
+.kmotion .k-block {
+  margin-top: 22vh;
+  scroll-margin-top: 12vh;
+}
+.kmotion .k-next .k-label-inline {
+  position: static;
+}
+.kmotion .k-engage-lead-wide {
+  max-width: 26em;
+  font-size: clamp(24px, 3vw, 44px);
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+}
+.kmotion .k-routes {
+  list-style: none;
+  margin: 8vh 0 0;
+  padding: 0;
+}
+.kmotion .k-routes .k-next-row {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) minmax(0, 1.5fr) auto;
+  column-gap: 2rem;
+  align-items: center;
+  padding: 2.4rem 0;
+  border-top: 1px solid var(--gray-6);
+}
+.kmotion .k-routes .k-next-row:last-child {
+  border-bottom: 1px solid var(--gray-6);
+}
+.kmotion .k-route-title {
+  margin: 0;
+  font-size: clamp(24px, 2.6vw, 38px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--k-paper);
+}
+.kmotion .k-route-text {
+  margin: 0;
+  max-width: 34em;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.5;
+  color: var(--gray-11);
+}
+.kmotion .k-route-tag {
+  justify-self: end;
+  white-space: nowrap;
+  font-family: var(--k-mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--k-paper);
+  border: 1px solid var(--gray-8);
+  border-radius: 999px;
+  padding: 0.6rem 0.95rem;
+}
+.kmotion a.k-route-tag {
+  border-color: var(--k-persimmon);
+  color: var(--k-persimmon);
+}
+.kmotion a.k-route-tag:hover,
+.kmotion a.k-route-tag:focus-visible {
+  background: var(--k-persimmon);
+  color: var(--k-ink);
+}
+@media (max-width: 900px) {
+  .kmotion .k-routes .k-next-row {
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    row-gap: 0.9rem;
+    align-items: start;
+  }
+  .kmotion .k-route-text,
+  .kmotion .k-route-tag {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
 .kmotion .k-engage-cta {
   margin: 2.8rem 0 0;
 }
