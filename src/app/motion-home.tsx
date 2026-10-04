@@ -325,7 +325,7 @@ const TEAM = [
     surname: "Whiting",
     linkedin: "",
     role: "Engineering & Delivery",
-    bio: "Michael scopes the work, prices it and builds alongside the team, and he\u2019s the one you call when something needs sorting. Years in international arbitration showed him exactly how projects go wrong, which is why yours gets a plan that holds. If he\u2019s asking awkward questions, relax. He\u2019s on your side.",
+    bio: "Michael is a full-stack engineer with a background in international arbitration. If he\u2019s asking difficult questions, don\u2019t worry. He\u2019s on your side.",
     talk: "scope, pricing, contracts & getting it over the line",
   },
   {
