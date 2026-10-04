@@ -345,7 +345,7 @@ const TEAM = [
     surname: "",
     linkedin: "",
     role: "Engineering & Growth",
-    bio: "Riki works on both sides of a launch: building the thing and making sure people actually find it. He moves between product, engineering and growth with more energy than most teams have between them.",
+    bio: "Riki is a full-stack engineer who doesn\u2019t stop at shipping. He builds the product, then makes sure people find it. He brings more energy to a Monday morning than most teams manage all week.",
     talk: "building, launching & finding traction",
   },
 ] as const;
