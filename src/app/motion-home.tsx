@@ -95,6 +95,7 @@ const HOW = {
       { title: "Choose the next move", text: "Advice, a sprint, a scoped build - or a recommendation not to build yet." },
     ],
     cta: "Book a 30-minute conversation",
+    ctaNote: "Talk your idea through with the people who would build it.",
   },
   routes: {
     label: "What happens next",
@@ -351,7 +352,7 @@ const coverStyle = (m: { cover: number }) => ({ ["--cover" as string]: `${m.cove
 const TEAM_COPY = {
   label: "The studio",
   title: "The people you meet are the people who build.",
-  body: "The same team stays with the work from the first idea through to the finished product, so you are always talking to the people making the decisions.",
+  body: "The same team, from first idea to finished product.",
 } as const;
 
 /**
@@ -1194,6 +1195,7 @@ export function MotionHome() {
             {HOW.consult.cta}<span aria-hidden="true"> &#8599;</span>
           </a>
         </p>
+        <p className="k-engage-cta-note k-next-row">{HOW.consult.ctaNote}</p>
 
         <div className="k-block">
           <div className="k-label k-label-inline">{HOW.routes.label}</div>

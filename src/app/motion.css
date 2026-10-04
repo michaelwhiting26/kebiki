@@ -383,6 +383,12 @@
     justify-self: start;
   }
 }
+.kmotion .k-engage-cta-note {
+  margin: 1.1rem 0 0;
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.45;
+  color: var(--gray-11);
+}
 .kmotion .k-engage-cta {
   margin: 2.8rem 0 0;
 }
