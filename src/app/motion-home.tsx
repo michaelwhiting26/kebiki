@@ -485,7 +485,7 @@ function HeaderLogo() {
 const CITIES = [
   { name: "London", zone: "Europe/London", country: "uk" },
   { name: "Dubai", zone: "Asia/Dubai", country: "uae" },
-  { name: "Tokyo", zone: "Asia/Tokyo", country: "japan" },
+  { name: "Sydney", zone: "Australia/Sydney", country: "australia" },
 ] as const;
 
 /** The studio's cities, each with its country's outline and the local time (updating each minute). Times render after mount, so server and client agree. */
