@@ -87,7 +87,7 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 const HOW = {
   consult: {
     label: "Initial consultation",
-    lead: "You don\u2019t need a brief. In fact, we\u2019re often most useful before you\u2019ve convinced yourself you already know the answer.",
+    lead: "You do not need a finished brief.",
     heading: ["Start with the problem.", "We\u2019ll challenge the rest."],
     points: [
       { title: "Understand the outcome", text: "What the business is trying to achieve, who it is for and why it matters now." },
@@ -99,7 +99,7 @@ const HOW = {
   },
   routes: {
     label: "What happens next",
-    lead: "Once the problem is clear, we recommend the smallest engagement that can answer the next important question.",
+    lead: "Once the problem is clear, we recommend the smallest engagement that can answer the next expensive question.",
     items: [
       { n: "01", title: "Need an answer", text: "Architecture reviews, technical due diligence, product advice or an independent read on a build already in progress.", tag: "Consultation / advisory", href: "" },
       { n: "02", title: "Need to prove it", text: "When the important unknowns still need evidence, we define, design and build enough of the product to make a confident decision.", tag: "14-day sprint", href: "#sprint" },
