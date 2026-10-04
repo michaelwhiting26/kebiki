@@ -172,6 +172,16 @@
   letter-spacing: -0.01em;
   color: var(--k-ink);
 }
+.kmotion .k-final-head {
+  font-size: 1.5em;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+/* The break after the opening statement: a clear step down to the supporting sentence. */
+.kmotion .k-final-gap {
+  display: block;
+  height: 0.7em;
+}
 .kmotion .k-w {
   display: inline-block;
   opacity: 0;
@@ -289,6 +299,9 @@
 }
 .kmotion .k-engage-lead + .k-engage-heading {
   margin-top: 2.4rem;
+}
+.kmotion .k-engage-cta {
+  margin: 2.8rem 0 0;
 }
 .kmotion .k-engage-body {
   margin: 2.4rem 0 0;

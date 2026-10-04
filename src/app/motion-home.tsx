@@ -22,8 +22,10 @@ const montserrat = Montserrat({ subsets: ["latin"], weight: ["500"], display: "s
 
 const TAGLINE = "complex digital products, built to last.";
 const SENTENCE =
-  "We work with founders to define, design and build complex digital products from idea to production.";
+  "Bring us the complicated idea. We'll challenge it, define what should exist, and build the version worth building.";
 const WORDS = SENTENCE.split(" ");
+/** The opening statement ("Bring us the complicated idea.") is set larger, on its own line. */
+const HEAD_WORDS = 5;
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const quadInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
@@ -85,7 +87,9 @@ const SVG_NS = "http://www.w3.org/2000/svg";
  */
 const HOW = {
   label: "How we work",
+  lead: "You don\u2019t need a brief. In fact, we\u2019re often most useful before you\u2019ve convinced yourself you already know the answer.",
   heading: "Four stages. You commit to one at a time.",
+  cta: "Book a consultation",
   body: "Each is priced in writing before it starts, and ends with something finished that you own.",
   stages: [
     {
@@ -1164,12 +1168,13 @@ export function MotionHome() {
               <p>
                 <span className="k-sr">{SENTENCE}</span>
                 {WORDS.map((w, i) => (
-                  <span key={i} aria-hidden="true">
+                  <span key={i} aria-hidden="true" className={i < HEAD_WORDS ? "k-final-head" : undefined}>
                     <span className="k-w" ref={(el) => { wordRefs.current[i] = el; }}>
                       <span className="k-w-real">{w}</span>
                       <span className="k-w-scr" />
                     </span>
                     {i < WORDS.length - 1 ? " " : ""}
+                    {i === HEAD_WORDS - 1 ? <span className="k-final-gap" /> : null}
                   </span>
                 ))}
               </p>
@@ -1196,8 +1201,19 @@ export function MotionHome() {
 
       <section id="next" className="k-next" ref={stepsRef}>
         <div className="k-label">{HOW.label}</div>
+        <p className="k-engage-lead k-next-row">{HOW.lead}</p>
         <h2 className="k-engage-heading k-next-row">{HOW.heading}</h2>
         <p className="k-engage-body k-next-row">{HOW.body}</p>
+        <p className="k-engage-cta k-next-row">
+          {/* The booking page when one is set; otherwise the same button writes an email. */}
+          <a
+            href={BOOKING_URL || `mailto:${CONTACT_EMAIL}`}
+            className="k-cta k-cta-onink"
+            {...(BOOKING_URL ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          >
+            {HOW.cta}<span aria-hidden="true"> &rarr;</span>
+          </a>
+        </p>
         <ol className="k-next-list">
           {HOW.stages.map((it) => (
             <li key={it.n} className="k-next-row">
