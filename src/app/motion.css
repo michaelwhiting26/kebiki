@@ -410,6 +410,44 @@
   }
 }
 .kmotion .k-engage-cta-note {
+  margin: 1.5rem 0 0;
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.45;
+}
+/* Reads as a link at a glance: bright text, an orange underline and an arrow that steps forward on hover. */
+.kmotion .k-engage-cta-note a {
+  color: var(--k-paper);
+  text-decoration: underline;
+  text-decoration-color: var(--k-persimmon);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+  transition: color 0.2s;
+}
+.kmotion .k-engage-cta-arrow {
+  display: inline-block;
+  color: var(--k-persimmon);
+  transition: transform 0.2s;
+}
+.kmotion .k-engage-cta-note a:hover,
+.kmotion .k-engage-cta-note a:focus-visible {
+  color: var(--k-persimmon);
+}
+.kmotion .k-engage-cta-note a:hover .k-engage-cta-arrow,
+.kmotion .k-engage-cta-note a:focus-visible .k-engage-cta-arrow {
+  transform: translateX(4px);
+}
+/* A two-sentence heading: each sentence is its own block, and wraps into even lines when it has to
+   (so a narrow screen never leaves one word alone on a line). */
+.kmotion .k-head-line {
+  display: block;
+  text-wrap: balance;
+}
+@media (max-width: 760px) {
+  .kmotion .k-head-line + .k-head-line {
+    margin-top: 0.32em;
+  }
+}
+.kmotion .k-engage-cta-note {
   margin: 1.1rem 0 0;
   font-size: clamp(15px, 1.2vw, 18px);
   line-height: 1.45;
@@ -549,6 +587,22 @@
   display: flex;
   align-items: flex-end;
   margin-bottom: 0.9rem;
+}
+/* Phones: the columns follow each map's own width (UK narrow, UAE wide, Australia between), so the
+   three maps fill the row with even gaps instead of sitting in equal thirds. The row itself is the
+   measure: one shared height, set so the three widths plus two gaps exactly span it. */
+@media (max-width: 640px) {
+  .kmotion .k-cities {
+    container-type: inline-size;
+    grid-template-columns: 0.75fr 1.27fr 1.08fr;
+    gap: 2.4rem 1.25rem;
+  }
+  .kmotion .k-city {
+    container-type: normal;
+  }
+  .kmotion .k-city-shape {
+    --map-h: calc((100cqw - 2.5rem) / 3.1);
+  }
 }
 /* The dot map keeps exactly the old silhouette's footprint: same height, same aspect ratio. */
 .kmotion .k-dotmap {

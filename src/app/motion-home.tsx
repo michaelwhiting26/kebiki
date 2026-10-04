@@ -99,7 +99,7 @@ const HOW = {
   },
   routes: {
     label: "What happens next",
-    lead: "There is no compulsory package. Once the problem is clear, we recommend the smallest engagement that can answer the next important question.",
+    lead: "Once the problem is clear, we recommend the smallest engagement that can answer the next important question.",
     items: [
       { n: "01", title: "Need an answer", text: "Architecture reviews, technical due diligence, product advice or an independent read on a build already in progress.", tag: "Consultation / advisory", href: "" },
       { n: "02", title: "Need to prove it", text: "When the important unknowns still need evidence, we define, design and build enough of the product to make a confident decision.", tag: "14-day sprint", href: "#sprint" },
@@ -1196,7 +1196,7 @@ export function MotionHome() {
           </a>
         </p>
         <p className="k-engage-cta-note k-next-row">
-          <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("An idea to talk through")}`}>{HOW.consult.ctaNote}</a>
+          <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("An idea to talk through")}`}>{HOW.consult.ctaNote}<span className="k-engage-cta-arrow" aria-hidden="true"> &rarr;</span></a>
         </p>
 
         <div className="k-block">
