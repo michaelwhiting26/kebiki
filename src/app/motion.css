@@ -641,6 +641,14 @@
   color: rgba(14, 14, 16, 0.75);
   font-variant-numeric: tabular-nums;
 }
+.kmotion .k-footer-actions {
+  margin-top: clamp(3rem, 8vh, 6rem);
+  padding-top: clamp(2rem, 5vh, 3.5rem);
+  border-top: 1.5px solid var(--k-ink);
+}
+.kmotion .k-footer-actions .k-contact-actions {
+  margin-top: 0;
+}
 .kmotion .k-footer-base {
   margin-top: 3.6rem;
   display: flex;
@@ -1451,16 +1459,55 @@
   font-size: 13px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.35em;
+  text-decoration: none;
   color: var(--k-ink);
   opacity: 0.8;
+  /* The underline is drawn as a background so it can be redrawn on hover. */
+  padding-bottom: 0.35em;
+  background: linear-gradient(currentColor, currentColor) left bottom / 100% 1px no-repeat;
   transition: opacity 0.2s;
 }
 .kmotion .k-cta-link:hover,
 .kmotion .k-cta-link:focus-visible {
   opacity: 1;
+  animation: k-cta-underline 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+/* On hover the underline is drawn again from the left, slightly heavier. */
+@keyframes k-cta-underline {
+  from {
+    background-size: 0% 2px;
+  }
+  to {
+    background-size: 100% 2px;
+  }
+}
+.kmotion .k-cta-link:hover,
+.kmotion .k-cta-link:focus-visible {
+  background-size: 100% 2px;
+}
+/* The arrow steps forward and the WhatsApp mark lifts, so each link answers the pointer. */
+.kmotion .k-cta-arrow,
+.kmotion .k-cta-link .k-cta-icon {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.kmotion .k-cta-link:hover .k-cta-arrow,
+.kmotion .k-cta-link:focus-visible .k-cta-arrow {
+  transform: translateX(5px);
+}
+.kmotion .k-cta-link:hover .k-cta-icon,
+.kmotion .k-cta-link:focus-visible .k-cta-icon {
+  transform: scale(1.18) rotate(-8deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .kmotion .k-cta-link:hover,
+  .kmotion .k-cta-link:focus-visible {
+    animation: none;
+  }
+  .kmotion .k-cta-arrow,
+  .kmotion .k-cta-link .k-cta-icon {
+    transition: none;
+  }
 }
 .kmotion .k-cta-icon {
   width: 15px;

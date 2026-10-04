@@ -528,7 +528,7 @@ function ContactActions() {
       </a>
       {BOOKING_URL ? (
         <a href={BOOKING_URL} className="k-cta-link" target="_blank" rel="noopener noreferrer">
-          Book a call<span aria-hidden="true"> &rarr;</span>
+          Book a call<span className="k-cta-arrow" aria-hidden="true">&rarr;</span>
         </a>
       ) : null}
       {WHATSAPP_URL ? (
@@ -1354,6 +1354,10 @@ export function MotionHome() {
 
         <footer className="k-footer k-next-row">
           <CityClocks />
+          {/* The page ends here, so the ways to get in touch are repeated where the reader stops. */}
+          <div className="k-footer-actions">
+            <ContactActions />
+          </div>
           <div className="k-footer-base">
             <p className="k-footer-note">&copy; {new Date().getFullYear()} Kebiki</p>
             {SOCIAL_LINKS.length ? (
