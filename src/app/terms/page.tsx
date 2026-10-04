@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { EB_Garamond } from "next/font/google";
 import Link from "next/link";
 
-import { CONTACT_EMAIL } from "../contact-config";
+import { BRAND_ICONS } from "../brand-icons";
+import { CONTACT_EMAIL, WHATSAPP_URL } from "../contact-config";
 import { CREAM_PATH, DOT_PATH, ORANGE_PATH } from "../logo-paths";
 import { COMMERCIAL_MODELS } from "../terms-data";
 import "../motion.css";
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-/** The five commercial models, moved off the home page so the prices there say one thing. */
+/** The five commercial models, kept off the home page so How we charge there stays one line. */
 export default function TermsPage() {
   return (
     <main id="main" className={`kmotion k-page ${garamond.className}`}>
@@ -29,7 +30,7 @@ export default function TermsPage() {
           </svg>
         </Link>
         <Link href="/#terms" className="k-page-back">
-          <span aria-hidden="true">&larr; </span>The three prices
+          <span aria-hidden="true">&larr; </span>How we charge
         </Link>
       </header>
 
@@ -68,6 +69,17 @@ export default function TermsPage() {
         <div className="k-terms-cta">
           <a href={`mailto:${CONTACT_EMAIL}`} className="k-cta k-cta-onink">
             Start a conversation<span aria-hidden="true"> &rarr;</span>
+          </a>
+          {WHATSAPP_URL ? (
+            <a href={WHATSAPP_URL} className="k-cta-link k-cta-link-onink" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" className="k-cta-icon" aria-hidden="true">
+                <path d={BRAND_ICONS.whatsapp.path} />
+              </svg>
+              WhatsApp
+            </a>
+          ) : null}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="k-cta-link k-cta-link-onink">
+            {CONTACT_EMAIL}
           </a>
         </div>
       </section>

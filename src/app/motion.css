@@ -1255,6 +1255,14 @@
 }
 .kmotion .k-terms-cta {
   margin-top: 2.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.2rem 2.2rem;
+}
+/* The text links on the dark pages: same behaviour as on the orange contact screen, in the light ink. */
+.kmotion .k-cta-link-onink {
+  color: var(--k-paper);
 }
 /* The five models (on /terms): one row each, so they read as a list of options, not a set of prices. */
 .kmotion .k-models {
