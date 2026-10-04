@@ -12,7 +12,7 @@ const garamond = EB_Garamond({ subsets: ["latin"], weight: ["400", "500"], displ
 export const metadata: Metadata = {
   title: "How we charge",
   description:
-    "The five commercial models Kebiki works under after the first fourteen days: hourly, fixed price, maximum price, retainer and equity, and who carries the cost risk in each.",
+    "The five commercial models Kebiki works under once Define is done: hourly, fixed price, maximum price, retainer and equity, and who carries the cost risk in each.",
   alternates: { canonical: "/terms" },
 };
 

@@ -78,27 +78,43 @@ const INTRO = { end: T.dotPop[1], delay: 300, ms: 2500 };
 const SCRAMBLE_GLYPHS = "+─│┼┬┴├┤╴╵╶╷".split("");
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-/** The four capabilities, in the studio's own words (from the main site). */
-const CAPABILITIES = [
-  { n: "01", verb: "Define", text: "Work out what the business is trying to achieve, who it is for, what limits it and how success gets measured." },
-  { n: "02", verb: "Design", text: "Shape the interface, the way information is organised and the system underneath it together - not as separate jobs passed between teams." },
-  { n: "03", verb: "Build", text: "Ship in working pieces, each one tested and monitored from the day it goes live." },
-  { n: "04", verb: "Evolve", text: "Keep improving the product against what real use shows and what the business needs next." },
-] as const;
-
-/** How an engagement starts, in the studio's own words (from the main site). */
-const ENGAGEMENT = {
-  eyebrow: "How an engagement starts",
-  heading: "Fourteen days. Four fixed outputs.",
-  body: "Enough clarity to decide what happens next - and nothing you cannot walk away from.",
-  steps: [
-    { days: "Day 01 - 02", span: 2, title: "The problem, restated", text: "A precise definition of what the business is trying to achieve, written in language everyone involved can agree on." },
-    { days: "Day 03 - 05", span: 3, title: "The constraint map", text: "We map what we know, what we are assuming and what still needs an answer - with every assumption written down." },
-    { days: "Day 06 - 09", span: 4, title: "A working first version", text: "One important part of the product, built end to end and deployed. Real enough to expose the technical, product and operational problems before you commit to building everything." },
-    { days: "Day 10 - 14", span: 5, title: "The decision", text: "A written recommendation showing the trade-offs, risks and next steps - with a plan another capable team could execute without us." },
+/**
+ * How we work: the four stages every product goes through, each with one short description and how
+ * it is charged. Define is the paid way in; its three published sizes are the cards in TERMS below.
+ * Wording is a draft of commercial terms.
+ */
+const HOW = {
+  label: "How we work",
+  heading: "Four stages. You commit to one at a time.",
+  body: "Each is priced in writing before it starts, and ends with something finished that you own.",
+  stages: [
+    {
+      n: "01",
+      verb: "Define",
+      text: "We work out what the business is trying to achieve, who it is for and what stands in the way, and test the riskiest part before you spend on the rest. You leave with a decision and a costed plan, not another deck.",
+      charge: "Fixed price, published below",
+    },
+    {
+      n: "02",
+      verb: "Design",
+      text: "We shape the interface, the way information is organised and the system underneath it together, not as separate jobs passed between teams. You get a design you can click through and a build plan with a price on it.",
+      charge: "Fixed price, agreed at the end of Define",
+    },
+    {
+      n: "03",
+      verb: "Build",
+      text: "We ship in working pieces, each one tested and monitored from the day it goes live. You see progress as running software, and the code is yours.",
+      charge: "Fixed or capped price, agreed before work starts",
+    },
+    {
+      n: "04",
+      verb: "Evolve",
+      text: "We keep improving the product against what real use shows and what the business needs next. The team that built it stays on it.",
+      charge: "Monthly retainer, priorities yours to change",
+    },
   ],
-  outcome: "You leave with a decision. Not another deck.",
-  ownership: "Every output is yours, whether we continue together or not. No lock-in. No dependency. No obligation.",
+  outcome: "One stage at a time. Nothing you cannot walk away from.",
+  ownership: "Every output is yours once it is paid for, whether we continue together or not. No lock-in. No dependency. No obligation.",
 } as const;
 
 /**
@@ -291,16 +307,6 @@ const QUOTES_SHOWN =
         },
       ];
 
-/** Each capability paired, in order, with the engagement output it produces. */
-const PROCESS = CAPABILITIES.map((c, i) => ({
-  n: c.n,
-  verb: c.verb,
-  text: c.text,
-  days: ENGAGEMENT.steps[i].days,
-  output: ENGAGEMENT.steps[i].title,
-  outputText: ENGAGEMENT.steps[i].text,
-}));
-
 /** The people you meet. Surnames show only once all three are filled in, so nobody stands out. */
 const TEAM = [
   {
@@ -346,47 +352,47 @@ const TEAM_COPY = {
 } as const;
 
 /**
- * How we charge, on the home page: the three fixed-price tiers as cards with the price leading, one
- * line on what follows, and the three things that always hold. The five commercial models that line
+ * How we charge, on the home page: the three published sizes of Define as cards with the price leading,
+ * one line on how the later stages are priced, and the three things that always hold. The five commercial models that line
  * refers to live on /terms (see terms-data.ts). Wording is a draft of commercial terms.
  */
 const TERMS = {
   label: "How we charge",
   packages: {
-    heading: "Three prices. All fixed.",
-    body: "Three fixed-price ways to start, published before you ask.",
+    heading: "Three ways to start. All fixed price.",
+    body: "Define is the one stage we can price before we know your product, so we publish it. Choose by where you are starting from.",
     models: [
       {
         n: "01",
         name: "Scribe",
         price: "\u00a37,450",
-        term: "5 days",
-        text: "A written second opinion on a build in progress: planned against actual, what your contract says about change, and whether to carry on, re-scope or stop. No build. The fee is credited in full against Line within 30 days.",
-        best: "A build that feels late and you need an independent read.",
+        term: "About 1 week",
+        text: "Define for a build already under way. A written second opinion: planned against actual, what your contract says about change, and whether to carry on, re-scope or stop. No build. The fee is credited in full against Line within 30 days.",
+        best: "A build that feels late and needs an independent read.",
       },
       {
         n: "02",
         name: "Line",
         price: "\u00a318,500",
-        term: "14 days",
-        text: "All four outputs above. The hardest part is live on Day 9, and you finish with a costed plan another team could carry out. Half the fee is credited if we go on to finish the build within 30 days.",
-        best: "The product. Late builds, and new software that has to be right first time.",
+        term: "About 2 weeks",
+        text: "Define in full, for a new product or an idea. The problem written down, every assumption listed, the hardest part built and running, and a costed plan another team could carry out. Half the fee is credited if we go on to finish the build within 30 days.",
+        best: "A new product, or software that has to be right first time.",
       },
       {
         n: "03",
         name: "Gauge",
         price: "\u00a329,500",
-        term: "14 days + 30",
+        term: "About 2 weeks + 30 days",
         text: "Line, plus an independent, assumption-logged estimate of the cost and time to completion, fit for a board, lender or investor, and a review at 30 days.",
         best: "When someone else has to rely on the number.",
       },
     ],
   },
-  after: { text: "After the fourteen days we agree fixed price, capped, retainer or equity, in writing.", link: "The five ways to work with us" },
+  after: { text: "Design, Build and Evolve are priced once Define has shown what they involve: fixed price, capped, retainer or equity, agreed in writing before each stage starts.", link: "The five ways to work with us" },
   always: [
     { title: "Agreed in writing first", text: "Scope, price and model are set down before work starts." },
     { title: "Changes priced before they are made", text: "Nothing is added to the bill without your agreement." },
-    { title: "You own the work", text: "Every output is yours, whether we continue together or not." },
+    { title: "You own the work", text: "Every output is yours once it is paid for, whether we continue together or not." },
   ],
 } as const;
 
@@ -761,7 +767,7 @@ const SENTENCE_CHARS = SENTENCE.length;
 
 /** Section markers: shown bottom left while each section is on screen. */
 const CHAPTERS = [
-  { id: "next", label: "What we do" },
+  { id: "next", label: "How we work" },
   { id: "terms", label: "How we charge" },
   { id: "work", label: "Work" },
   { id: "team", label: "The studio" },
@@ -830,7 +836,7 @@ export function MotionHome() {
   }, []);
   const stepsRef = useRef<HTMLElement>(null);
 
-  /* The 14-day steps: the row nearest the middle of the screen lights up. */
+  /* The four stages: the row nearest the middle of the screen lights up. */
   useEffect(() => {
     const section = stepsRef.current;
     if (!section) return;
@@ -1100,6 +1106,11 @@ export function MotionHome() {
       </header>
       <a href={`mailto:${CONTACT_EMAIL}`} className="k-top-cta">
         {CONTACT_COPY.cta}
+        {/* A short orange line that travels the outline at a constant speed, with a fainter tail. */}
+        <svg className="k-top-cta-trace" aria-hidden="true">
+          <rect className="k-top-cta-tail" width="100%" height="100%" rx="17.5" pathLength={100} />
+          <rect className="k-top-cta-lead" width="100%" height="100%" rx="17.5" pathLength={100} />
+        </svg>
       </a>
 
       <section ref={trackRef} className="k-track" style={reduced ? { height: "100vh" } : undefined}>
@@ -1184,34 +1195,26 @@ export function MotionHome() {
       ) : null}
 
       <section id="next" className="k-next" ref={stepsRef}>
-        <div className="k-label">What we do</div>
-        <h2 className="k-engage-heading k-next-row">{ENGAGEMENT.heading}</h2>
-        <p className="k-engage-body k-next-row">{ENGAGEMENT.body}</p>
-        <div className="k-timeline k-next-row" aria-hidden="true">
-          {ENGAGEMENT.steps.map((st, i) => (
-            <div key={st.days} className="k-tl-seg" style={{ flexGrow: st.span }}>
-              <span className="k-tl-n">{String(i + 1).padStart(2, "0")}</span>
-            </div>
-          ))}
-        </div>
+        <div className="k-label">{HOW.label}</div>
+        <h2 className="k-engage-heading k-next-row">{HOW.heading}</h2>
+        <p className="k-engage-body k-next-row">{HOW.body}</p>
         <ol className="k-next-list">
-          {PROCESS.map((it) => (
+          {HOW.stages.map((it) => (
             <li key={it.n} className="k-next-row">
               <span className="k-next-n">{it.n}</span>
               <h3 className="k-next-verb">{it.verb}</h3>
               <div className="k-next-detail">
                 <p className="k-next-text">{it.text}</p>
-                <div className="k-row-out">
-                  <span className="k-engage-days">{it.days}</span>
-                  <span className="k-row-out-title">{it.output}</span>
-                  <span className="k-row-out-text">{it.outputText}</span>
-                </div>
+                <p className="k-next-charge">
+                  <span className="k-term-key">How it is charged</span>
+                  {it.charge}
+                </p>
               </div>
             </li>
           ))}
         </ol>
-        <p className="k-engage-outcome k-next-row">{ENGAGEMENT.outcome}</p>
-        <p className="k-engage-own k-next-row">{ENGAGEMENT.ownership}</p>
+        <p className="k-engage-outcome k-next-row">{HOW.outcome}</p>
+        <p className="k-engage-own k-next-row">{HOW.ownership}</p>
       </section>
 
       <section id="terms" className="k-terms">

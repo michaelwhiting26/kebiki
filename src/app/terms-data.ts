@@ -6,7 +6,7 @@
 export const COMMERCIAL_MODELS = {
   label: "How we charge",
   heading: "Five ways to work with us.",
-  body: "Most engagements start with fourteen days at a fixed price. After that we agree the model that fits the work, and put it in writing before anything starts.",
+  body: "Every engagement starts with Define, at a fixed, published price. After that we agree the model that fits each stage, and put it in writing before the stage starts.",
   models: [
     {
       n: "01",

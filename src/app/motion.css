@@ -231,25 +231,11 @@
   line-height: 1.5;
   color: var(--gray-11);
 }
-.kmotion .k-row-out {
-  margin-top: 1.8rem;
-  padding-left: 1.1rem;
-  border-left: 2px solid var(--k-persimmon);
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-.kmotion .k-row-out-title {
-  font-size: clamp(20px, 1.9vw, 28px);
-  font-weight: 500;
-  line-height: 1.15;
-  color: var(--k-paper);
-}
-.kmotion .k-row-out-text {
-  max-width: 34em;
+.kmotion .k-next-charge {
+  margin: 1.6rem 0 0;
   font-size: clamp(16px, 1.25vw, 19px);
   line-height: 1.5;
-  color: var(--gray-11);
+  color: var(--k-paper);
 }
 .kmotion .k-next-n {
   font-family: var(--k-mono);
@@ -284,7 +270,7 @@
   fill: var(--k-persimmon);
 }
 
-/* ---------- How an engagement starts ---------- */
+/* ---------- How we work: lead, heading, body and the closing lines ---------- */
 .kmotion .k-engage-heading {
   margin: 4vh 0 0;
   max-width: 14em;
@@ -294,18 +280,22 @@
   letter-spacing: -0.02em;
   color: var(--k-paper);
 }
+.kmotion .k-engage-lead {
+  margin: 4vh 0 0;
+  max-width: 30em;
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.45;
+  color: var(--k-paper);
+}
+.kmotion .k-engage-lead + .k-engage-heading {
+  margin-top: 2.4rem;
+}
 .kmotion .k-engage-body {
   margin: 2.4rem 0 0;
   max-width: 30em;
   font-size: clamp(20px, 2vw, 28px);
   line-height: 1.45;
   color: var(--gray-11);
-}
-.kmotion .k-engage-days {
-  font-family: var(--k-mono);
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: var(--k-persimmon);
 }
 .kmotion .k-engage-outcome {
   margin: 14vh 0 0;
@@ -718,30 +708,6 @@
   color: var(--k-persimmon);
 }
 
-/* The fourteen days as a bar: one tick a day, split into the four phases. */
-.kmotion .k-timeline {
-  display: flex;
-  gap: 6px;
-  margin-top: 9vh;
-}
-.kmotion .k-tl-seg {
-  flex-basis: 0;
-  height: 56px;
-  padding: 0.55rem 0.7rem;
-  border-radius: 2px;
-  background:
-    repeating-linear-gradient(90deg, rgba(14, 14, 16, 0.55) 0 1px, transparent 1px calc(100% / var(--k-days, 1)));
-  background-color: var(--k-persimmon);
-  display: flex;
-  align-items: flex-end;
-}
-.kmotion .k-tl-n {
-  font-family: var(--k-mono);
-  font-size: 12px;
-  letter-spacing: 0.05em;
-  color: var(--k-ink);
-}
-
 /* ---------- The studio: the people you meet ---------- */
 .kmotion .k-team {
   --team-bg: var(--gray-2);
@@ -903,7 +869,11 @@
   backdrop-filter: blur(6px);
   border: 1px solid var(--gray-7);
   border-radius: 999px;
-  padding: 0.6rem 1rem;
+  /* A fixed height, so the travelling outline can match the corner radius exactly. */
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 1rem;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0s 0.3s, color 0.2s, border-color 0.2s;
@@ -917,24 +887,51 @@
 .kmotion .k-top-cta:focus-visible {
   color: var(--k-persimmon);
   border-color: var(--k-persimmon);
+}
+/* A single hairline of orange travels the outline at a constant speed, like a pen following the
+   edge. It sits exactly on the border; the lead is short and bright, the tail longer and faint. */
+.kmotion .k-top-cta-trace {
+  position: absolute;
+  inset: -0.5px; /* centres the stroke on the 1px border */
+  width: calc(100% + 1px);
+  height: calc(100% + 1px);
+  overflow: visible;
+  pointer-events: none;
+}
+.kmotion .k-top-cta-trace rect {
+  fill: none;
+  stroke: var(--k-persimmon);
+  stroke-linecap: round;
+  animation: k-top-cta-trace 7s linear infinite;
+}
+.kmotion .k-top-cta-lead {
+  stroke-width: 1.25px;
+  stroke-dasharray: 9 91;
+}
+.kmotion .k-top-cta-tail {
+  stroke-width: 1px;
+  stroke-dasharray: 26 74;
+  opacity: 0.3;
+}
+@keyframes k-top-cta-trace {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+/* Not running while the button is hidden, and still on hover, when the whole outline turns orange. */
+.kmotion:not(.k-past) .k-top-cta-trace rect,
+.kmotion.k-orange .k-top-cta-trace rect,
+.kmotion .k-top-cta:hover .k-top-cta-trace rect,
+.kmotion .k-top-cta:focus-visible .k-top-cta-trace rect {
   animation-play-state: paused;
 }
-/* A slow orange ring breathes out from it, so the eye finds it without it shouting. */
-@keyframes k-top-cta-pulse {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--k-persimmon) 50%, transparent);
-  }
-  70%,
-  100% {
-    box-shadow: 0 0 0 11px transparent;
-  }
-}
-.kmotion.k-past:not(.k-orange) .k-top-cta {
-  animation: k-top-cta-pulse 2.8s ease-out infinite;
+.kmotion .k-top-cta:hover .k-top-cta-trace,
+.kmotion .k-top-cta:focus-visible .k-top-cta-trace {
+  opacity: 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .kmotion.k-past:not(.k-orange) .k-top-cta {
-    animation: none;
+  .kmotion .k-top-cta-trace {
+    display: none;
   }
 }
 
@@ -1046,7 +1043,7 @@
   line-height: 1.45;
   color: var(--k-paper);
 }
-/* What follows the fourteen days, in one line, with the way through to the five models. */
+/* How the later stages are priced, in one line, with the way through to the five models. */
 .kmotion .k-terms-after {
   margin: 6vh 0 0;
   max-width: 36em;
@@ -1398,7 +1395,7 @@
   }
 }
 
-/* ---------- 14-day steps: the row in the middle of the screen lights up ---------- */
+/* ---------- The four stages: the row in the middle of the screen lights up ---------- */
 .kmotion .k-next-list .k-next-n,
 .kmotion .k-next-list .k-next-verb {
   transition: color 0.45s ease;
