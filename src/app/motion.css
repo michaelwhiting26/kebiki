@@ -2022,3 +2022,13 @@
     display: none;
   }
 }
+
+/* Narrow phones: the contact button's longer label stays on one line. */
+@media (max-width: 420px) {
+  .kmotion .k-contact-actions .k-cta {
+    padding: 1rem 1.15rem;
+    font-size: 12.5px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+}

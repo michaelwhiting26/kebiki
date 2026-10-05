@@ -385,8 +385,10 @@ const SERVICES = [
 const SECTORS = ["Fintech & payments", "Crypto & Web3", "Sport & media", "Construction & infrastructure", "Enterprise software"] as const;
 const CONTACT_COPY = {
   title: "Bring us the hard part.",
-  body: "If you're building something technically difficult, we'd like to hear about it.",
+  body: "The harder it is to build, the more interested we are.",
   cta: "Start a conversation",
+  /** The contact screen's own button. The short label above stays on the corner button and elsewhere. */
+  action: "Tell us what you\u2019re building",
 } as const;
 
 type HeroEls = {
@@ -519,7 +521,7 @@ function ContactActions() {
   return (
     <div className="k-contact-actions">
       <a href={`mailto:${CONTACT_EMAIL}`} className="k-cta k-cta-solid">
-        {CONTACT_COPY.cta}<span aria-hidden="true"> &rarr;</span>
+        {CONTACT_COPY.action}<span aria-hidden="true"> &rarr;</span>
       </a>
       {BOOKING_URL ? (
         <a href={BOOKING_URL} className="k-cta-link" target="_blank" rel="noopener noreferrer">
