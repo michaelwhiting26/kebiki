@@ -1,6 +1,7 @@
 "use client";
 
 import { EB_Garamond, Montserrat } from "next/font/google";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -9,11 +10,15 @@ import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
 import { BOOKING_URL, CONTACT_EMAIL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
 import { COUNTRY_SHAPES } from "./country-paths";
 import { InteractiveDotMap } from "./dot-map";
+import { DotGlobe } from "./globe";
 import { addScene, addTick, documentTop, setLenis, type FrameState } from "./clock";
 import { ScrollField } from "./scroll-field";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import "./motion.css";
+
+/** Liquid metal over the logo, loaded on its own so the shader is not in the first download. */
+const LiquidLogo = dynamic(() => import("./liquid-logo"), { ssr: false });
 
 /** The sentence's serif. */
 const garamond = EB_Garamond({ subsets: ["latin"], weight: ["400", "500"], display: "swap" });
@@ -74,11 +79,16 @@ const REDUCED_P = 0.6; // reduced motion: logo fully drawn, no takeover
 /**
  * The scroll track, in viewport heights (matches .k-track in motion.css), and how it is spent:
  * the logo and the orange takeover play over PLAY_VH, the sentence then settles out of Japanese over
- * SETTLE_VH, and what is left holds the finished sentence before the page moves on.
+ * SETTLE_VH, the seal writes itself over SEAL_VH, and what is left holds the finished screen.
  */
-const TRACK_VH = 280;
+const TRACK_VH = 300;
 const PLAY_VH = 117;
 const SETTLE_VH = 70;
+/** Scroll, in viewport heights, over which the seal writes itself once the sentence has settled. */
+const SEAL_VH = 26;
+/** The seal's characters, top to bottom, and how long the liquid-metal logo stays (ms). */
+const SEAL_CHARS = ["罫", "引", "き"] as const;
+const METAL_MS = 3400;
 /** On load the logo builds by itself up to the finished mark; scrolling then plays the rest. */
 const INTRO = { end: T.dotPop[1], delay: 300, ms: 2500 };
 
@@ -868,6 +878,8 @@ export function MotionHome() {
   const sealRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLElement>(null);
   const [reduced, setReduced] = useState(false);
+  /* The liquid-metal logo: shown once, as the logo lands, then taken away. */
+  const [metal, setMetal] = useState(false);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -943,6 +955,7 @@ export function MotionHome() {
     let playPx = 1;
     let settleFrom = 0; // px into the track where the sentence starts to settle
     let settlePx = 1; // px of scroll it settles over
+    let sealPx = 1; // px of scroll the seal writes itself over
     let into = 0; // px scrolled into the track
     let contactTop = Infinity;
     let contactHeight = 0;
@@ -966,6 +979,7 @@ export function MotionHome() {
       // The words appear at T.words[0] of the animation, which the scroll reaches this far in.
       settleFrom = ((T.words[0] - INTRO.end) / (1 - INTRO.end)) * playPx;
       settlePx = SETTLE_VH * vhPx;
+      sealPx = SEAL_VH * vhPx;
       const contact = contactRef.current;
       const cr = contact?.getBoundingClientRect();
       contactTop = cr ? cr.top + window.scrollY : Infinity;
@@ -1010,6 +1024,36 @@ export function MotionHome() {
 
     /* How far the sentence has settled (0 Japanese, 1 English): scroll-driven, smoothed like the hero. */
     let settled = 0;
+
+    /*
+     * The seal writes itself by hand (tegaki), one character under the next, as the scroll goes on
+     * past the settled sentence. Each character has its own renderer in controlled time: the frame
+     * hands it a time and it draws exactly that much ink, so this too is a function of scroll alone.
+     */
+    let sealed = 0;
+    let sealDrawn = -1;
+    type Pen = { update(o: { time: number }): void; destroy(): void; readonly duration: number };
+    let pens: Pen[] = [];
+    const sealBox = sealRef.current;
+    const sealCells = sealBox ? [...sealBox.querySelectorAll<HTMLElement>(".k-seal-char")] : [];
+    if (!reduce && sealCells.length === SEAL_CHARS.length) {
+      void Promise.all([import("tegaki/core"), import("./seal-font")])
+        .then(([core, font]) => {
+          if (cancelled) return;
+          pens = sealCells.map((cell, i) => new core.TegakiEngine(cell, { text: SEAL_CHARS[i], font: font.default, time: 0 }));
+          sealBox?.setAttribute("data-written", ""); // the renderer has taken over from the plain text
+          sealDrawn = -1;
+        })
+        .catch(() => {
+          /* The plain text stays in place and fades in, as it did before. */
+        });
+      cleanups.push(() => pens.forEach((pen) => pen.destroy()));
+    }
+
+    /* The liquid-metal logo plays once, when the logo has finished building and nobody has scrolled. */
+    let metalState: "waiting" | "on" | "done" = reduce || forced !== null ? "done" : "waiting";
+    let metalTimer = 0;
+    cleanups.push(() => window.clearTimeout(metalTimer));
     const wordKey: string[] = [];
 
     const loop = ({ scroll }: FrameState) => {
@@ -1025,6 +1069,21 @@ export function MotionHome() {
           base = INTRO.end;
           introDone = true;
         }
+      }
+      if (metalState === "waiting" && introDone) {
+        if (scrollS > 0.0005) metalState = "done"; // arrived scrolling: skip it
+        else {
+          metalState = "on";
+          setMetal(true);
+          metalTimer = window.setTimeout(() => {
+            metalState = "done";
+            setMetal(false);
+          }, METAL_MS);
+        }
+      } else if (metalState === "on" && scrollS > 0.03) {
+        metalState = "done";
+        window.clearTimeout(metalTimer);
+        setMetal(false);
       }
       if (!reduce && forced === null) target = base + scrollS * (1 - base);
       const ease = document.documentElement.classList.contains("lenis") ? 0.35 : 0.1;
@@ -1121,14 +1180,25 @@ export function MotionHome() {
         ja.textContent = glyphs;
       });
 
-      /* Once the sentence has landed, the name's origin settles in, bottom right. */
+      /* Once the sentence has settled, the name's origin is written in, bottom right. */
+      const sealTarget =
+        reduce || !wordsOn ? 0 : forced !== null ? seg(p, T.words[1], 1) : clamp01((into - settleFrom - settlePx) / sealPx);
+      sealed += (sealTarget - sealed) * (forced !== null ? 1 : ease);
+      if (Math.abs(sealTarget - sealed) < 0.0005) sealed = sealTarget;
       const seal = sealRef.current;
-      if (seal) {
-        const k = quadInOut(seg(t, 0.88, 1));
-        seal.style.opacity = String(k);
-        seal.style.transform = `translateY(${(1 - k) * 12}px)`;
+      if (seal && sealed !== sealDrawn) {
+        sealDrawn = sealed;
+        seal.style.opacity = String(clamp01(sealed * 10));
+        if (pens.length) {
+          // One timeline across the three characters, each written in turn.
+          const total = pens.reduce((sum, pen) => sum + pen.duration, 0);
+          let at = sealed * total;
+          for (const pen of pens) {
+            pen.update({ time: Math.min(Math.max(at, 0), pen.duration) });
+            at -= pen.duration;
+          }
+        }
       }
-
     };
     cleanups.push(addScene({ measure: measureLayout, update: loop }));
     return () => cleanups.forEach((c) => c());
@@ -1199,6 +1269,11 @@ export function MotionHome() {
                 {TAGLINE}
               </text>
             </svg>
+            {metal ? (
+              <div className="k-metal" aria-hidden="true">
+                <LiquidLogo />
+              </div>
+            ) : null}
           </div>
           <div ref={hintRef} className="k-label k-hint">scroll ↓</div>
 
@@ -1221,6 +1296,11 @@ export function MotionHome() {
               <div className="k-seal" lang="ja" ref={sealRef}>
                 <span className="k-seal-rule" aria-hidden="true" />
                 <span className="k-seal-ja">罫引き</span>
+                <span className="k-seal-ink" aria-hidden="true">
+                  {SEAL_CHARS.map((c) => (
+                    <span key={c} className="k-seal-char" />
+                  ))}
+                </span>
               </div>
             </div>
           ) : null}
@@ -1388,6 +1468,11 @@ export function MotionHome() {
 
         <footer className="k-footer k-next-row">
           <CityClocks />
+          {/* For comparison with the map above: the same idea as a turning globe. */}
+          <div className="k-globe-row">
+            <span className="k-city-note">Globe, for comparison</span>
+            <DotGlobe />
+          </div>
           {/* The page ends here, so the ways to get in touch are repeated where the reader stops. */}
           <div className="k-footer-actions">
             <ContactActions />
