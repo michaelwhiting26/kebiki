@@ -1112,10 +1112,19 @@
   text-transform: uppercase;
   text-decoration: none;
   color: var(--k-paper);
-  background: color-mix(in srgb, var(--k-ink) 82%, transparent);
-  backdrop-filter: blur(6px);
-  border: 1px solid var(--gray-7);
+  /* Glass: a faintly lit pane that frosts and brightens the live page behind it, with a bright upper
+     rim and a soft inner glow, sitting on a shadow. */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 45%, rgba(255, 255, 255, 0.1) 100%);
+  -webkit-backdrop-filter: blur(7px) saturate(1.8) brightness(1.18);
+  backdrop-filter: blur(7px) saturate(1.8) brightness(1.18);
+  border: 1px solid rgba(255, 255, 255, 0.26);
   border-radius: 999px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 14px rgba(255, 255, 255, 0.09),
+    0 10px 28px rgba(0, 0, 0, 0.38);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
   /* A fixed height, so the travelling outline can match the corner radius exactly. */
   display: inline-flex;
   align-items: center;
@@ -1124,6 +1133,26 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0s 0.3s, color 0.2s, border-color 0.2s;
+}
+/* A streak of light across the pane, brightest at the upper left. */
+.kmotion .k-top-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(112deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 72%, rgba(255, 255, 255, 0.14) 100%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+/* With the lens (see motion-home.tsx): less frosting, so the bend at the rim can be seen. */
+.kmotion.k-lens .k-top-cta {
+  backdrop-filter: url(#k-glass) blur(2.5px) saturate(1.8) brightness(1.18);
+}
+.kmotion .k-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 .kmotion.k-past:not(.k-orange) .k-top-cta {
   opacity: 1;

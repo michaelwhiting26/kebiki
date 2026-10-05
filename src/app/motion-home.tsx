@@ -870,6 +870,54 @@ export function MotionHome() {
       bar.style.transform = `scaleX(${v})`;
     });
   }, []);
+  /*
+   * The corner button is glass. Every browser gets the frosted, lit pane (plain CSS, in motion.css),
+   * which refracts the live page, whatever is moving under it. Chromium can also bend the page at the
+   * rim with an SVG lens: the map below says how far each pixel is pulled towards the middle, strong
+   * at the edges and nothing in the centre. It is redrawn only when the button's size changes.
+   */
+  const topCtaRef = useRef<HTMLAnchorElement>(null);
+  const lensMapRef = useRef<SVGFEImageElement>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    const button = topCtaRef.current;
+    const map = lensMapRef.current;
+    if (!root || !button || !map) return;
+    const chromium = "chrome" in window && CSS.supports("backdrop-filter", "url(#k-glass)");
+    if (!chromium) return;
+    let w = 0;
+    let h = 0;
+    root.classList.add("k-lens");
+    const stop = addScene({
+      measure() {
+        const nw = button.offsetWidth;
+        const nh = button.offsetHeight;
+        if (nw < 2 || (nw === w && nh === h)) return;
+        w = nw;
+        h = nh;
+        const edgeX = Math.min(0.5, (h * 0.55) / w); // the bend reaches about as far in as the pill is tall
+        const svg =
+          `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">` +
+          `<defs><linearGradient id="x" x1="0" x2="1" y1="0" y2="0">` +
+          `<stop offset="0" stop-color="#f00"/><stop offset="${edgeX}" stop-color="#800000"/>` +
+          `<stop offset="${1 - edgeX}" stop-color="#800000"/><stop offset="1" stop-color="#000"/></linearGradient>` +
+          `<linearGradient id="y" x1="0" x2="0" y1="0" y2="1">` +
+          `<stop offset="0" stop-color="#0f0"/><stop offset="0.42" stop-color="#008000"/>` +
+          `<stop offset="0.58" stop-color="#008000"/><stop offset="1" stop-color="#000"/></linearGradient></defs>` +
+          `<rect width="100%" height="100%" fill="url(#x)"/>` +
+          `<rect width="100%" height="100%" fill="url(#y)" style="mix-blend-mode:screen"/></svg>`;
+        map.setAttribute("href", `data:image/svg+xml,${encodeURIComponent(svg)}`);
+        map.setAttribute("width", String(w));
+        map.setAttribute("height", String(h));
+      },
+      update() {},
+    });
+    return () => {
+      stop();
+      root.classList.remove("k-lens");
+    };
+  }, []);
+
   const stepsRef = useRef<HTMLElement>(null);
 
   /* The four stages: the row nearest the middle of the screen lights up. */
@@ -1268,7 +1316,15 @@ export function MotionHome() {
       <header className="k-header">
         <HeaderLogo />
       </header>
-      <a href={`mailto:${CONTACT_EMAIL}`} className="k-top-cta">
+      {/* The lens for the corner button: where the browser supports it, the page behind the button
+          is bent inward at the rim, as thick glass would bend it. The map is sized to the button. */}
+      <svg className="k-defs" aria-hidden="true" width="0" height="0">
+        <filter id="k-glass" x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+          <feImage ref={lensMapRef} x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="map" />
+          <feDisplacementMap in="SourceGraphic" in2="map" scale="18" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
+      <a ref={topCtaRef} href={`mailto:${CONTACT_EMAIL}`} className="k-top-cta">
         {CONTACT_COPY.cta}
         {/* A short orange line that travels the outline at a constant speed, with a fainter tail. */}
         <svg className="k-top-cta-trace" aria-hidden="true">
