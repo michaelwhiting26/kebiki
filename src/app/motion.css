@@ -555,26 +555,37 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 3rem clamp(1.5rem, 5vw, 6rem);
 }
+/* One city. The words and the map share a single cell: the words take the top-left corner, the map
+   is set large against the right edge, and the UAE's low western side leaves the corner open. */
 .kmotion .k-city {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  container-type: inline-size; /* lets the map size against the row */
+}
+.kmotion .k-city-text {
+  grid-area: 1 / 1;
+  align-self: start;
+  justify-self: start;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.7rem;
-  container-type: inline-size; /* lets the maps size against their own column */
+  gap: 0.55rem;
+  /* Kept to the open corner at every width: the land only rises to the east of this. */
+  max-width: 46cqw;
 }
-/* Every outline sits on the same baseline, in black, whatever its shape. The height is capped so the
-   widest map (the UAE, 1.27 wide to 1 tall) still fits its column: all three stay the same height. */
+/* The map: as wide as the row on a phone, capped by the screen's height on a laptop. 1.268 is the
+   UAE outline's width to its height. */
 .kmotion .k-city-shape {
-  --map-h: min(clamp(78px, 13.6vw, 216px), calc(100cqw / 1.27));
+  --map-h: calc(min(100cqw, 54vh * 1.268) / 1.268);
+  grid-area: 1 / 1;
+  justify-self: end;
+  width: calc(var(--map-h) * 1.268);
   height: var(--map-h);
-  width: 100%;
   display: flex;
   align-items: flex-end;
-  margin-bottom: 0.9rem;
 }
 /* The dot map keeps exactly the old silhouette's footprint: same height, same aspect ratio. */
 .kmotion .k-dotmap {
@@ -601,7 +612,7 @@
   pointer-events: none;
 }
 .kmotion .k-city-name {
-  font-size: clamp(22px, 4.2vw, 62px);
+  font-size: clamp(30px, 12cqw, 76px); /* follows the row, so it stays clear of the map on small phones */
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -615,7 +626,8 @@
 }
 /* Under the clock: the studio is based here and works everywhere. */
 .kmotion .k-city-note {
-  margin-top: 0.5rem;
+  margin-top: 0.15rem;
+  line-height: 1.5;
   font-family: var(--k-mono);
   font-size: 12px;
   letter-spacing: 0.06em;
@@ -2029,6 +2041,5 @@
     padding: 1rem 1.15rem;
     font-size: 12.5px;
     letter-spacing: 0.03em;
-    white-space: nowrap;
   }
 }

@@ -499,16 +499,19 @@ function CityClocks() {
         const shape = COUNTRY_SHAPES[c.country];
         return (
           <li key={c.name} className="k-city">
+            {/* The words sit in the open corner above the low side of the map; the map fills the row. */}
+            <div className="k-city-text">
+              <span className="k-city-name">{c.name}</span>
+              <span className="k-city-time" suppressHydrationWarning>
+                {now
+                  ? new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: c.zone }).format(now)
+                  : "\u00a0"}
+              </span>
+              <span className="k-city-note">Operating internationally</span>
+            </div>
             <div className="k-city-shape">
               <InteractiveDotMap d={shape.d} w={shape.w} h={shape.h} label={`Map of ${shape.name}`} />
             </div>
-            <span className="k-city-name">{c.name}</span>
-            <span className="k-city-time" suppressHydrationWarning>
-              {now
-                ? new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: c.zone }).format(now)
-                : "\u00a0"}
-            </span>
-            <span className="k-city-note">Operating internationally</span>
           </li>
         );
       })}
