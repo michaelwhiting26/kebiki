@@ -10,7 +10,6 @@ import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
 import { BOOKING_URL, CONTACT_EMAIL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
 import { COUNTRY_SHAPES } from "./country-paths";
 import { InteractiveDotMap } from "./dot-map";
-import { DotGlobe } from "./globe";
 import { addScene, addTick, documentTop, setLenis, type FrameState } from "./clock";
 import { ScrollField } from "./scroll-field";
 import Lenis from "lenis";
@@ -1468,11 +1467,6 @@ export function MotionHome() {
 
         <footer className="k-footer k-next-row">
           <CityClocks />
-          {/* For comparison with the map above: the same idea as a turning globe. */}
-          <div className="k-globe-row">
-            <span className="k-city-note">Globe, for comparison</span>
-            <DotGlobe />
-          </div>
           {/* The page ends here, so the ways to get in touch are repeated where the reader stops. */}
           <div className="k-footer-actions">
             <ContactActions />
