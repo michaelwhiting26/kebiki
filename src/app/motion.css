@@ -244,6 +244,27 @@
   opacity: 1;
   transform: none;
 }
+/* Headlines: once split into lines, the block itself stands still and each line rises from behind
+   its own edge, one after another. Until the lines are found, the headline waits out of sight. */
+.kmotion .k-next-row[data-lines][data-split] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+.kmotion .k-line-mask {
+  /* Room for descenders and tall strokes, which a tight line would otherwise clip. */
+  padding: 0.08em 0 0.14em;
+  margin: -0.08em 0 -0.14em;
+}
+.kmotion [data-lines][data-split] .k-line {
+  transform: translateY(118%);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i, 0) * 90ms);
+  will-change: transform;
+}
+.kmotion [data-lines][data-split][data-in] .k-line {
+  transform: none;
+}
 .kmotion .k-next-list .k-next-row {
   display: grid;
   grid-template-columns: 3.2rem minmax(0, 1.1fr) minmax(0, 1.9fr);

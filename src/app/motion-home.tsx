@@ -825,6 +825,39 @@ export function MotionHome() {
     };
   }, []);
 
+  /*
+   * Section headlines rise into place a line at a time, each from behind its own edge. GSAP's
+   * SplitText finds the lines (and finds them again when the width or the font changes); the motion
+   * itself is a CSS transition started by the same "in view" mark as every other row, so nothing
+   * here adds a second animation clock. Not done for visitors who ask for reduced motion.
+   */
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let cancelled = false;
+    let splits: { revert(): void }[] = [];
+    void import("gsap/SplitText").then(({ SplitText }) => {
+      if (cancelled) return;
+      root.querySelectorAll<HTMLElement>("[data-lines]").forEach((heading) => {
+        // A two-sentence headline is split one sentence at a time, so each keeps its own line breaks.
+        const parts = heading.querySelectorAll<HTMLElement>(".k-head-line");
+        const targets = parts.length ? [...parts] : [heading];
+        const number = () => {
+          heading.querySelectorAll<HTMLElement>(".k-line").forEach((line, i) => line.style.setProperty("--i", String(i)));
+          heading.setAttribute("data-split", "");
+        };
+        targets.forEach((target) => {
+          splits.push(SplitText.create(target, { type: "lines", mask: "lines", linesClass: "k-line", autoSplit: true, onSplit: number }));
+        });
+      });
+    });
+    return () => {
+      cancelled = true;
+      splits.forEach((split) => split.revert());
+      splits = [];
+    };
+  }, []);
+
   /* A thin bar along the top shows how far through the page the visitor is. */
   useEffect(() => {
     const bar = progressRef.current;
@@ -1342,7 +1375,7 @@ export function MotionHome() {
 
       <section id="next" className="k-next" ref={stepsRef}>
         <div className="k-label">{HOW.consult.label}</div>
-        <h2 className="k-engage-heading k-next-row">
+        <h2 className="k-engage-heading k-next-row" data-lines="">
           <span className="k-head-line">{HOW.consult.heading[0]}</span>
           <span className="k-head-line">{HOW.consult.heading[1]}</span>
         </h2>
@@ -1408,7 +1441,7 @@ export function MotionHome() {
               </li>
             ))}
           </ol>
-          <p className="k-engage-outcome k-next-row">
+          <p className="k-engage-outcome k-next-row" data-lines="">
             <span className="k-head-line">{HOW.sprint.outcome[0]}</span>
             <span className="k-head-line">{HOW.sprint.outcome[1]}</span>
           </p>
@@ -1418,7 +1451,7 @@ export function MotionHome() {
 
       <section id="terms" className="k-terms">
         <div className="k-label">{TERMS.label}</div>
-        <h2 className="k-engage-heading k-next-row">{TERMS.heading}</h2>
+        <h2 className="k-engage-heading k-next-row" data-lines="">{TERMS.heading}</h2>
         <p className="k-terms-after k-next-row">
           {TERMS.after.text}{" "}
           <Link href="/terms">
@@ -1451,14 +1484,14 @@ export function MotionHome() {
 
       <section id="team" className="k-team">
         <div className="k-label">{TEAM_COPY.label}</div>
-        <h2 className="k-team-title k-next-row">{TEAM_COPY.title}</h2>
+        <h2 className="k-team-title k-next-row" data-lines="">{TEAM_COPY.title}</h2>
         <p className="k-team-body k-next-row">{TEAM_COPY.body}</p>
         <TeamRotator />
       </section>
 
       <section id="contact" ref={contactRef} className="k-contact">
         <div className="k-label k-contact-label">Contact</div>
-        <h2 className="k-contact-title k-next-row">{CONTACT_COPY.title}</h2>
+        <h2 className="k-contact-title k-next-row" data-lines="">{CONTACT_COPY.title}</h2>
         <p className="k-contact-body k-next-row">{CONTACT_COPY.body}</p>
         <div className="k-next-row">
           <ContactActions />
