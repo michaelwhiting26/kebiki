@@ -3,7 +3,7 @@
 import { EB_Garamond, Montserrat } from "next/font/google";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { CREAM_PATH, DOT_PATH, ORANGE_PATH } from "./logo-paths";
 import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
@@ -16,7 +16,7 @@ import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import "./motion.css";
 
-/** Liquid metal over the logo, loaded on its own so the shader is not in the first download. */
+/** The logo's letters in liquid metal, loaded on its own so the shader is not in the first download. */
 const LiquidLogo = dynamic(() => import("./liquid-logo"), { ssr: false });
 
 /** The sentence's serif. */
@@ -85,9 +85,10 @@ const PLAY_VH = 117;
 const SETTLE_VH = 70;
 /** Scroll, in viewport heights, over which the seal writes itself once the sentence has settled. */
 const SEAL_VH = 26;
-/** The seal's characters, top to bottom, and how long the liquid-metal logo stays (ms). */
+/** The seal's characters, top to bottom. */
 const SEAL_CHARS = ["罫", "引", "き"] as const;
-const METAL_MS = 3400;
+/** How long the logo waits for its metal before falling back to the flat letters (ms). */
+const METAL_WAIT_MS = 2600;
 /** On load the logo builds by itself up to the finished mark; scrolling then plays the rest. */
 const INTRO = { end: T.dotPop[1], delay: 300, ms: 2500 };
 
@@ -405,6 +406,7 @@ type HeroEls = {
   mask: SVGPathElement;
   dot: SVGGElement;
   tagline: SVGTextElement;
+  metal: HTMLElement | null;
 };
 
 /** The logo draws, the orange climbs the right side of the last i, the dot pops in. */
@@ -412,6 +414,11 @@ function applyHero(el: HeroEls, p: number) {
   const draw = easeOutExpo(seg(p, T.draw[0], T.draw[1]));
   // Letters wipe in left to right, level with the head of the rule.
   el.clip.setAttribute("width", String(Math.max(0, draw * (CREAM_END_X + 10 - VB.x))));
+  // The metal the letters are made of wipes in with them, to the same edge.
+  if (el.metal) {
+    const shown = (draw * (CREAM_END_X + 10 - VB.x)) / VB.w;
+    el.metal.style.clipPath = draw >= 1 ? "none" : `inset(0 ${((1 - shown) * 100).toFixed(2)}% 0 0)`;
+  }
 
   // The orange follows its centreline: the rule first, then the corner and the stem.
   const rise = quadInOut(seg(p, T.rise[0], T.rise[1]));
@@ -877,8 +884,18 @@ export function MotionHome() {
   const sealRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLElement>(null);
   const [reduced, setReduced] = useState(false);
-  /* The liquid-metal logo: shown once, as the logo lands, then taken away. */
-  const [metal, setMetal] = useState(false);
+  /*
+   * The logo's letters are liquid metal for as long as the logo is on screen. `metalActive` pauses
+   * the flow once the orange has covered it; `metalReady` tells the frame the metal is drawn.
+   */
+  const heroBoxRef = useRef<HTMLDivElement>(null);
+  const metalRef = useRef<HTMLDivElement>(null);
+  const metalReady = useRef(false);
+  const [metalActive, setMetalActive] = useState(true);
+  const onMetalReady = useCallback(() => {
+    metalReady.current = true;
+    heroBoxRef.current?.setAttribute("data-metal", "on");
+  }, []);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -898,6 +915,7 @@ export function MotionHome() {
       mask: q<SVGPathElement>("#k-mask-path"),
       dot: q<SVGGElement>(".k-svg-dot"),
       tagline: q<SVGTextElement>(".k-svg-tagline"),
+      metal: metalRef.current,
     };
 
     /* The tagline becomes positioned characters once the font has loaded, so it can scramble. */
@@ -939,7 +957,12 @@ export function MotionHome() {
     let scrollS = 0;
     let base = 0;
     let introDone = reduce || forced !== null;
-    const introStart = performance.now();
+    // The logo does not start building until its metal is ready (or the wait runs out), so the
+    // letters are never seen in plain cream first.
+    const mountedAt = performance.now();
+    let introStart: number | null = null;
+    const heroBox = heroBoxRef.current;
+    let metalShown = true;
     let trackBottom = Infinity;
     let overContact = false;
     const wordEls = wordRefs.current.filter((w): w is HTMLSpanElement => !!w);
@@ -1049,17 +1072,16 @@ export function MotionHome() {
       cleanups.push(() => pens.forEach((pen) => pen.destroy()));
     }
 
-    /* The liquid-metal logo plays once, when the logo has finished building and nobody has scrolled. */
-    let metalState: "waiting" | "on" | "done" = reduce || forced !== null ? "done" : "waiting";
-    let metalTimer = 0;
-    cleanups.push(() => window.clearTimeout(metalTimer));
     const wordKey: string[] = [];
 
     const loop = ({ scroll }: FrameState) => {
       place(scroll);
       const autoplaying = !introDone;
       if (autoplaying) {
-        const t = clamp01((performance.now() - introStart - INTRO.delay) / INTRO.ms);
+        if (introStart === null && (metalReady.current || performance.now() - mountedAt > METAL_WAIT_MS)) {
+          introStart = performance.now();
+        }
+        const t = introStart === null ? 0 : clamp01((performance.now() - introStart - INTRO.delay) / INTRO.ms);
         base = INTRO.end * (1 - Math.pow(1 - t, 2.2));
         if (t >= 1) introDone = true;
         else if (scrollS > 0.0005) {
@@ -1069,20 +1091,9 @@ export function MotionHome() {
           introDone = true;
         }
       }
-      if (metalState === "waiting" && introDone) {
-        if (scrollS > 0.0005) metalState = "done"; // arrived scrolling: skip it
-        else {
-          metalState = "on";
-          setMetal(true);
-          metalTimer = window.setTimeout(() => {
-            metalState = "done";
-            setMetal(false);
-          }, METAL_MS);
-        }
-      } else if (metalState === "on" && scrollS > 0.03) {
-        metalState = "done";
-        window.clearTimeout(metalTimer);
-        setMetal(false);
+      // No metal after the wait (no WebGL, or a failed download): show the flat letters instead.
+      if (!metalReady.current && heroBox?.dataset.metal === "wait" && performance.now() - mountedAt > METAL_WAIT_MS) {
+        heroBox.dataset.metal = "off";
       }
       if (!reduce && forced === null) target = base + scrollS * (1 - base);
       const ease = document.documentElement.classList.contains("lenis") ? 0.35 : 0.1;
@@ -1117,6 +1128,13 @@ export function MotionHome() {
         overlay.style.display = "block";
         const r = geo.r0 + e * (geo.R - geo.r0);
         overlay.style.clipPath = `circle(${r}px at ${geo.cx}px ${geo.cy}px)`;
+      }
+
+      // The metal flows only while the logo can be seen: not once the orange has covered it.
+      const logoSeen = !reduce && e < 1 && trackBottom > 0;
+      if (logoSeen !== metalShown) {
+        metalShown = logoSeen;
+        setMetalActive(logoSeen);
       }
 
       // The header logo is ink on the orange screen, and cream again once the page goes dark.
@@ -1228,7 +1246,13 @@ export function MotionHome() {
 
       <section ref={trackRef} className="k-track" style={reduced ? { height: "100vh" } : undefined}>
         <div ref={stageRef} className="k-stage">
-          <div className={`k-hero ${montserrat.className}`} role="img" aria-label={`kebiki. ${TAGLINE}`}>
+          <div
+            ref={heroBoxRef}
+            className={`k-hero ${montserrat.className}`}
+            role="img"
+            aria-label={`kebiki. ${TAGLINE}`}
+            data-metal="wait"
+          >
             <svg ref={svgRef} viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`} aria-hidden="true">
               <defs>
                 <clipPath id="k-clip">
@@ -1268,11 +1292,9 @@ export function MotionHome() {
                 {TAGLINE}
               </text>
             </svg>
-            {metal ? (
-              <div className="k-metal" aria-hidden="true">
-                <LiquidLogo />
-              </div>
-            ) : null}
+            <div ref={metalRef} className="k-metal" aria-hidden="true">
+              <LiquidLogo active={metalActive} onReady={onMetalReady} />
+            </div>
           </div>
           <div ref={hintRef} className="k-label k-hint">scroll ↓</div>
 

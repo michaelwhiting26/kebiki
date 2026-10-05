@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@paper-design/shaders": "^0.0.81",
     "@paper-design/shaders-react": "^0.0.81",
     "lenis": "^1.3.26",
     "next": "^15.5.20",

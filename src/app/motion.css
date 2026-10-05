@@ -121,13 +121,13 @@
 .kmotion .k-hero {
   position: relative;
 }
-/* Liquid metal laid exactly over the logo's letters as it lands: in, held, then out to the flat cream. */
+/* The logo's letters are liquid metal, laid exactly over the flat letters, which stay hidden unless
+   the metal cannot be drawn (data-metal="off"). The script wipes the metal in with a clip-path. */
 .kmotion .k-metal {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0;
-  animation: k-metal 3.4s ease forwards;
+  clip-path: inset(0 100% 0 0);
 }
 .kmotion .k-metal-canvas {
   position: absolute;
@@ -135,19 +135,9 @@
   width: 100%;
   height: 100%;
 }
-@keyframes k-metal {
-  0% {
-    opacity: 0;
-  }
-  14% {
-    opacity: 1;
-  }
-  68% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+.kmotion .k-hero[data-metal="wait"] .k-svg-cream,
+.kmotion .k-hero[data-metal="on"] .k-svg-cream {
+  opacity: 0;
 }
 .kmotion .k-hero svg {
   display: block;
