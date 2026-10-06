@@ -201,7 +201,7 @@ const WORK = [
     category: "3D commerce",
     name: "Sanchez Customs",
     text: "Custom boxing equipment is bought on trust in the maker. We built the shop he sells through: a 3D workshop on a phone where the customer walks in, meets him, chooses a product, then designs their own and sees every choice on it before it is made.",
-    stack: [{ name: "Next.js", icon: "nextjs" }, { name: "TypeScript", icon: "typescript" }, { name: "Three.js" }, { name: "Blender" }] as StackItem[],
+    stack: [{ name: "Next.js", icon: "nextjs" }, { name: "TypeScript", icon: "typescript" }, { name: "Three.js", icon: "threejs" }, { name: "Blender", icon: "blender" }] as StackItem[],
     href: "https://sanchez01.vercel.app",
   },
 ] as const;
