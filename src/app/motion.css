@@ -698,12 +698,9 @@
 .kmotion [data-lines][data-freed] .k-line-mask {
   overflow: visible !important;
 }
-@media (max-width: 899px) {
-  .kmotion .k-dw,
-  .kmotion .k-dc {
-    display: inline;
-    white-space: normal;
-  }
+/* The address may still break between letters where the screen is too narrow for it. */
+.kmotion .k-contact-mail .k-dw {
+  white-space: normal;
 }
 .kmotion .k-footer-actions {
   margin-top: clamp(3rem, 8vh, 6rem);

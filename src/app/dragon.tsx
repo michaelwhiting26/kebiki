@@ -16,8 +16,9 @@ import { dragonField } from "./dragon-field";
  *
  * The text is split into one element per letter here, after the page has rendered: the real words
  * stay in place for screen readers, and pair kerning is put back so the split is not visible. The
- * dragon is drawn on one screen-sized canvas that never catches the pointer. Narrow screens and
- * visitors who ask for reduced motion get the page as it was.
+ * dragon is drawn on one screen-sized canvas that never catches the pointer. On a touch screen it
+ * wanders, and comes to a tap and breathes there. Visitors who ask for reduced motion get the page
+ * as it was.
  */
 
 const TAU = Math.PI * 2;
@@ -29,8 +30,8 @@ const N = 38;
 /** Clear space kept between the body and what it pushes, px. */
 const PAD = 7;
 const MAX_EMBERS = 420;
-/** Below this viewport width there is no dragon. */
-const MIN_WIDTH = 900;
+/** How long it stays with a tap on a touch screen, ms. */
+const TAP_HOLD = 2800;
 
 const INK = "#0e0e10";
 const PAPER = "#f8f5f0";
@@ -197,7 +198,6 @@ export function Dragon() {
       let secW = 0;
       let secH = 0;
       let unit = 1;
-      let enabled = false;
       let placed = false;
       let wasVisible = false;
 
@@ -319,14 +319,22 @@ export function Dragon() {
       let px = 0;
       let py = 0;
       let pointerIn = false;
+      /** A touch has no resting pointer: a tap is followed for a moment, then let go. */
+      let tapUntil = 0;
+      let wantFire = false;
       const onMove = (e: PointerEvent) => {
+        if (e.pointerType === "touch") return; // a moving finger is scrolling
         lastClientX = e.clientX;
         lastClientY = e.clientY;
-        haveClient = e.pointerType !== "touch";
+        haveClient = true;
+        tapUntil = 0;
       };
       const onDown = (e: PointerEvent) => {
-        onMove(e);
-        if (pointerIn) fire = Math.max(fire, 1.1);
+        lastClientX = e.clientX;
+        lastClientY = e.clientY;
+        haveClient = true;
+        tapUntil = e.pointerType === "touch" ? performance.now() + TAP_HOLD : 0;
+        wantFire = true;
       };
       const onOut = (e: PointerEvent) => {
         if (!e.relatedTarget) haveClient = false;
@@ -338,16 +346,6 @@ export function Dragon() {
       const measure = () => {
         vw = window.innerWidth;
         vh = window.innerHeight;
-        const was = enabled;
-        enabled = vw >= MIN_WIDTH;
-        if (was && !enabled) {
-          settleAll();
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          dragonField.circles.length = 0;
-          dragonField.listeners.forEach((l) => l());
-        }
-        if (!enabled) return;
         const ratio = Math.min(window.devicePixelRatio || 1, 2);
         if (canvas.width !== Math.round(vw * ratio) || canvas.height !== Math.round(vh * ratio)) {
           dpr = ratio;
@@ -358,7 +356,7 @@ export function Dragon() {
         secLeft = section.getBoundingClientRect().left + window.scrollX;
         secW = section.offsetWidth;
         secH = section.offsetHeight;
-        unit = clamp(vw / 1300, 0.85, 1.3);
+        unit = clamp(vw / 1300, 0.52, 1.3); // smaller on a phone, so it is never longer than the screen is wide
         if (needCollect) collect();
         measureBodies();
       };
@@ -825,7 +823,6 @@ export function Dragon() {
       const stopScene = addScene({
         measure,
         update({ dt, scroll, time }) {
-          if (!enabled) return;
           // The part of the section that is on screen, in section px.
           const top = Math.max(0, scroll - secTop);
           const bottom = Math.min(secH, scroll + vh - secTop);
@@ -858,7 +855,15 @@ export function Dragon() {
           }
           px = lastClientX - secLeft;
           py = lastClientY - (secTop - scroll);
+          if (tapUntil && time > tapUntil) {
+            tapUntil = 0;
+            haveClient = false;
+          }
           pointerIn = haveClient && px > 0 && px < secW && py > top && py < bottom;
+          if (wantFire) {
+            wantFire = false;
+            if (pointerIn) fire = Math.max(fire, 1.1);
+          }
 
           const step = Math.min(dt, 50) / 1000;
           stepDragon(step, top, bottom);
