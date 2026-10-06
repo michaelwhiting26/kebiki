@@ -144,7 +144,7 @@ const HOW = {
  * Two products are listed as "Stealth Mode" (owner, 6 Oct 2026): their names are not shown and they carry no link.
  * Entries are told apart by their number `n`, not their name.
  */
-/** One item in a work entry's stack. `icon` is set only for a named technology with its own mark. */
+/** One item in a work entry's stack. A named technology carries its own mark; a kind of work (strategy, UX/UI) carries a plain glyph. */
 type StackItem = { name: string; icon?: BrandIcon };
 
 const WORK = [
@@ -161,7 +161,7 @@ const WORK = [
     category: "Trading infrastructure",
     name: "DRK",
     text: "Tokenisation solved issuance. It did not solve liquidity: it makes an asset digital without making it easy to trade. DRK is the layer between tokenised assets and the institutions that trade them.",
-    stack: [{ name: "TypeScript", icon: "typescript" }, { name: "React", icon: "react" }, { name: "EVM" }, { name: "Trading infrastructure" }] as StackItem[],
+    stack: [{ name: "TypeScript", icon: "typescript" }, { name: "React", icon: "react" }, { name: "EVM", icon: "ethereum" }, { name: "Trading infrastructure", icon: "trading" }] as StackItem[],
     href: "https://drk-deck.vercel.app/",
   },
   {
@@ -177,7 +177,7 @@ const WORK = [
     category: "Property marketing",
     name: "Linton Villas",
     text: "We built the experience the developer sells through: masterplan, villa types, floor plans, financial projections, an eight-minute film and the full prospectus, as one guided journey.",
-    stack: [{ name: "Strategy" }, { name: "UX/UI" }, { name: "Next.js", icon: "nextjs" }, { name: "Interactive media" }] as StackItem[],
+    stack: [{ name: "Strategy", icon: "strategy" }, { name: "UX/UI", icon: "uxui" }, { name: "Next.js", icon: "nextjs" }, { name: "Interactive media", icon: "interactive" }] as StackItem[],
     href: "https://lintonvillas.vercel.app",
   },
   {
@@ -193,7 +193,7 @@ const WORK = [
     category: "Enterprise AI",
     name: "Stealth Mode",
     text: "One place for a team's email, chats, meetings and documents. Everything the team works in is brought together and indexed, so context is found in seconds instead of hunted across disconnected systems.",
-    stack: [{ name: "React", icon: "react" }, { name: "Fastify", icon: "fastify" }, { name: "Postgres", icon: "postgres" }, { name: "Vector search" }] as StackItem[],
+    stack: [{ name: "React", icon: "react" }, { name: "Fastify", icon: "fastify" }, { name: "Postgres", icon: "postgres" }, { name: "Vector search", icon: "vectorsearch" }] as StackItem[],
     href: "",
   },
   {
