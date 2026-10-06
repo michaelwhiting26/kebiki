@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { addScene, documentTop, lastFrameScroll } from "./clock";
+import { dragonField } from "./dragon-field";
 
 /**
  * A land mass drawn as a field of small dots that gently part around the pointer and spring back.
@@ -180,6 +181,8 @@ export function InteractiveDotMap({
     let lastClientX = 0;
     let lastClientY = 0;
     let haveClient = false;
+    // The parts of the dragon over this map, as x, y, radius triples in this canvas's CSS pixels.
+    const dragon: number[] = [];
 
     const draw = () => {
       if (!field) return;
@@ -222,6 +225,18 @@ export function InteractiveDotMap({
             ay += (dy / dist) * force;
           }
         }
+        for (let k = 0; k < dragon.length; k += 3) {
+          const dx = x[i] - dragon[k];
+          const dy = y[i] - dragon[k + 1];
+          const reach = dragon[k + 2];
+          const d2 = dx * dx + dy * dy;
+          if (d2 < reach * reach && d2 > 0.01) {
+            const dist = Math.sqrt(d2);
+            const t = 1 - dist / reach;
+            ax += (dx / dist) * t * push * 2.2;
+            ay += (dy / dist) * t * push * 2.2;
+          }
+        }
         vx[i] = (vx[i] + ax) * damping;
         vy[i] = (vy[i] + ay) * damping;
         x[i] += vx[i];
@@ -259,7 +274,7 @@ export function InteractiveDotMap({
       }
       const moving = step();
       draw();
-      if (moving || pointerActive) {
+      if (moving || pointerActive || dragon.length) {
         raf = requestAnimationFrame(frame);
       } else {
         // Everything is back home: sleep until the next pointer interaction.
@@ -299,6 +314,22 @@ export function InteractiveDotMap({
         wake(); // let the field reform
       }
     };
+
+    /** The dragon has moved (see ./dragon-field): keep the parts of it that are over this map. */
+    const onDragon = () => {
+      const had = dragon.length > 0;
+      dragon.length = 0;
+      if (reduce || !visible || !field) return;
+      const top = boxTop - lastFrameScroll();
+      for (const c of dragonField.circles) {
+        const lx = c.x - boxLeft;
+        const ly = c.y - top;
+        const reach = c.r + 24;
+        if (lx > -reach && lx < cssW + reach && ly > -reach && ly < cssH + reach) dragon.push(lx, ly, reach);
+      }
+      if (dragon.length || had) wake();
+    };
+    dragonField.listeners.add(onDragon);
 
     const onPointerMove = (e: PointerEvent) => {
       lastClientX = e.clientX;
@@ -383,6 +414,7 @@ export function InteractiveDotMap({
       cancelAnimationFrame(raf);
       cancelAnimationFrame(resizeRaf);
       stopScene?.();
+      dragonField.listeners.delete(onDragon);
       ro.disconnect();
       io.disconnect();
       window.removeEventListener("pointermove", onPointerMove);

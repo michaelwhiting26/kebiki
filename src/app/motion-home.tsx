@@ -10,6 +10,7 @@ import { BRAND_ICONS, type BrandIcon } from "./brand-icons";
 import { BOOKING_URL, CONTACT_EMAIL, SOCIAL_LINKS, WHATSAPP_URL } from "./contact-config";
 import { COUNTRY_SHAPES } from "./country-paths";
 import { InteractiveDotMap } from "./dot-map";
+import { Dragon } from "./dragon";
 import { addScene, addTick, documentTop, setLenis, type FrameState } from "./clock";
 import { ScrollField } from "./scroll-field";
 import Lenis from "lenis";
@@ -1546,6 +1547,8 @@ export function MotionHome() {
       </section>
 
       <section id="contact" ref={contactRef} className="k-contact">
+        {/* Loose in this section: it pushes the words, buttons and map about as it passes. */}
+        <Dragon />
         <div className="k-label k-contact-label">Contact</div>
         <h2 className="k-contact-title k-next-row" data-lines="">{CONTACT_COPY.title}</h2>
         <p className="k-contact-body k-next-row">{CONTACT_COPY.body}</p>

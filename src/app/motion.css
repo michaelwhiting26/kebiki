@@ -676,6 +676,35 @@
   text-transform: uppercase;
   color: rgba(14, 14, 16, 0.75);
 }
+/* ---------- The dragon in the Contact section (see dragon.tsx) ---------- */
+/* One screen-sized canvas, over the section's content and under the fixed header. */
+.kmotion .k-dragon-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+/* Text split into letters so the dragon can push each one. Words never break inside. */
+.kmotion .k-dw {
+  display: inline-block;
+  white-space: nowrap;
+}
+.kmotion .k-dc {
+  display: inline-block;
+}
+/* Once a headline's lines have risen, its letters may be pushed past the line's edge. */
+.kmotion [data-lines][data-freed] .k-line-mask {
+  overflow: visible !important;
+}
+@media (max-width: 899px) {
+  .kmotion .k-dw,
+  .kmotion .k-dc {
+    display: inline;
+    white-space: normal;
+  }
+}
 .kmotion .k-footer-actions {
   margin-top: clamp(3rem, 8vh, 6rem);
   padding-top: clamp(2rem, 5vh, 3.5rem);
