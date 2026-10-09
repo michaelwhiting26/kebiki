@@ -292,6 +292,8 @@ function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void
     const video = box.querySelector("video");
     const small = open.from.querySelector("video");
     if (video && small && small.currentTime > 0) video.currentTime = small.currentTime;
+    // Opened by a tap, so the phone lets it start even where it would not start one by itself.
+    video?.play().catch(() => {});
     if (video && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       video.animate([{ transform: fromSmall(video, open.from) }, { transform: "none" }], { duration: 560, easing: FILM_EASE });
       box.querySelectorAll(".k-film-shade, .k-film-close").forEach((el) => el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: "ease" }));
@@ -437,6 +439,11 @@ function WorkRoller() {
       syncFilms();
     });
     io.observe(track);
+    // A phone saving power or data refuses to start a film by itself. It grows all the same, on its
+    // opening frame, and starts at the visitor's first tap anywhere, which the phone does allow.
+    window.addEventListener("touchend", syncFilms, { passive: true });
+    window.addEventListener("click", syncFilms);
+    document.addEventListener("visibilitychange", syncFilms);
     const stop = addScene({
       measure() {
         // The track itself is never transformed, so its rectangle gives its exact (fractional) size.
@@ -459,8 +466,7 @@ function WorkRoller() {
           !filmOpenRef.current &&
           !peeked.has(front) &&
           scroll >= top &&
-          scroll <= top + span &&
-          (films[front]?.readyState ?? 0) >= 2
+          scroll <= top + span
         ) {
           startPeek(front, scroll);
         }
@@ -485,6 +491,9 @@ function WorkRoller() {
     return () => {
       stop();
       io.disconnect();
+      window.removeEventListener("touchend", syncFilms);
+      window.removeEventListener("click", syncFilms);
+      document.removeEventListener("visibilitychange", syncFilms);
       endPeek();
       syncFilmsRef.current = () => {};
     };
