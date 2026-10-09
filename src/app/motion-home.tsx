@@ -242,8 +242,11 @@ function workLinkLabel(href: string) {
   return host.endsWith(".vercel.app") ? "View the build" : `Visit ${host}`;
 }
 
-/** The work roller: degrees between neighbouring names on the drum, and scroll per project (in screens). */
-const ROLLER = { step: 24, perItem: 0.4 } as const;
+/**
+ * The work roller: degrees between neighbouring names on the drum, scroll per project (in screens), and
+ * the share of that scroll in which the drum holds still on the project (docs/MOTION-SPEC.md, section 12).
+ */
+const ROLLER = { step: 24, perItem: 0.6, hold: 0.55 } as const;
 
 /** Where a name sits on the drum, `d` places from the front (negative is above). */
 function rollerStyle(d: number) {
@@ -298,6 +301,10 @@ const FILM_AT_REST = { transform: "none", clipPath: "inset(0px 0px round 10px)" 
  * grows, over the page as it is. Nothing is dimmed and the page still scrolls. It carries one control,
  * a small cross, and goes back into the small film at the cross, a tap elsewhere, a scroll, Escape,
  * or, where it opened by itself, the end of the recording. It sits in the browser's top layer.
+ *
+ * There is one video element per film. The one playing in the tile is moved into the frame here and
+ * moved back afterwards, each within a single task, so it never stops: a second element would need the
+ * phone's leave to start, and a phone saving power does not give it.
  */
 function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -306,13 +313,10 @@ function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void
 
   const close = useCallback(() => {
     const stage = ref.current?.querySelector<HTMLElement>(".k-film-stage");
-    const video = stage?.querySelector("video");
     const rest = restRef.current;
-    if (!open || !stage || !video || !rest) return onClose();
+    if (!open || !stage || !rest) return onClose();
     if (closing.current) return;
     closing.current = true;
-    const small = open.from.querySelector("video");
-    if (small) small.currentTime = video.currentTime;
     if (stage.contains(document.activeElement)) open.from.focus({ preventScroll: true });
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return onClose();
     stage.getAnimations({ subtree: true }).forEach((a) => a.finish());
@@ -330,19 +334,21 @@ function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void
   useLayoutEffect(() => {
     const box = ref.current;
     const stage = box?.querySelector<HTMLElement>(".k-film-stage");
-    const video = stage?.querySelector("video");
-    if (!box || !open || !stage || !video) return;
+    const frame = stage?.querySelector<HTMLElement>(".k-film-frame");
+    const video = open?.from.querySelector("video");
+    if (!box || !open || !stage || !frame || !video) return;
     closing.current = false;
     box.showPopover?.();
     const rest = filmRest(open.film);
     restRef.current = rest;
     Object.assign(stage.style, { left: `${rest.left}px`, top: `${rest.top}px`, width: `${rest.width}px`, height: `${rest.height}px` });
-    const small = open.from.querySelector("video");
-    if (small && small.currentTime > 0) video.currentTime = small.currentTime;
-    // Where it was opened by a tap, the phone lets it start even if it would not start one by itself.
+    const small = open.from.getBoundingClientRect();
+    // The tile's own video goes into the frame, playing. Asked to play again in case moving it paused it;
+    // where it was opened by a tap, that also starts one the phone would not start by itself.
+    frame.append(video);
     video.play().catch(() => {});
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const from = fromSmall(rest, open.from.getBoundingClientRect());
+      const from = fromSmall(rest, small);
       const timing = { duration: FILM_SHOW.travel, easing: FILM_EASE } as const;
       stage.animate([{ transform: from.transform }, { transform: FILM_AT_REST.transform }], timing);
       stage.querySelector(".k-film-frame")?.animate([{ clipPath: from.clipPath }, { clipPath: FILM_AT_REST.clipPath }], timing);
@@ -383,6 +389,10 @@ function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void
       window.removeEventListener("resize", close);
       document.removeEventListener("pointerdown", onDown, true);
       document.removeEventListener("keydown", onKey);
+      // Back into its tile, still playing; the roller decides from here whether it carries on.
+      const wasPlaying = !video.paused;
+      open.from.prepend(video);
+      if (wasPlaying) video.play().catch(() => {});
       open.from.removeAttribute("data-lifted");
       if (box.matches(":popover-open")) box.hidePopover();
     };
@@ -393,9 +403,7 @@ function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void
       {open ? (
         <div className="k-film-stage">
           <span className="k-film-shadow" aria-hidden="true" />
-          <div className="k-film-frame">
-            <video key={open.film.src} src={open.film.src} poster={open.film.poster} aria-label={open.film.alt} muted loop playsInline autoPlay />
-          </div>
+          <div className="k-film-frame" role="img" aria-label={open.film.alt} />
           <button type="button" className="k-film-x" aria-label="Close the film" onClick={close}>
             <svg viewBox="0 0 12 12" aria-hidden="true">
               <path d="M1.5 1.5l9 9M10.5 1.5l-9 9" />
@@ -419,7 +427,7 @@ function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void
 function WorkRoller() {
   const trackRef = useRef<HTMLDivElement>(null);
   const [openFilm, setOpenFilm] = useState<OpenFilm | null>(null);
-  /** True while a film is presenting itself: the small ones wait. */
+  /** True while a film is presenting itself: the roller leaves the films as they are until it is back. */
   const filmOpenRef = useRef(false);
   const syncFilmsRef = useRef<() => void>(() => {});
   const closeFilm = useCallback(() => setOpenFilm(null), []);
@@ -448,9 +456,10 @@ function WorkRoller() {
     let lastScroll = NaN;
     let lastMove = 0;
     const syncFilms = () => {
+      if (filmOpenRef.current) return;
       films.forEach((v, i) => {
         if (!v) return;
-        if (onScreen && i === front && !filmOpenRef.current) v.play().catch(() => {});
+        if (onScreen && i === front) v.play().catch(() => {});
         else v.pause();
       });
     };
@@ -497,9 +506,12 @@ function WorkRoller() {
             setOpenFilm({ name: w.name, film: w.film, from: tile, auto: true });
           }
         }
-        const raw = (span > 0 ? clamp01((scroll - top) / span) : 0) * (names.length - 1);
-        // Settle on each project: slow near a whole place, quicker in between.
-        const f = raw - Math.floor(raw);
+        // Every project holds for a stretch of scroll, the first from the moment the stage sticks and the
+        // last until it lets go; the drum turns, eased, only in the stretch between two holds.
+        const last = names.length - 1;
+        const along = (span > 0 ? clamp01((scroll - top) / span) : 0) * (last + ROLLER.hold) - ROLLER.hold / 2;
+        const raw = Math.min(Math.max(along, 0), last);
+        const f = clamp01((raw - Math.floor(raw) - ROLLER.hold / 2) / (1 - ROLLER.hold));
         const pos = Math.floor(raw) + f * f * (3 - 2 * f);
         if (pos === lastPos) return; // nothing has moved: write nothing
         lastPos = pos;
@@ -527,7 +539,7 @@ function WorkRoller() {
   }, []);
 
   return (
-    <div ref={trackRef} className="k-roller-track" style={{ height: `${100 + (WORK.length - 1) * ROLLER.perItem * 100}vh` }}>
+    <div ref={trackRef} className="k-roller-track" style={{ height: `${100 + (WORK.length - 1 + ROLLER.hold) * ROLLER.perItem * 100}vh` }}>
       <div className="k-roller-stage">
         <div className="k-label">Selected work</div>
         <div className="k-roller-body">

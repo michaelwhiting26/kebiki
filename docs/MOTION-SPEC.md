@@ -252,5 +252,18 @@ Pepay, DRK and BNBPay each carry a film: a silent recording of the product. Timi
 | 9 | **Layering.** Rendered in the top layer (Popover API, `popover="manual"`), above the header button, without making the page inert. |
 | 10 | **Accessibility.** With reduced motion there is no automatic opening and no travel. The cross is a labelled button; a manual open moves focus to it and closing returns focus to the tile. |
 | 11 | **Autoplay refused.** A phone that will not start the film does not open it automatically; the visitor's first tap anywhere starts it. |
+| 12 | **One element per film.** The video element playing in the tile is the one that presents itself: it is moved into the travelling frame and moved back, each within a single task, so playback never stops and no second element has to ask the phone for leave to start (a phone saving power refuses, and shows its own play button). While it is out, the roller's play and pause logic leaves the films alone. |
 
 Per 4.4 only `transform`, `opacity` and a crop (`clip-path`) animate: the stage is laid out once at its resting place and travels by transform; the frame inside is cut to the tile's shape and corners at the start of the journey, which is what lets a 4:3 film leave a 16:9 tile without distortion. The shadow is a separate layer so the crop does not clip it.
+
+## 12. Work roller hold (added 9 Oct 2026)
+
+Arriving on a project should feel like stopping on it. The page scrolls natively on phones, and slowing the finger would mean taking over touch scrolling, so the hold lives in how scroll maps to the drum (`ROLLER` in `src/app/motion-home.tsx`), not in the scroll itself.
+
+| # | Requirement |
+|---|---|
+| 1 | **Hold zone.** Each project owns a stretch of scroll in which the drum does not turn: `hold` x `perItem` screens (0.33 of a screen). |
+| 2 | **Travel.** Between holds the drum turns to the next project over the rest of `perItem` (0.27 of a screen), eased in and out. |
+| 3 | **First and last.** The first project holds from the moment the stage sticks; the last holds until it lets go. The track is `100 + (projects - 1 + hold) x perItem x 100` vh. |
+| 4 | **No hijacking.** Native scrolling and momentum are untouched; a fast flick still passes several projects. |
+| 5 | **Unchanged.** The reduced-motion list, the film trigger (section 11), and smooth scrolling on desktop. |
