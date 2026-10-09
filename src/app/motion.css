@@ -991,11 +991,19 @@
 .kmotion .k-work-foot .k-work-link {
   margin-top: 0;
 }
-/* The film, small: a silent loop of the product. A tap opens it full size. */
-.kmotion .k-work-film {
+/* The film, small: a silent loop of the product. Its slot holds its place beside the link; the film
+   itself is pinned to the slot's bottom right corner, so it can grow without moving anything. */
+.kmotion .k-work-film-slot {
   position: relative;
   flex: none;
   width: clamp(168px, 17vw, 260px);
+  aspect-ratio: 16 / 9;
+}
+.kmotion .k-work-film {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
   aspect-ratio: 16 / 9;
   margin: 0;
   padding: 0;
@@ -1004,11 +1012,21 @@
   overflow: hidden;
   background: var(--gray-2);
   cursor: pointer;
-  transition: border-color 0.3s ease;
+  transition: width 0.8s cubic-bezier(0.65, 0, 0.35, 1), box-shadow 0.8s ease, border-color 0.3s ease;
 }
 .kmotion .k-work-film:hover,
 .kmotion .k-work-film:focus-visible {
   border-color: var(--k-persimmon);
+}
+/* Grown across the panel, once the visitor has rested on the project (FILM_PEEK in motion-home.tsx). */
+.kmotion .k-work-film[data-peek] {
+  width: var(--k-film-peek, 100%);
+  z-index: 2;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+/* Open full size: the small one is out of its place until the large one comes back to it. */
+.kmotion .k-work-film[data-lifted] {
+  visibility: hidden;
 }
 .kmotion .k-work-film video {
   display: block;
@@ -1036,7 +1054,7 @@
   border-color: transparent transparent transparent var(--k-persimmon);
 }
 @media (max-width: 760px) {
-  .kmotion .k-work-film {
+  .kmotion .k-work-film-slot {
     width: min(38vw, 168px);
   }
   .kmotion .k-work-foot {
@@ -1045,11 +1063,11 @@
 }
 /* Short phones: a smaller film, so the drum keeps its place under the label. */
 @media (max-width: 760px) and (max-height: 680px) {
-  .kmotion .k-work-film {
+  .kmotion .k-work-film-slot {
     width: 30vw;
   }
 }
-/* The film, full size, over the page. */
+/* The film, full size, over the page. The shade and the Close button fade; the picture travels. */
 .kmotion dialog.k-film-box {
   width: 100vw;
   height: 100dvh;
@@ -1058,25 +1076,30 @@
   margin: 0;
   padding: 0;
   border: 0;
-  background: color-mix(in srgb, var(--k-ink) 94%, transparent);
+  background: transparent;
+  overflow: hidden;
 }
 .kmotion dialog.k-film-box[open] {
   display: grid;
   place-items: center;
-  animation: k-film-in 0.3s ease both;
 }
 .kmotion dialog.k-film-box::backdrop {
   background: transparent;
 }
+.kmotion .k-film-shade {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--k-ink) 94%, transparent);
+}
 .kmotion .k-film-box video {
+  position: relative;
   display: block;
-  max-width: min(92vw, 1280px);
-  max-height: 78dvh;
   border-radius: 4px;
   background: #000;
 }
 .kmotion .k-film-close {
   position: absolute;
+  z-index: 1;
   top: max(20px, env(safe-area-inset-top));
   right: 6vw;
   padding: 0.6rem 0 0.2rem;
@@ -1089,16 +1112,6 @@
   text-transform: uppercase;
   color: var(--k-paper);
   cursor: pointer;
-}
-@keyframes k-film-in {
-  from {
-    opacity: 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .kmotion dialog.k-film-box[open] {
-    animation: none;
-  }
 }
 
 /* ---------- The studio: the people you meet ---------- */
