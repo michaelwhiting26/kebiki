@@ -173,11 +173,11 @@ const WORK = [
     stack: [{ name: "TypeScript", icon: "typescript" }, { name: "React", icon: "react" }, { name: "EVM", icon: "ethereum" }, { name: "Trading infrastructure", icon: "trading" }] as StackItem[],
     href: "https://drk-deck.vercel.app/",
     film: {
-      src: "/work/video/drk-demo.mp4",
-      poster: "/work/video/drk-demo-open.jpg",
+      src: "/work/video/drk-reel.mp4",
+      poster: "/work/video/drk-reel-open.jpg",
       width: 1280,
       height: 720,
-      alt: "A recording of the DRK console: the monitoring pipeline, rolling market state, participants and concentration, cross-pool comparison and the managed trade chart.",
+      alt: "The DRK reel: the mark, the line 'Tokenisation solved issuance. It did not solve liquidity.', then four views of the console (a token profile, a pool's price chart, a planned activity and positions with profit and loss) and the line 'The layer between tokenised assets and the institutions that trade them.'",
     },
   },
   {
