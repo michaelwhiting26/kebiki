@@ -141,7 +141,7 @@ const HOW = {
 /**
  * Selected work, in the studio's own words (from the Quadrum site). Deliberately no headline figures,
  * no named partners or integrations, and no logos: only what can be shown running.
- * Two products are listed as "Stealth Mode" (owner, 6 Oct 2026): their names are not shown and they carry no link.
+ * Two products are listed as "Classified" (owner, 9 Oct 2026; "Stealth Mode" before that): their names are not shown and they carry no link.
  * Entries are told apart by their number `n`, not their name.
  */
 /** One item in a work entry's stack. A named technology carries its own mark; a kind of work (strategy, UX/UI) carries a plain glyph. */
@@ -213,7 +213,7 @@ const WORK = [
   {
     n: "05",
     category: "Sports media platform",
-    name: "Stealth Mode",
+    name: "Classified",
     text: "Events, fight cards, rankings, athlete profiles and predictions for combat sports, from announcement through to result.",
     stack: [{ name: "Next.js", icon: "nextjs" }, { name: "TypeScript", icon: "typescript" }, { name: "Postgres", icon: "postgres" }, { name: "Prisma", icon: "prisma" }] as StackItem[],
     href: "",
@@ -222,7 +222,7 @@ const WORK = [
   {
     n: "06",
     category: "Enterprise AI",
-    name: "Stealth Mode",
+    name: "Classified",
     text: "One place for a team's email, chats, meetings and documents. Everything the team works in is brought together and indexed, so context is found in seconds instead of hunted across disconnected systems.",
     stack: [{ name: "React", icon: "react" }, { name: "Fastify", icon: "fastify" }, { name: "Postgres", icon: "postgres" }, { name: "Vector search", icon: "vectorsearch" }] as StackItem[],
     href: "",
