@@ -254,14 +254,15 @@ function rollerStyle(d: number) {
 }
 
 /**
- * How a film shows itself. Once the visitor has rested on its project for `dwell` ms the small film
- * grows across the panel for `hold` ms, once per visit; scrolling on by `release` px puts it back.
+ * How a film shows itself. It plays small from the moment its project comes to the front. Once the
+ * visitor has rested there for `dwell` ms it opens full size by itself, once per visit, plays through
+ * once (`longest` seconds at most) and goes back; a swipe of `swipe` px sends it back sooner.
  */
-const FILM_PEEK = { dwell: 2500, hold: 6000, release: 30 } as const;
+const FILM_SHOW = { dwell: 2500, longest: 20, swipe: 40 } as const;
 const FILM_EASE = "cubic-bezier(0.65, 0, 0.35, 1)";
 
-/** A film that is open full size, and the small one it rose from. */
-type OpenFilm = { film: Film; from: HTMLElement };
+/** A film that is open full size, the small one it rose from, and whether it opened by itself. */
+type OpenFilm = { film: Film; from: HTMLElement; auto: boolean };
 
 /** Where the small film sits, written as a transform of the large one: same centre, scaled to its width. */
 function fromSmall(large: HTMLElement, small: HTMLElement) {
@@ -275,7 +276,8 @@ function fromSmall(large: HTMLElement, small: HTMLElement) {
 /**
  * A project's film at full size, over the page. It rises out of the small film and goes back into it,
  * picking up at the same moment in the recording. A modal dialog, so focus stays inside; Escape, the
- * Close button or a tap outside the picture closes it. The page behind does not scroll while it is open.
+ * Close button, a tap outside the picture or a swipe up or down closes it, and one that opened by
+ * itself closes after playing through once. The page behind does not scroll while it is open.
  */
 function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -321,6 +323,43 @@ function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void
       .finished.then(onClose, onClose);
   }, [open, onClose]);
 
+  /* Ways out that need no aim: a swipe or a turn of the wheel, and the end of a film that opened by itself. */
+  useEffect(() => {
+    const box = ref.current;
+    const video = box?.querySelector("video");
+    if (!box || !open || !video) return;
+    let startY = 0;
+    const onStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+    };
+    const onMove = (e: TouchEvent) => {
+      if (Math.abs(e.touches[0].clientY - startY) > FILM_SHOW.swipe) close();
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > 4) close();
+    };
+    box.addEventListener("touchstart", onStart, { passive: true });
+    box.addEventListener("touchmove", onMove, { passive: true });
+    box.addEventListener("wheel", onWheel, { passive: true });
+    let timer = 0;
+    const playOnce = () => {
+      window.clearTimeout(timer);
+      const length = Number.isFinite(video.duration) ? Math.min(video.duration, FILM_SHOW.longest) : FILM_SHOW.longest;
+      timer = window.setTimeout(close, length * 1000);
+    };
+    if (open.auto) {
+      if (video.readyState >= 1) playOnce();
+      else video.addEventListener("loadedmetadata", playOnce, { once: true });
+    }
+    return () => {
+      window.clearTimeout(timer);
+      video.removeEventListener("loadedmetadata", playOnce);
+      box.removeEventListener("touchstart", onStart);
+      box.removeEventListener("touchmove", onMove);
+      box.removeEventListener("wheel", onWheel);
+    };
+  }, [open, close]);
+
   return (
     <dialog
       ref={ref}
@@ -363,8 +402,8 @@ function FilmBox({ open, onClose }: { open: OpenFilm | null; onClose: () => void
  * On phones the drum sits above the details, one project at a time. With reduced motion there is no
  * drum and nothing sticks: the projects read as a plain list (see motion.css).
  * A project with a film shows it small beside its link. It plays only while that project is at the
- * front and the roller is on screen, and grows across the panel once the visitor rests there (see
- * FILM_PEEK); with reduced motion it stays small, on its first frame, until opened.
+ * front and the roller is on screen, and opens full size by itself once the visitor rests there (see
+ * FILM_SHOW); with reduced motion it stays small, on its first frame, until opened.
  */
 function WorkRoller() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -392,46 +431,16 @@ function WorkRoller() {
     const films = tiles.map((el) => el?.querySelector("video") ?? null);
     let onScreen = false;
     let front = 0;
-    /* The film that has grown across its panel (-1: none), where the page was when it did, and its timer. */
-    let peek = -1;
-    let peekScroll = 0;
-    let hold = 0;
-    const peeked = new Set<number>();
+    /* Films that have already opened by themselves this visit, and when the page last moved. */
+    const shown = new Set<number>();
     let lastScroll = NaN;
     let lastMove = 0;
-    const endPeek = () => {
-      window.clearTimeout(hold);
-      hold = 0;
-      if (peek < 0) return;
-      tiles[peek]?.removeAttribute("data-peek");
-      peek = -1;
-    };
-    const startPeek = (i: number, scroll: number) => {
-      const tile = tiles[i];
-      const text = panels[i].querySelector(".k-work-text");
-      peeked.add(i);
-      if (!tile || !text) return;
-      // It grows up and to the left from its corner, as wide as the panel but never over the description.
-      const room = tile.getBoundingClientRect().bottom - text.getBoundingClientRect().bottom - 16;
-      const width = Math.min(panels[i].clientWidth, (room * 16) / 9);
-      if (width < tile.offsetWidth * 1.3) return;
-      tile.style.setProperty("--k-film-peek", `${Math.round(width)}px`);
-      tile.setAttribute("data-peek", "");
-      peek = i;
-      peekScroll = scroll;
-      hold = window.setTimeout(endPeek, FILM_PEEK.hold);
-    };
     const syncFilms = () => {
       films.forEach((v, i) => {
         if (!v) return;
         if (onScreen && i === front && !filmOpenRef.current) v.play().catch(() => {});
         else v.pause();
       });
-      // A grown film that is opened full size waits there, and goes back shortly after it is closed.
-      if (filmOpenRef.current) {
-        window.clearTimeout(hold);
-        hold = 0;
-      } else if (peek >= 0 && !hold) hold = window.setTimeout(endPeek, 900);
     };
     syncFilmsRef.current = syncFilms;
     const io = new IntersectionObserver(([entry]) => {
@@ -439,8 +448,8 @@ function WorkRoller() {
       syncFilms();
     });
     io.observe(track);
-    // A phone saving power or data refuses to start a film by itself. It grows all the same, on its
-    // opening frame, and starts at the visitor's first tap anywhere, which the phone does allow.
+    // A phone saving power or data refuses to start a film by itself. It then starts at the visitor's
+    // first tap anywhere, which the phone does allow, and opens full size only once it is playing.
     window.addEventListener("touchend", syncFilms, { passive: true });
     window.addEventListener("click", syncFilms);
     document.addEventListener("visibilitychange", syncFilms);
@@ -455,20 +464,26 @@ function WorkRoller() {
       update({ scroll, vh }) {
         const span = height - vh;
         const now = performance.now();
+        // A film the visitor has opened has been seen: it does not open by itself afterwards.
+        if (filmOpenRef.current) shown.add(front);
         if (scroll !== lastScroll) {
           lastScroll = scroll;
           lastMove = now;
-          if (peek >= 0 && Math.abs(scroll - peekScroll) > FILM_PEEK.release) endPeek();
         } else if (
-          peek < 0 &&
-          now - lastMove > FILM_PEEK.dwell &&
+          now - lastMove > FILM_SHOW.dwell &&
           onScreen &&
           !filmOpenRef.current &&
-          !peeked.has(front) &&
+          !shown.has(front) &&
           scroll >= top &&
           scroll <= top + span
         ) {
-          startPeek(front, scroll);
+          const film = WORK[front].film;
+          const tile = tiles[front];
+          const small = films[front];
+          if (film && tile && small && !small.paused && small.readyState >= 2) {
+            shown.add(front);
+            setOpenFilm({ film, from: tile, auto: true });
+          }
         }
         const raw = (span > 0 ? clamp01((scroll - top) / span) : 0) * (names.length - 1);
         // Settle on each project: slow near a whole place, quicker in between.
@@ -494,7 +509,6 @@ function WorkRoller() {
       window.removeEventListener("touchend", syncFilms);
       window.removeEventListener("click", syncFilms);
       document.removeEventListener("visibilitychange", syncFilms);
-      endPeek();
       syncFilmsRef.current = () => {};
     };
   }, []);
@@ -547,7 +561,7 @@ function WorkRoller() {
                           type="button"
                           className="k-work-film"
                           aria-label={`Play the ${w.name} film`}
-                          onClick={(e) => setOpenFilm({ film: w.film, from: e.currentTarget })}
+                          onClick={(e) => setOpenFilm({ film: w.film, from: e.currentTarget, auto: false })}
                         >
                           <video src={w.film.src} poster={w.film.poster} muted loop playsInline preload="none" tabIndex={-1} aria-hidden="true" />
                           <span className="k-work-film-play" aria-hidden="true" />

@@ -991,8 +991,7 @@
 .kmotion .k-work-foot .k-work-link {
   margin-top: 0;
 }
-/* The film, small: a silent loop of the product. Its slot holds its place beside the link; the film
-   itself is pinned to the slot's bottom right corner, so it can grow without moving anything. */
+/* The film, small: a silent loop of the product, in its slot beside the link. */
 .kmotion .k-work-film-slot {
   position: relative;
   flex: none;
@@ -1012,17 +1011,11 @@
   overflow: hidden;
   background: var(--gray-2);
   cursor: pointer;
-  transition: width 0.8s cubic-bezier(0.65, 0, 0.35, 1), box-shadow 0.8s ease, border-color 0.3s ease;
+  transition: border-color 0.3s ease;
 }
 .kmotion .k-work-film:hover,
 .kmotion .k-work-film:focus-visible {
   border-color: var(--k-persimmon);
-}
-/* Grown across the panel, once the visitor has rested on the project (FILM_PEEK in motion-home.tsx). */
-.kmotion .k-work-film[data-peek] {
-  width: var(--k-film-peek, 100%);
-  z-index: 2;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
 }
 /* Open full size: the small one is out of its place until the large one comes back to it. */
 .kmotion .k-work-film[data-lifted] {
