@@ -235,7 +235,13 @@ const WORK = [
     text: "Custom boxing equipment is bought on trust in the maker. We built the shop he sells through: a 3D workshop on a phone where the customer walks in, meets him, chooses a product, then designs their own and sees every choice on it before it is made.",
     stack: [{ name: "Next.js", icon: "nextjs" }, { name: "TypeScript", icon: "typescript" }, { name: "Three.js", icon: "threejs" }, { name: "Blender", icon: "blender" }] as StackItem[],
     href: "https://sanchez01.vercel.app",
-    film: null,
+    film: {
+      src: "/work/video/sanchez-reel.mp4",
+      poster: "/work/video/sanchez-reel-open.jpg",
+      width: 1280,
+      height: 720,
+      alt: "The Sanchez Customs reel: the lit shop front with its sign, the lines 'Custom boxing equipment is bought on trust in the maker. We built the shop he sells through.', what the customer does (walk in, choose a product, design your own), then the shop on a phone (the door, the walk in and a heavy bag on show; the bag in three designs; the bag turning in 3D) and the line 'Every choice, seen before it is made.'",
+    },
   },
 ] as const;
 
