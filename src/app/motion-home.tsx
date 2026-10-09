@@ -146,6 +146,8 @@ const HOW = {
  */
 /** One item in a work entry's stack. A named technology carries its own mark; a kind of work (strategy, UX/UI) carries a plain glyph. */
 type StackItem = { name: string; icon?: BrandIcon };
+/** A project's film: a silent recording of the product. It plays small beside the project's link and opens full screen on a tap. */
+type Film = { src: string; poster: string; alt: string };
 
 const WORK = [
   {
@@ -155,6 +157,11 @@ const WORK = [
     text: "Accept any supported asset and settle from one system - invoicing, payment links, QR checkout, subscriptions and reconciliation on the same ledger.",
     stack: [{ name: "React", icon: "react" }, { name: "TypeScript", icon: "typescript" }, { name: "Solana", icon: "solana" }, { name: "BNB Chain", icon: "bnbchain" }] as StackItem[],
     href: "https://pepay.io",
+    film: {
+      src: "/work/video/pepay-reel.mp4",
+      poster: "/work/video/pepay-reel-open.jpg",
+      alt: "The Pepay product reel: the mark resolves out of light, the supported networks assemble around it and the line 'USD1 lives on-chain' lands.",
+    },
   },
   {
     n: "02",
@@ -163,6 +170,11 @@ const WORK = [
     text: "Tokenisation solved issuance. It did not solve liquidity: it makes an asset digital without making it easy to trade. DRK is the layer between tokenised assets and the institutions that trade them.",
     stack: [{ name: "TypeScript", icon: "typescript" }, { name: "React", icon: "react" }, { name: "EVM", icon: "ethereum" }, { name: "Trading infrastructure", icon: "trading" }] as StackItem[],
     href: "https://drk-deck.vercel.app/",
+    film: {
+      src: "/work/video/drk-demo.mp4",
+      poster: "/work/video/drk-demo-open.jpg",
+      alt: "A recording of the DRK console: the monitoring pipeline, rolling market state, participants and concentration, cross-pool comparison and the managed trade chart.",
+    },
   },
   {
     n: "03",
@@ -171,6 +183,11 @@ const WORK = [
     text: "Payments that move on-chain without the payer covering blockchain fees - invoices, subscriptions, gift cards and API payments for merchants, platforms and AI agents across BNB Chain and opBNB.",
     stack: [{ name: "Solidity", icon: "solidity" }, { name: "TypeScript", icon: "typescript" }, { name: "Next.js", icon: "nextjs" }, { name: "BNB Chain", icon: "bnbchain" }] as StackItem[],
     href: "https://bnbpay.org",
+    film: {
+      src: "/work/video/bnbpay-demo.mp4",
+      poster: "/work/video/bnbpay-demo-open.jpg",
+      alt: "A recording of BNBPay: a gift card is configured, funded and issued, ending on a created card with its QR code and shareable claim link.",
+    },
   },
   {
     n: "04",
@@ -179,6 +196,7 @@ const WORK = [
     text: "We built the experience the developer sells through: masterplan, villa types, floor plans, financial projections, an eight-minute film and the full prospectus, as one guided journey.",
     stack: [{ name: "Strategy", icon: "strategy" }, { name: "UX/UI", icon: "uxui" }, { name: "Next.js", icon: "nextjs" }, { name: "Interactive media", icon: "interactive" }] as StackItem[],
     href: "https://lintonvillas.vercel.app",
+    film: null,
   },
   {
     n: "05",
@@ -187,6 +205,7 @@ const WORK = [
     text: "Events, fight cards, rankings, athlete profiles and predictions for combat sports, from announcement through to result.",
     stack: [{ name: "Next.js", icon: "nextjs" }, { name: "TypeScript", icon: "typescript" }, { name: "Postgres", icon: "postgres" }, { name: "Prisma", icon: "prisma" }] as StackItem[],
     href: "",
+    film: null,
   },
   {
     n: "06",
@@ -195,6 +214,7 @@ const WORK = [
     text: "One place for a team's email, chats, meetings and documents. Everything the team works in is brought together and indexed, so context is found in seconds instead of hunted across disconnected systems.",
     stack: [{ name: "React", icon: "react" }, { name: "Fastify", icon: "fastify" }, { name: "Postgres", icon: "postgres" }, { name: "Vector search", icon: "vectorsearch" }] as StackItem[],
     href: "",
+    film: null,
   },
   {
     n: "07",
@@ -203,6 +223,7 @@ const WORK = [
     text: "Custom boxing equipment is bought on trust in the maker. We built the shop he sells through: a 3D workshop on a phone where the customer walks in, meets him, chooses a product, then designs their own and sees every choice on it before it is made.",
     stack: [{ name: "Next.js", icon: "nextjs" }, { name: "TypeScript", icon: "typescript" }, { name: "Three.js", icon: "threejs" }, { name: "Blender", icon: "blender" }] as StackItem[],
     href: "https://sanchez01.vercel.app",
+    film: null,
   },
 ] as const;
 
@@ -227,13 +248,67 @@ function rollerStyle(d: number) {
 }
 
 /**
+ * A project's film at full size, over the page. A modal dialog, so Escape closes it and focus stays
+ * inside; a tap outside the picture closes it too. The page behind does not scroll while it is open.
+ */
+function FilmBox({ film, onClose }: { film: Film | null; onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const box = ref.current;
+    if (!box || !film) return;
+    box.showModal();
+    const root = document.documentElement;
+    const overflow = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = overflow;
+      box.close();
+    };
+  }, [film]);
+
+  return (
+    <dialog
+      ref={ref}
+      className="k-film-box"
+      aria-label="Project film"
+      data-lenis-prevent
+      onClose={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      {film ? (
+        <>
+          <button type="button" className="k-film-close" onClick={onClose}>
+            Close
+          </button>
+          <video key={film.src} src={film.src} poster={film.poster} aria-label={film.alt} muted loop playsInline autoPlay controls />
+        </>
+      ) : null}
+    </dialog>
+  );
+}
+
+/**
  * Selected work on a vertical roller. The screen sticks while the visitor scrolls: the project names
  * turn on a drum, one place per project, and the details beside it follow the name at the front.
  * On phones the drum sits above the details, one project at a time. With reduced motion there is no
  * drum and nothing sticks: the projects read as a plain list (see motion.css).
+ * A project with a film shows it small beside its link. It plays only while that project is at the
+ * front and the roller is on screen; with reduced motion it stays on its first frame until opened.
  */
 function WorkRoller() {
   const trackRef = useRef<HTMLDivElement>(null);
+  const [openFilm, setOpenFilm] = useState<Film | null>(null);
+  /** True while a film is open full size: the small ones wait. */
+  const filmOpenRef = useRef(false);
+  const syncFilmsRef = useRef<() => void>(() => {});
+
+  useEffect(() => {
+    filmOpenRef.current = openFilm !== null;
+    syncFilmsRef.current();
+  }, [openFilm]);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -244,7 +319,23 @@ function WorkRoller() {
     let top = 0;
     let height = 0;
     let lastPos = NaN;
-    return addScene({
+    const films = panels.map((el) => el.querySelector<HTMLVideoElement>(".k-work-film video"));
+    let onScreen = false;
+    let front = 0;
+    const syncFilms = () => {
+      films.forEach((v, i) => {
+        if (!v) return;
+        if (onScreen && i === front && !filmOpenRef.current) v.play().catch(() => {});
+        else v.pause();
+      });
+    };
+    syncFilmsRef.current = syncFilms;
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      syncFilms();
+    });
+    io.observe(track);
+    const stop = addScene({
       measure() {
         // The track itself is never transformed, so its rectangle gives its exact (fractional) size.
         const r = track.getBoundingClientRect();
@@ -266,8 +357,17 @@ function WorkRoller() {
           el.toggleAttribute("data-active", i === active);
         });
         panels.forEach((el, i) => el.toggleAttribute("data-active", i === active));
+        if (active !== front) {
+          front = active;
+          syncFilms();
+        }
       },
     });
+    return () => {
+      stop();
+      io.disconnect();
+      syncFilmsRef.current = () => {};
+    };
   }, []);
 
   return (
@@ -305,16 +405,27 @@ function WorkRoller() {
                     </li>
                   ))}
                 </ul>
-                {w.href ? (
-                  <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
-                    {workLinkLabel(w.href)}<span aria-hidden="true"> &rarr;</span>
-                  </a>
+                {w.href || w.film ? (
+                  <div className="k-work-foot">
+                    {w.href ? (
+                      <a href={w.href} className="k-work-link" target="_blank" rel="noopener noreferrer">
+                        {workLinkLabel(w.href)}<span aria-hidden="true"> &rarr;</span>
+                      </a>
+                    ) : null}
+                    {w.film ? (
+                      <button type="button" className="k-work-film" aria-label={`Play the ${w.name} film`} onClick={() => setOpenFilm(w.film)}>
+                        <video src={w.film.src} poster={w.film.poster} muted loop playsInline preload="none" tabIndex={-1} aria-hidden="true" />
+                        <span className="k-work-film-play" aria-hidden="true" />
+                      </button>
+                    ) : null}
+                  </div>
                 ) : null}
               </li>
             ))}
           </ol>
         </div>
       </div>
+      <FilmBox film={openFilm} onClose={() => setOpenFilm(null)} />
     </div>
   );
 }
