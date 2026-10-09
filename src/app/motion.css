@@ -1794,16 +1794,6 @@
   flex: none;
 }
 
-.kmotion .k-work-note {
-  margin: 3rem 0 0;
-  max-width: 44em;
-  font-family: var(--k-mono);
-  font-size: 12px;
-  letter-spacing: 0.03em;
-  line-height: 1.7;
-  color: var(--gray-10);
-}
-
 /* ---------- Team: role always visible, bio revealed on hover / focus (wide) or under the lead (phone) ---------- */
 .kmotion .k-team-card {
   outline: none;

@@ -202,7 +202,13 @@ const WORK = [
     text: "We built the experience the developer sells through: masterplan, villa types, floor plans, financial projections, an eight-minute film and the full prospectus, as one guided journey.",
     stack: [{ name: "Strategy", icon: "strategy" }, { name: "UX/UI", icon: "uxui" }, { name: "Next.js", icon: "nextjs" }, { name: "Interactive media", icon: "interactive" }] as StackItem[],
     href: "https://lintonvillas.vercel.app",
-    film: null,
+    film: {
+      src: "/work/video/linton-reel.mp4",
+      poster: "/work/video/linton-reel-open.jpg",
+      width: 1280,
+      height: 720,
+      alt: "The Linton Villas reel: the name over an aerial pass above the villa rows and pool, the lines 'A thirty-eight villa resort in South Lombok. Presented online for overseas buyers.', what the site holds (masterplan, villas, floor plans, film, prospectus), then four views of the site (the masterplan, two villa types, floor plans and the film) and the line 'One guided journey.' at the gate.",
+    },
   },
   {
     n: "05",
@@ -232,9 +238,6 @@ const WORK = [
     film: null,
   },
 ] as const;
-
-/** Sits under the work list: says whose work it is, and whose names they are. */
-const WORK_NOTE = "Selected work by the Kebiki team. Product names and brands belong to their respective owners.";
 
 /** A live product shows its own domain; a build still on a preview host says so plainly. */
 function workLinkLabel(href: string) {
@@ -1832,7 +1835,6 @@ export function MotionHome() {
             ))}
           </ul>
         ) : null}
-        <p className="k-work-note k-next-row">{WORK_NOTE}</p>
       </section>
 
       <section id="team" className="k-team">
