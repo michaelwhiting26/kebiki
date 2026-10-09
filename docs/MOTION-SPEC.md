@@ -234,3 +234,23 @@ Manual script for each: load, scroll slowly to the end, scroll fast to the end, 
 3. WP4 and WP5, tested on real phones in one session.
 4. WP6 and WP7. Small.
 5. WP8 last, as a refactor with no behaviour change, so it can be reviewed against a site that already works.
+
+## 11. Work list films (added 9 Oct 2026)
+
+Pepay, DRK and BNBPay each carry a film: a silent recording of the product. Timings live in `FILM_SHOW` in `src/app/motion-home.tsx`.
+
+| # | Requirement |
+|---|---|
+| 1 | **Play on arrival.** The film plays muted in its corner tile from the moment its project is at the front of the roller, and only while the roller is on screen. |
+| 2 | **Trigger.** `dwell` ms after scrolling stops on the project (movement under 2px counts as still), provided the film is playing. Once per arrival: leaving the project and returning re-arms it. |
+| 3 | **Motion.** The tile's own rectangle travels from the corner toward the middle and grows in the same movement, over `travel` ms, slow in and slow out. Crop and corner radius change continuously; no cut, no fade. |
+| 4 | **Resting state.** 92% of the screen width, centred slightly below the middle so the project name stays visible, lifted by a soft shadow. |
+| 5 | **No backdrop.** Nothing is dimmed. The page stays visible and scrollable behind the film. |
+| 6 | **No player chrome.** No native controls. The one control is a small persimmon cross on a dark glass disc in the film's top right corner, with a 44px touch area. |
+| 7 | **Return.** The film travels back into its tile, at the same moment in the recording, at the cross, a tap outside it, a scroll of `release` px, Escape, or after playing through once (`longest` seconds at most). |
+| 8 | **Manual open.** Tapping the tile does the same immediately and suppresses the automatic one for that arrival. |
+| 9 | **Layering.** Rendered in the top layer (Popover API, `popover="manual"`), above the header button, without making the page inert. |
+| 10 | **Accessibility.** With reduced motion there is no automatic opening and no travel. The cross is a labelled button; a manual open moves focus to it and closing returns focus to the tile. |
+| 11 | **Autoplay refused.** A phone that will not start the film does not open it automatically; the visitor's first tap anywhere starts it. |
+
+Per 4.4 only `transform`, `opacity` and a crop (`clip-path`) animate: the stage is laid out once at its resting place and travels by transform; the frame inside is cut to the tile's shape and corners at the start of the journey, which is what lets a 4:3 film leave a 16:9 tile without distortion. The shadow is a separate layer so the crop does not clip it.

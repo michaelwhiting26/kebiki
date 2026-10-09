@@ -1060,51 +1060,83 @@
     width: 30vw;
   }
 }
-/* The film, full size, over the page. The shade and the Close button fade; the picture travels. */
-.kmotion dialog.k-film-box {
-  width: 100vw;
-  height: 100dvh;
-  max-width: none;
-  max-height: none;
+/* The film presenting itself. The box is the whole screen, in the top layer, and lets every touch
+   through; only the frame, the travelling rectangle, takes them. Nothing behind it is dimmed. */
+.kmotion .k-film-box {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  width: auto;
+  height: auto;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
-  overflow: hidden;
+  overflow: visible;
+  pointer-events: none;
 }
-.kmotion dialog.k-film-box[open] {
-  display: grid;
-  place-items: center;
+/* The stage is the travelling rectangle, set at its resting place; it moves by transform alone. Its
+   shadow is a layer of its own so the frame can be cut to the small film's shape on the way. */
+.kmotion .k-film-stage {
+  position: absolute;
+  pointer-events: auto;
+  will-change: transform;
 }
-.kmotion dialog.k-film-box::backdrop {
-  background: transparent;
-}
-.kmotion .k-film-shade {
+.kmotion .k-film-shadow {
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--k-ink) 94%, transparent);
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(248, 245, 240, 0.08), 0 30px 80px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.45);
 }
-.kmotion .k-film-box video {
-  position: relative;
-  display: block;
-  border-radius: 4px;
+.kmotion .k-film-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 10px;
   background: #000;
 }
-.kmotion .k-film-close {
+.kmotion .k-film-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The one control: a fine cross on dark glass. The disc is small; the area that takes a touch is not. */
+.kmotion .k-film-x {
   position: absolute;
-  z-index: 1;
-  top: max(20px, env(safe-area-inset-top));
-  right: 6vw;
-  padding: 0.6rem 0 0.2rem;
-  background: none;
-  border: 0;
-  border-bottom: 2px solid var(--k-persimmon);
-  font-family: var(--k-mono);
-  font-size: 13px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--k-paper);
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--k-persimmon) 40%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--k-ink) 55%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   cursor: pointer;
+  outline: none;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+.kmotion .k-film-x::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+.kmotion .k-film-x svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: var(--k-persimmon);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.kmotion .k-film-x:hover,
+.kmotion .k-film-x:focus-visible {
+  border-color: var(--k-persimmon);
+  background: color-mix(in srgb, var(--k-ink) 75%, transparent);
 }
 
 /* ---------- The studio: the people you meet ---------- */
