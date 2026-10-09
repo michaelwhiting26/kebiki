@@ -188,11 +188,11 @@ const WORK = [
     stack: [{ name: "Solidity", icon: "solidity" }, { name: "TypeScript", icon: "typescript" }, { name: "Next.js", icon: "nextjs" }, { name: "BNB Chain", icon: "bnbchain" }] as StackItem[],
     href: "https://bnbpay.org",
     film: {
-      src: "/work/video/bnbpay-demo.mp4",
-      poster: "/work/video/bnbpay-demo-open.jpg",
+      src: "/work/video/bnbpay-reel.mp4",
+      poster: "/work/video/bnbpay-reel-open.jpg",
       width: 1280,
-      height: 958,
-      alt: "A recording of BNBPay: a gift card is configured, funded and issued, ending on a created card with its QR code and shareable claim link.",
+      height: 720,
+      alt: "The BNBPay reel: the name, the lines 'Payments that move on-chain. Without the payer covering blockchain fees.', what it carries (invoices, subscriptions, API payments, gift cards), then three views of the gift card flow (a card being created, the created card with its QR code, and the card in the history) and the line 'For merchants, platforms and AI agents.'",
     },
   },
   {
